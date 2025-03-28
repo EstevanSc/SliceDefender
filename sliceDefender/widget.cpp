@@ -20,7 +20,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent),
     int width = webCam_->get(CAP_PROP_FRAME_WIDTH);
     int height = webCam_->get(CAP_PROP_FRAME_HEIGHT);
 
-    if (!webCam_->isOpened()) // check if we succeeded
+    if (!webCam_->isOpened())
     {
         ui->infoLabel_->setText("Error opening the default camera !");
     }
@@ -29,7 +29,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent),
         ui->infoLabel_->setText(QString("Video ok, image size is %1x%2 pixels").arg(width).arg(height));
         timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(updateFrame()));
-        timer->start(30); // 30ms = ~33fps
+        timer->start(30);
     }
 }
 
@@ -45,20 +45,16 @@ void Widget::siftMatching(Mat &image1, Mat &image2)
 {
     Mat img1 = image1;
     Mat img2 = image2;
-    //-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
     Ptr<SIFT> detector = SIFT::create();
     std::vector<KeyPoint> keypoints1, keypoints2;
     Mat descriptors1, descriptors2;
     detector->detectAndCompute(img1, noArray(), keypoints1, descriptors1);
     detector->detectAndCompute(img2, noArray(), keypoints2, descriptors2);
 
-    //-- Step 2: Matching descriptor vectors with a FLANN based matcher
-    // Since SIFT is a floating-point descriptor NORM_L2 is used
     Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
     std::vector<std::vector<DMatch>> knn_matches;
     matcher->knnMatch(descriptors1, descriptors2, knn_matches, 2);
 
-    //-- Filter matches using the Lowe's ratio test
     const float ratio_thresh = 0.7f;
     std::vector<DMatch> good_matches;
     for (size_t i = 0; i < knn_matches.size(); i++)
@@ -68,15 +64,12 @@ void Widget::siftMatching(Mat &image1, Mat &image2)
             good_matches.push_back(knn_matches[i][0]);
         }
     }
-
-    //-- Draw matches
     Mat img_matches;
     drawMatches(img1, keypoints1, img2, keypoints2, good_matches, img_matches, Scalar::all(-1),
                 Scalar::all(-1), std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-    //-- Show detected matches
     imshow("Good Matches", img_matches);
-    waitKey(1); // Changed to 1ms wait instead of infinite wait
+    waitKey(1);
 }
 
 Rect Widget::haarCascade(Mat &image)
@@ -90,21 +83,23 @@ Rect Widget::haarCascade(Mat &image)
 
     Mat frame_gray;
     std::vector<Rect> faces;
+    std::vector<Rect> invFaces;
 
-    // Convert to gray
     cv::cvtColor(image, frame_gray, COLOR_BGR2GRAY);
 
-    //-- Detect faces
-    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 4, 0, Size(60, 60));
-
+    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 8, 0,Size(80,80), Size(250, 250));
+    Mat invFrame_gray = 255-frame_gray;
+    face_cascade.detectMultiScale(invFrame_gray, invFaces, 1.1, 4, 0,Size(80,80), Size(250, 250));
+    if (faces.size()<=0){
+        faces=invFaces;
+    }
     Rect detectedRect;
     if (faces.size() > 0)
     {
-        detectedRect = faces[0]; // On prend la première détection
+        detectedRect = faces[0];
         rectangle(image, detectedRect, Scalar(0, 255, 0), 2);
     }
 
-    // Display frame
     imshow("WebCam", image);
     waitKey(1);
 
@@ -123,7 +118,6 @@ void Widget::updateFrame()
 
             if (!hasReference)
             {
-                // Avant capture, utiliser haarCascade
                 Rect detected = haarCascade(frameToDisplay);
                 if (detected.width > 0 && detected.height > 0)
                 {
@@ -133,11 +127,9 @@ void Widget::updateFrame()
             }
             else
             {
-                // Après capture, utiliser SIFT
                 siftMatching(reference, frameToDisplay);
             }
 
-            // Convertir pour affichage Qt
             Mat displayFrame;
             cvtColor(frameToDisplay, displayFrame, COLOR_BGR2RGB);
             QImage img = QImage((const unsigned char *)(displayFrame.data),
