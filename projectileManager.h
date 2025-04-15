@@ -32,6 +32,12 @@ public:
     void setCannonDirection(const float direction[3]);
     void setInitialSpeed(float speed);
 
+    // Add a new projectile to the manager
+    void addProjectile(Projectile *projectile);
+
+    // Method to handle projectile slicing
+    void checkProjectilesForSlicing();
+
 private:
     std::vector<Projectile *> m_projectiles;
     float m_timeSinceLastLaunch;

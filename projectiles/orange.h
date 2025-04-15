@@ -3,6 +3,8 @@
 
 #include "../projectile.h"
 
+class ProjectileManager;
+
 class Orange : public Projectile
 {
 public:
@@ -10,6 +12,9 @@ public:
     ~Orange() override = default;
 
     void draw() override;
+    void slice(ProjectileManager *manager) override;
+    float getRadius() const override;
+    void getColor(float &r, float &g, float &b) const override;
 
 private:
     // Sphere radius for the orange

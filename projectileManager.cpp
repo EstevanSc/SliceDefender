@@ -46,6 +46,9 @@ void ProjectileManager::update(float deltaTime)
         m_timeSinceLastLaunch = 0.0f;
     }
 
+    // Check for projectiles that should be sliced
+    checkProjectilesForSlicing();
+
     // Update all projectiles
     for (auto projectile : m_projectiles)
     {
@@ -158,4 +161,33 @@ void ProjectileManager::setCannonDirection(const float direction[3])
 void ProjectileManager::setInitialSpeed(float speed)
 {
     m_initialProjectileSpeed = speed;
+}
+
+void ProjectileManager::checkProjectilesForSlicing()
+{
+    for (auto projectile : m_projectiles)
+    {
+        // Check if the projectile should be sliced (property shouldSlice)
+        if (projectile->shouldSlice())
+        {
+            qDebug() << "Slicing projectile at position: ("
+                     << projectile->getPosition()[0] << ", "
+                     << projectile->getPosition()[1] << ", "
+                     << projectile->getPosition()[2] << ")";
+
+            // Let the projectile create its own sliced pieces
+            projectile->slice(this);
+
+            // Mark the projectile as sliced
+            projectile->setSliced();
+        }
+    }
+}
+
+void ProjectileManager::addProjectile(Projectile *projectile)
+{
+    if (projectile)
+    {
+        m_projectiles.push_back(projectile);
+    }
 }

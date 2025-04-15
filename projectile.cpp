@@ -4,7 +4,7 @@
 #include <QTime>
 
 Projectile::Projectile(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ)
-    : m_isActive(true)
+    : m_isActive(true), m_sliced(false), m_shouldSlice(false)
 {
     m_position[0] = startX;
     m_position[1] = startY;
@@ -41,6 +41,13 @@ void Projectile::update(float deltaTime)
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
+    }
+
+    // Check if the projectile should be sliced (z >= -5)
+    if (m_position[2] >= -5.0f && !m_sliced && m_isActive)
+    {
+        m_sliced = true;
+        m_shouldSlice = true;
     }
 }
 
@@ -88,4 +95,19 @@ bool Projectile::isActive() const
 void Projectile::setActive(bool active)
 {
     m_isActive = active;
+}
+
+bool Projectile::shouldSlice() const
+{
+    bool should = m_shouldSlice && m_isActive;
+
+    // Return the value and then reset it
+    return should;
+}
+
+void Projectile::setSliced()
+{
+    // Mark as sliced and deactivate to avoid multiple slices
+    m_shouldSlice = false;
+    m_isActive = false;
 }

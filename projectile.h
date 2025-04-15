@@ -3,6 +3,8 @@
 
 #include <vector>
 
+class ProjectileManager; // Forward declaration
+
 class Projectile
 {
 public:
@@ -11,6 +13,13 @@ public:
 
     virtual void draw() = 0;
     virtual void update(float deltaTime);
+
+    // Slice-related methods
+    virtual void slice(ProjectileManager *manager) = 0;
+    bool shouldSlice() const;
+    void setSliced();
+    virtual float getRadius() const = 0;
+    virtual void getColor(float &r, float &g, float &b) const = 0;
 
     // Getters
     float *getPosition() const;
@@ -30,6 +39,8 @@ protected:
     float m_velocity[3];
     float m_acceleration[3];
     bool m_isActive;
+    bool m_sliced = false;
+    bool m_shouldSlice = false;
 
     static constexpr float GRAVITY = 9.81f; // Gravity constant
 };
