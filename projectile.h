@@ -1,22 +1,37 @@
 #ifndef PROJECTILE_H
 #define PROJECTILE_H
 
+#include <vector>
+
 class Projectile
 {
 public:
-    Projectile(int finalPosition[3], int startPosition[3], float flyingTime); // constructor to initialize the projectile with final position, start position and flying time
-    virtual void draw();                                                      // abstract fonction draw() to be implemented in derived classes
-    virtual void update();                                                    // abstract fonction update() to be implemented in derived classes
-    void move();                                                              // function to move the projectile
-    virtual int *getPosition() const;                                         // function to get the current position of the projectile
-    virtual void setPosition(float x, float y, float z);                      // function to set the position of the projectile
+    Projectile(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ);
+    virtual ~Projectile() = default;
 
-private:
-    static const int canonAngle = 20; // angle of the canon in degrees
-    int m_finalPosition[3];           // final position of the projectile
-    int m_startPosition[3];           // starting position of the projectile
-    float m_flyingTime;               // flying time of the projectile
-    float m_timeOfLaunch = 0.0f;      // time of launch
+    virtual void draw() = 0;
+    virtual void update(float deltaTime);
+
+    // Getters
+    float *getPosition() const;
+    float *getVelocity() const;
+    float *getAcceleration() const;
+
+    // Setters
+    void setPosition(float x, float y, float z);
+    void setVelocity(float vx, float vy, float vz);
+    void setAcceleration(float ax, float ay, float az);
+
+    bool isActive() const;
+    void setActive(bool active);
+
+protected:
+    float m_position[3];
+    float m_velocity[3];
+    float m_acceleration[3];
+    bool m_isActive;
+
+    static constexpr float GRAVITY = 9.81f; // Gravity constant
 };
 
 #endif // PROJECTILE_H

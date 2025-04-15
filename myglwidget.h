@@ -5,6 +5,8 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QMatrix4x4>
+#include <QTime>               // Include for QTime
+#include "projectileManager.h" // Include for projectile manager
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -15,32 +17,38 @@ public:
     ~MyGLWidget();
 
 protected:
-    // Méthodes de QOpenGLWidget à surcharger
+    // QOpenGLWidget methods to override
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int width, int height) override;
 
 private:
-    // Méthodes de dessin
+    // Drawing methods
     void drawCorridor();
     void drawCannon();
     void drawCylindricalGrid();
     void setupLight();
-    void drawAxes(); // Nouvelle méthode pour dessiner les axes XYZ
+    void drawAxes(); // New method to draw XYZ axes
 
-    // Timer pour les animations
+    // Timer for animations
     QTimer *timer;
 
-    // Variables pour la projection et la vue
+    // Variables for projection and view
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
 
-    // Constantes pour les dimensions
+    // Constants for dimensions
     const float corridorLength = 20.0f;
     const float corridorWidth = 5.0f;
     const float corridorHeight = 5.0f;
     const float gridRadius = 3.5f;
-    const float gridAngle = 80.0f; // en degrés
+    const float gridAngle = 60.0f; // in degrees
+
+    // Projectile manager
+    ProjectileManager m_projectileManager;
+
+    // For calculating elapsed time between frames
+    QTime m_lastFrameTime;
 };
 
 #endif // MYGLWIDGET_H

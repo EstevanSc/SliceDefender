@@ -3,46 +3,89 @@
 #include <iostream>
 #include <QTime>
 
-Projectile::Projectile(int finalPosition[3], int startPosition[3], float flyingTime)
+Projectile::Projectile(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ)
+    : m_isActive(true)
 {
-    // set the final position of the projectile
-    m_finalPosition[0] = finalPosition[0];
-    m_finalPosition[1] = finalPosition[1];
-    m_finalPosition[2] = finalPosition[2];
-    // set the start position of the projectile
-    m_startPosition[0] = startPosition[0];
-    m_startPosition[1] = startPosition[1];
-    m_startPosition[2] = startPosition[2];
-    // set the flying time of the projectile
-    m_flyingTime = flyingTime;
-    // put the time of launch to current time
-    m_timeOfLaunch = QTime::currentTime().msecsSinceStartOfDay() / 1000.0f;
+    m_position[0] = startX;
+    m_position[1] = startY;
+    m_position[2] = startZ;
+
+    m_velocity[0] = velocityX;
+    m_velocity[1] = velocityY;
+    m_velocity[2] = velocityZ;
+
+    m_acceleration[0] = 0.0f;
+    m_acceleration[1] = -GRAVITY; // Y is up, so gravity is negative
+    m_acceleration[2] = 0.0f;
 }
 
-
-void Projectile::move()
+void Projectile::update(float deltaTime)
 {
-    // Calcul of the angle of the canon in radians
-    double alpha = canonAngle * 3.14 / 180.0;
+    // Use of Euler implicit method for physics simulation
 
-    // Calcul of the distance between the start and final position
-    double dx = m_finalPosition[0] - m_startPosition[0];
-    double dy = m_finalPosition[1] - m_startPosition[1];
-    double dz = m_finalPosition[2] - m_startPosition[2];
-    double g = 9.81;
+    m_acceleration[0] = 0.0f;
+    m_acceleration[1] = -GRAVITY;
+    m_acceleration[2] = 0.0f;
 
-    double Dxy = std::sqrt(dx * dx + dy * dy);
+    // Update velocity based on acceleration
+    m_velocity[0] += m_acceleration[0] * deltaTime;
+    m_velocity[1] += m_acceleration[1] * deltaTime;
+    m_velocity[2] += m_acceleration[2] * deltaTime;
 
-    // Calcul of the speed of the projectile
-    double v0 = Dxy / (m_flyingTime * std::cos(alpha));
+    // Update position based on velocity
+    m_position[0] += m_velocity[0] * deltaTime;
+    m_position[1] += m_velocity[1] * deltaTime;
+    m_position[2] += m_velocity[2] * deltaTime;
 
-    // t is the time since the launch
-    double t = QTime::currentTime().msecsSinceStartOfDay() / 1000.0f - m_timeOfLaunch;
+    // Deactivate projectile if it leaves the corridor or hits the ground
+    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
+    {
+        m_isActive = false;
+    }
+}
 
-    // Calcul of the new position of the projectile
-    double x = m_startPosition[0] + (dx / m_flyingTime) * t;
-    double y = m_startPosition[1] + (dy / m_flyingTime) * t;
-    double z = m_startPosition[2] + v0 * std::sin(alpha) * t - 0.5 * g * t * t;
+float *Projectile::getPosition() const
+{
+    return const_cast<float *>(m_position);
+}
 
-    this->setPosition(x, y, z);
+float *Projectile::getVelocity() const
+{
+    return const_cast<float *>(m_velocity);
+}
+
+float *Projectile::getAcceleration() const
+{
+    return const_cast<float *>(m_acceleration);
+}
+
+void Projectile::setPosition(float x, float y, float z)
+{
+    m_position[0] = x;
+    m_position[1] = y;
+    m_position[2] = z;
+}
+
+void Projectile::setVelocity(float vx, float vy, float vz)
+{
+    m_velocity[0] = vx;
+    m_velocity[1] = vy;
+    m_velocity[2] = vz;
+}
+
+void Projectile::setAcceleration(float ax, float ay, float az)
+{
+    m_acceleration[0] = ax;
+    m_acceleration[1] = ay;
+    m_acceleration[2] = az;
+}
+
+bool Projectile::isActive() const
+{
+    return m_isActive;
+}
+
+void Projectile::setActive(bool active)
+{
+    m_isActive = active;
 }
