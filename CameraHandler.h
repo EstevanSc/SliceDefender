@@ -4,6 +4,7 @@
 #include "opencv2/opencv.hpp"
 #include <QWidget>
 #include <QTimer>
+#include <QElapsedTimer>
 
 using namespace cv;
 
@@ -20,6 +21,9 @@ public:
     explicit CameraHandler(QWidget *parent = 0);
     ~CameraHandler();
 
+signals:
+    void matchQualityChanged(int quality);
+
 private:
     Ui::CameraHandler *ui;
     VideoCapture *webCam_;
@@ -28,11 +32,17 @@ private:
     QTimer *timer;
     Rect lastDetectedRect;
     bool hasDetection;
+    int consecutiveDetections;
+    static const int REQUIRED_DETECTIONS = 5;
+    int matchQuality;
+    QElapsedTimer detectionTimer;
+    bool isDetectionClose(const Rect &current, const Rect &previous);
     void siftMatching(Mat &image1, Mat &image2);
     Rect haarCascade(Mat &image);
+    void captureReference();
+    void updateStatusText();
 
 private slots:
-    void on_captureButton__clicked();
     void updateFrame();
 };
 
