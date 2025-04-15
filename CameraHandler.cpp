@@ -1,6 +1,6 @@
 #include "opencv2/opencv.hpp"
-#include "widget.h"
-#include "ui_widget.h"
+#include "CameraHandler.h"
+#include "ui_CameraHandler.h"
 #include <QString>
 #include <QImage>
 #include <iostream>
@@ -8,12 +8,12 @@
 using namespace cv;
 using namespace std;
 
-Widget::Widget(QWidget *parent) : QWidget(parent),
-                                  ui(new Ui::Widget)
+CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
+                                                ui(new Ui::CameraHandler)
 {
     ui->setupUi(this);
 
-    webCam_ = new VideoCapture(1);
+    webCam_ = new VideoCapture(0);
     hasReference = false;
     hasDetection = false;
 
@@ -33,7 +33,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent),
     }
 }
 
-Widget::~Widget()
+CameraHandler::~CameraHandler()
 {
     timer->stop();
     delete timer;
@@ -41,7 +41,7 @@ Widget::~Widget()
     delete webCam_;
 }
 
-void Widget::siftMatching(Mat &image1, Mat &image2)
+void CameraHandler::siftMatching(Mat &image1, Mat &image2)
 {
     Mat img1 = image1;
     Mat img2 = image2;
@@ -72,7 +72,7 @@ void Widget::siftMatching(Mat &image1, Mat &image2)
     waitKey(1);
 }
 
-Rect Widget::haarCascade(Mat &image)
+Rect CameraHandler::haarCascade(Mat &image)
 {
     CascadeClassifier face_cascade;
     if (!face_cascade.load("../../palm.xml"))
@@ -87,11 +87,12 @@ Rect Widget::haarCascade(Mat &image)
 
     cv::cvtColor(image, frame_gray, COLOR_BGR2GRAY);
 
-    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 8, 0,Size(80,80), Size(250, 250));
-    Mat invFrame_gray = 255-frame_gray;
-    face_cascade.detectMultiScale(invFrame_gray, invFaces, 1.1, 4, 0,Size(80,80), Size(250, 250));
-    if (faces.size()<=0){
-        faces=invFaces;
+    face_cascade.detectMultiScale(frame_gray, faces, 1.1, 8, 0, Size(80, 80), Size(250, 250));
+    Mat invFrame_gray = 255 - frame_gray;
+    face_cascade.detectMultiScale(invFrame_gray, invFaces, 1.1, 4, 0, Size(80, 80), Size(250, 250));
+    if (faces.size() <= 0)
+    {
+        faces = invFaces;
     }
     Rect detectedRect;
     if (faces.size() > 0)
@@ -106,7 +107,7 @@ Rect Widget::haarCascade(Mat &image)
     return detectedRect;
 }
 
-void Widget::updateFrame()
+void CameraHandler::updateFrame()
 {
     if (webCam_->isOpened())
     {
@@ -141,7 +142,7 @@ void Widget::updateFrame()
     }
 }
 
-void Widget::on_captureButton__clicked()
+void CameraHandler::on_captureButton__clicked()
 {
     if (webCam_->isOpened() && hasDetection)
     {
@@ -154,7 +155,7 @@ void Widget::on_captureButton__clicked()
             adjustedRect.y += adjustedRect.height / 2;
 
             int cropX = adjustedRect.width / 7;
-            int cropY = -(adjustedRect.height *0.2);
+            int cropY = -(adjustedRect.height * 0.2);
 
             Rect finalRect(
                 adjustedRect.x + cropX,

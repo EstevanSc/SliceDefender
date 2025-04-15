@@ -1,5 +1,5 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#ifndef CAMERAHANDLER_H
+#define CAMERAHANDLER_H
 
 #include "opencv2/opencv.hpp"
 #include <QWidget>
@@ -9,19 +9,19 @@ using namespace cv;
 
 namespace Ui
 {
-    class Widget;
+    class CameraHandler;
 }
 
-class Widget : public QWidget
+class CameraHandler : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
-    ~Widget();
+    explicit CameraHandler(QWidget *parent = 0);
+    ~CameraHandler();
 
 private:
-    Ui::Widget *ui;
+    Ui::CameraHandler *ui;
     VideoCapture *webCam_;
     Mat reference;
     bool hasReference;
@@ -36,4 +36,4 @@ private slots:
     void updateFrame();
 };
 
-#endif // WIDGET_H
+#endif // CAMERAHANDLER_H

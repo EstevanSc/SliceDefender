@@ -1,19 +1,19 @@
 #include <QApplication>
 #include <ctime>
-#include "myglwidget.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
-    // Initialisation du generateur de nombres aleatoires
+    // Initializing the random number generator
     srand(time(nullptr));
 
-    // Creation de l'application QT
+    // Creating the QT application
     QApplication app(argc, argv);
-	
-	// Creation du widget opengl
-    MyGLWidget glWidget;
-    glWidget.show();
 
-    // Execution de l'application QT
+    // Creating the main window
+    MainWindow mainWindow;
+    mainWindow.show();
+
+    // Executing the QT application
     return app.exec();
 }
