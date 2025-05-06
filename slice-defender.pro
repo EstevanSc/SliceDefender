@@ -32,6 +32,10 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectileManager.cpp \
     projectiles/apple.cpp \
     projectiles/appleHalf.cpp \
+    projectiles/banana.cpp \
+    projectiles/bananaHalf.cpp \
+    projectiles/corn.cpp \
+    projectiles/cornHalf.cpp \
     projectiles/orange.cpp \
     projectiles/orangeHalf.cpp
 HEADERS += myglwidget.h \
@@ -40,5 +44,18 @@ HEADERS += myglwidget.h \
     projectileManager.h \
     projectiles/apple.h \
     projectiles/appleHalf.h \
+    projectiles/banana.h \
+    projectiles/bananaHalf.h \
+    projectiles/corn.h \
+    projectiles/cornHalf.h \
     projectiles/orange.h \
     projectiles/orangeHalf.h
+
+RESOURCES += \
+    res/textures.qrc
+
+DISTFILES += \
+    res/apple_color.jpg \
+    res/apple_normal.png \
+    res/orange_color.jpg \
+    res/orange_normal.png

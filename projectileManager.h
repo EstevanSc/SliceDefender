@@ -2,11 +2,12 @@
 #define PROJECTILE_MANAGER_H
 
 #include <vector>
-#include <memory>
 #include <random>
 #include "projectile.h"
 #include "projectiles/apple.h"
 #include "projectiles/orange.h"
+#include "projectiles/corn.h"
+#include "projectiles/banana.h"
 
 class ProjectileManager
 {

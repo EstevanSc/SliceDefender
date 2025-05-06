@@ -5,8 +5,9 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QMatrix4x4>
-#include <QTime>               // Include for QTime
-#include "projectileManager.h" // Include for projectile manager
+#include <QTime>
+#include "projectileManager.h"
+#include <QOpenGLTexture>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -28,7 +29,7 @@ private:
     void drawCannon();
     void drawCylindricalGrid();
     void setupLight();
-    void drawAxes(); // New method to draw XYZ axes
+    void drawAxes();
 
     // Timer for animations
     QTimer *timer;
