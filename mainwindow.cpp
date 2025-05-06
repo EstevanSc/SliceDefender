@@ -29,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->cameraView->hide();
     ui->cameraStatus->hide();
 
-    connect(cameraHandler, SIGNAL(matchQualityChanged(int)), this, SLOT(updateMatchQuality(int)));
-
     updateScoreDisplay();
 }
 
@@ -49,8 +47,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::updateMatchQuality(int quality)
 {
-    ui->matchQuality->setValue(quality);
-    ui->matchInfo->setText(QString("Match quality: %1%").arg(quality));
+    ui->matchInfo->setText(QString("Détection en cours..."));
 }
 
 /**
@@ -71,7 +68,6 @@ void MainWindow::startNewGame()
     updateScoreDisplay();
 
     ui->matchInfo->setText("Waiting for detection...");
-    ui->matchQuality->setValue(0);
 
     QMessageBox::information(this, tr("New Game"), tr("Starting a new game. Get ready!"));
 }

@@ -16,7 +16,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
-    webCam_ = new VideoCapture(0);
+    webCam_ = new VideoCapture(1);
     hasReference = false;
     hasDetection = false;
     consecutiveDetections = 0;
@@ -74,6 +74,7 @@ Rect CameraHandler::haarCascade(Mat &image)
 
     Mat frame_gray;
     std::vector<Rect> fists;
+    std::vector<Rect> invfists;
     std::vector<Rect> palms;
     std::vector<Rect> invPalms;
 
@@ -81,25 +82,19 @@ Rect CameraHandler::haarCascade(Mat &image)
     cv::equalizeHist(frame_gray, frame_gray); // Improve contrast for better detection
 
     // First try to detect fists
-    fist_cascade.detectMultiScale(frame_gray, fists, 1.1, 15, 1, Size(60, 60), Size(250, 250));
+    fist_cascade.detectMultiScale(frame_gray, fists, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+
+    Mat invFrame_gray = 255 - frame_gray; // Invert image for better palm detection
+    palm_cascade.detectMultiScale(invFrame_gray, invfists, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+    fists.insert(fists.end(), invfists.begin(), invfists.end());
 
     // Second attempt: detect palms if no fists found
     if (fists.size() <= 0)
     {
-        palm_cascade.detectMultiScale(frame_gray, palms, 1.1, 15, 1, Size(60, 60), Size(250, 250));
-
-        // Third attempt: try inverted image for palm detection
-        if (palms.size() <= 0)
-        {
-            Mat invFrame_gray = 255 - frame_gray;
-            palm_cascade.detectMultiScale(invFrame_gray, invPalms, 1.1, 15, 1, Size(60, 60), Size(250, 250));
-
-            // Use inverted palm results if any found
-            if (invPalms.size() > 0)
-            {
-                palms = invPalms;
-            }
-        }
+        palm_cascade.detectMultiScale(frame_gray, palms, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+        // try inverted image for palm detection
+        palm_cascade.detectMultiScale(invFrame_gray, invPalms, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+        palms.insert(palms.end(), invPalms.begin(), invPalms.end());
     }
 
     Rect detectedRect;
@@ -350,7 +345,6 @@ void CameraHandler::updateFrame()
                     {
                         std::cout << "Match: 0%" << std::endl;
                         matchQuality = 0;
-                        emit matchQualityChanged(matchQuality);
                         updateStatusText();
                     }
 
@@ -422,7 +416,6 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
     if (descriptors1.empty() || descriptors2.empty() || keypoints1.size() < 5 || keypoints2.size() < 5)
     {
         matchQuality = 0;
-        emit matchQualityChanged(matchQuality);
         updateStatusText();
         return keypoints2;
     }
@@ -440,7 +433,6 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
             std::vector<DMatch> simple_matches;
             matcher->match(descriptors1, descriptors2, simple_matches);
             matchQuality = min(100, static_cast<int>(simple_matches.size() * 100.0 / max(1, static_cast<int>(keypoints1.size()))));
-            emit matchQualityChanged(matchQuality);
             updateStatusText();
             return keypoints2;
         }
@@ -451,7 +443,6 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
     {
         std::cout << "SIFT matching exception: " << e.what() << std::endl;
         matchQuality = 0;
-        emit matchQualityChanged(matchQuality);
         updateStatusText();
         return keypoints2;
     }
@@ -471,9 +462,6 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
 
     // Calculate match quality as a percentage (0-100)
     matchQuality = min(100, static_cast<int>(good_matches.size() * 100.0 / max(1, static_cast<int>(keypoints1.size()))));
-
-    // Emit the signal to update the main window
-    emit matchQualityChanged(matchQuality);
 
     updateStatusText();
 

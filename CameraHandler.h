@@ -38,13 +38,6 @@ public:
      */
     ~CameraHandler();
 
-signals:
-    /**
-     * @brief Signal emitted when match quality changes
-     * @param quality The matching quality percentage (0-100)
-     */
-    void matchQualityChanged(int quality);
-
 private:
     Ui::CameraHandler *ui;
     VideoCapture *webCam_;
