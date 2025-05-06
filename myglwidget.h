@@ -1,12 +1,14 @@
 #ifndef MYGLWIDGET_H
 #define MYGLWIDGET_H
 
+#include <GL/glu.h>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QMatrix4x4>
 #include <QTime>               // Include for QTime
 #include "projectileManager.h" // Include for projectile manager
+#include "player.h"            // Include for Player class
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -30,6 +32,19 @@ private:
     void setupLight();
     void drawAxes(); // New method to draw XYZ axes
 
+    /**
+     * @brief Position the player's sword on the cylindrical grid using grid coordinates
+     *
+     * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
+     *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
+     * @param gridZ Z coordinate on the grid (ranges from -1.0 to 1.0)
+     *              Where -1.0 is the back edge, 0.0 is center, and 1.0 is the front edge
+     *
+     * This method translates grid coordinates to world coordinates and positions
+     * the player's sword directly on the cylindrical grid surface.
+     */
+    void positionPlayerOnGrid(float gridX = 0.0f, float gridZ = 0.0f);
+
     // Timer for animations
     QTimer *timer;
 
@@ -46,6 +61,9 @@ private:
 
     // Projectile manager
     ProjectileManager m_projectileManager;
+
+    // Player (sword) instance
+    Player m_player;
 
     // For calculating elapsed time between frames
     QTime m_lastFrameTime;

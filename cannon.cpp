@@ -19,6 +19,7 @@ Cannon::Cannon()
 
 Cannon::~Cannon()
 {
+    // No resources to clean up
 }
 
 // Setters
@@ -45,54 +46,54 @@ float Cannon::getAxisLength() const { return m_axisLength; }
 
 void Cannon::draw() const
 {
-    // Sauvegarde de la matrice actuelle
+    // Save the current matrix
     glPushMatrix();
 
-    // Positionnement du canon
+    // Position the cannon
     glTranslatef(m_position.x(), m_position.y(), m_position.z());
 
-    // Rotation du canon selon l'angle spécifié
+    // Rotate the cannon according to the specified angle
     glRotatef(m_angleDegrees, 1.0f, 0.0f, 0.0f);
 
-    // Dessiner les différentes parties du canon
+    // Draw the different parts of the cannon
     drawCannonTube();
     drawWheels();
 
-    // Restauration de la matrice
+    // Restore the matrix
     glPopMatrix();
 }
 
-// Méthode utilitaire pour dessiner les bagues autour du canon
+// Utility method to draw decorative rings around the cannon
 void Cannon::drawRing(GLUquadric *quadric, float distance, float ringWidth, float ringDepth) const
 {
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, distance);
 
-    // Cylindre extérieur
+    // Outer cylinder
     gluCylinder(quadric, m_radius * ringDepth, m_radius * ringDepth, ringWidth, m_segments, 1);
 
-    // Face avant de la bague
+    // Front face of the ring
     gluDisk(quadric, m_radius, m_radius * ringDepth, m_segments, 1);
 
-    // Face arrière de la bague
+    // Back face of the ring
     glTranslatef(0.0f, 0.0f, ringWidth);
     gluDisk(quadric, m_radius, m_radius * ringDepth, m_segments, 1);
 
     glPopMatrix();
 }
 
-// Méthode utilitaire pour dessiner une roue
+// Utility method to draw a wheel
 void Cannon::drawWheel(GLUquadric *quadric, float xOffset) const
 {
     glPushMatrix();
     glTranslatef(xOffset, 0.0f, m_length * 0.3f);
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 
-    // Partie extérieure de la roue
-    glColor3f(0.4f, 0.25f, 0.05f); // Bois foncé
+    // Outer part of the wheel
+    glColor3f(0.4f, 0.25f, 0.05f); // Dark wood
     gluCylinder(quadric, m_wheelRadius, m_wheelRadius, m_wheelThickness, m_segments, 1);
 
-    // Disques du cylindre de la roue
+    // Wheel cylinder disks
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, m_wheelThickness);
     gluDisk(quadric, 0.0f, m_wheelRadius, m_segments, 1);
@@ -108,33 +109,33 @@ void Cannon::drawCannonTube() const
 {
     GLUquadric *quadric = gluNewQuadric();
 
-    // Tube principal du canon
+    // Main cannon tube
     glPushMatrix();
 
-    // Déplacement pour aligner le canon avec les roues
+    // Offset to align the cannon with the wheels
     glTranslatef(0.0f, m_wheelRadius * 0.5f, 0.0f);
 
-    // Couleur noire pour le tube du canon
+    // Black color for the cannon tube
     glColor3f(0.1f, 0.1f, 0.1f);
 
-    // Dessiner le tube principal
+    // Draw the main tube
     gluQuadricDrawStyle(quadric, GLU_FILL);
     gluCylinder(quadric, m_radius, m_radius * 0.9f, m_length, m_segments, 1);
 
-    // Couleur cuivre/bronze pour les bagues
+    // Copper/bronze color for the rings
     glColor3f(0.3f, 0.2f, 0.1f);
 
-    // Bagues décoratives à différentes positions
-    // Première bague près de la base
+    // Decorative rings at different positions
+    // First ring near the base
     drawRing(quadric, 0.05f, 0.12f);
 
-    // Bague au milieu du canon
+    // Ring at the middle of the cannon
     drawRing(quadric, m_length * 0.5f, 0.08f);
 
-    // Bague près de l'extrémité du canon
+    // Ring near the end of the cannon
     drawRing(quadric, m_length - 0.15f, 0.08f);
 
-    // Bouche du canon (l'intérieur, plus sombre)
+    // Cannon mouth (interior, darker)
     glColor3f(0.05f, 0.05f, 0.05f);
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, m_length);
@@ -150,23 +151,23 @@ void Cannon::drawWheels() const
 {
     GLUquadric *quadric = gluNewQuadric();
 
-    // Axe de roue (barre qui relie les deux roues)
+    // Wheel axle (bar connecting the two wheels)
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, m_length * 0.3f);
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 
-    // Axe métallique
-    glColor3f(0.3f, 0.2f, 0.1f); // Couleur métallique
+    // Metallic axle
+    glColor3f(0.3f, 0.2f, 0.1f); // Metallic color
 
-    // Début de l'axe au bord du canon (m_radius)
+    // Start of the axle at the edge of the cannon (m_radius)
     float axeStartPosition = -m_axisLength;
 
     glPopMatrix();
 
-    // Roue gauche - placée au bord gauche du canon
+    // Left wheel - placed at the left edge of the cannon
     drawWheel(quadric, -m_radius * 1.5f);
 
-    // Roue droite - placée au bord droit du canon
+    // Right wheel - placed at the right edge of the cannon
     drawWheel(quadric, m_radius * 1.2f);
 
     gluDeleteQuadric(quadric);

@@ -27,7 +27,10 @@ TARGET 	  = slice-defender
 
 # fichiers sources/headers
 SOURCES	+= main.cpp myglwidget.cpp \
+    CameraHandler.cpp \
     cannon.cpp \
+    mainwindow.cpp \
+    player.cpp \
     projectile.cpp \
     projectileManager.cpp \
     projectiles/apple.cpp \
@@ -36,9 +39,22 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectiles/orangeHalf.cpp
 HEADERS += myglwidget.h \
     cannon.h \
+    CameraHandler.h\
+    mainwindow.h \
+    player.h \
     projectile.h \
     projectileManager.h \
     projectiles/apple.h \
     projectiles/appleHalf.h \
     projectiles/orange.h \
     projectiles/orangeHalf.h
+
+FORMS += \
+    camerahandler.ui \
+    mainwindow.ui
+
+
+INCLUDEPATH +=$$(OPENCV_DIR)\..\..\include
+
+LIBS += -L$$(OPENCV_DIR)\lib -lopencv_core4110 -lopencv_highgui4110 -lopencv_imgproc4110 -lopencv_imgcodecs4110 -lopencv_videoio4110 -lopencv_features2d4110 -lopencv_calib3d4110 -lopencv_objdetect4110
+

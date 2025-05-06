@@ -47,7 +47,7 @@ MainWindow::~MainWindow()
  */
 void MainWindow::updateMatchQuality(int quality)
 {
-    ui->matchInfo->setText(QString("Détection en cours..."));
+    ui->matchInfo->setText(QString("Detection in progress..."));
 }
 
 /**
