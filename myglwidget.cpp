@@ -2,48 +2,70 @@
 
 #include <GL/glu.h>
 #include <QApplication>
+#include <QTime>
 #include "myglwidget.h"
 #include <cmath>
 #include "cannon.h"
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
-    // Initialisation du timer pour les animations
+    // Initialize timer for animations
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(16); // ~60 FPS
+
+    // Initialize last frame time
+    m_lastFrameTime = QTime::currentTime();
 }
 
 MyGLWidget::~MyGLWidget()
 {
-    // Nettoyage des ressources
+    // Clean up resources
     delete timer;
 }
 
 void MyGLWidget::initializeGL()
 {
-    // Initialisation des fonctions OpenGL
+    // Initialize OpenGL functions
     initializeOpenGLFunctions();
 
-    // Configuration de base
-    glClearColor(0.05f, 0.05f, 0.1f, 1.0f); // Fond plus sombre
+    // Basic configuration
+    glClearColor(0.05f, 0.05f, 0.1f, 1.0f); // Darker background
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_COLOR_MATERIAL);
 
-    // Configuration des matrices
+    // Configure matrices
     viewMatrix.setToIdentity();
-    viewMatrix.lookAt(QVector3D(0.0f, 2.5f, 0.0f),  // Position de la caméra montée
-                      QVector3D(0.0f, 0.0f, -1.0f), // Direction de vue
-                      QVector3D(0.0f, 1.0f, 0.0f)); // Vecteur "up"
+    viewMatrix.lookAt(QVector3D(0.0f, 2.5f, 0.0f),  // Camera position elevated
+                      QVector3D(0.0f, 0.0f, -1.0f), // View direction
+                      QVector3D(0.0f, 1.0f, 0.0f)); // Up vector
+
+    // Configure ProjectileManager to launch projectiles from the cannon
+    // Position adjusted to match the cannon's mouth
+    float cannonLength = 3.0f;
+    float cannonAngle = 20.0f * M_PI / 180.0f;
+
+    float cannonPos[3] = {
+        0.0f,
+        1.2f + cannonLength * std::sin(cannonAngle),
+        -corridorLength + cannonLength * std::cos(cannonAngle)};
+
+    // Direction with 20° angle towards the player
+    float cannonDir[3] = {0.0f, std::sin(cannonAngle), std::cos(cannonAngle)};
+
+    // Access private attributes via specific ProjectileManager methods
+    m_projectileManager.setCannonPosition(cannonPos);
+    m_projectileManager.setCannonDirection(cannonDir);
+    m_projectileManager.setInitialSpeed(15.0f);
 }
 
 void MyGLWidget::resizeGL(int width, int height)
 {
-    // Ajustement du viewport
+    // Adjust viewport
     glViewport(0, 0, width, height);
 
-    // Mise à jour de la matrice de projection
+    // Update projection matrix
     float aspectRatio = static_cast<float>(width) / height;
     projectionMatrix.setToIdentity();
     projectionMatrix.perspective(45.0f, aspectRatio, 0.1f, 100.0f);
@@ -51,10 +73,10 @@ void MyGLWidget::resizeGL(int width, int height)
 
 void MyGLWidget::paintGL()
 {
-    // Effacement des buffers
+    // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Application des matrices de projection et de vue
+    // Apply projection and view matrices
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     GLfloat aspectRatio = static_cast<float>(width()) / height();
@@ -66,22 +88,36 @@ void MyGLWidget::paintGL()
               0.0f, 0.0f, -corridorLength,
               0.0f, 1.0f, 0.0f);
 
-    // Configuration de l'éclairage
+    // Set up lighting
     setupLight();
 
-    // Dessiner les axes de coordonnées (X, Y, Z)
+    // Draw coordinate axes (X, Y, Z)
     drawAxes();
 
-    // Dessin des éléments de la scène
+    // Calculate deltaTime for physics updates
+    QTime currentTime = QTime::currentTime();
+    float deltaTime = m_lastFrameTime.msecsTo(currentTime) / 1000.0f;
+    m_lastFrameTime = currentTime;
+
+    // Limit deltaTime to avoid issues with large values
+    if (deltaTime > 0.1f)
+        deltaTime = 0.1f;
+
+    // Update projectile manager
+    m_projectileManager.update(deltaTime);
+
+    // Draw scene elements
     drawCorridor();
     drawCannon();
-    // drawCylindricalGrid();
+    drawCylindricalGrid();
+
+    m_projectileManager.draw();
 }
 
 void MyGLWidget::setupLight()
 {
-    // Configuration de la lumière directionnelle (vers le bas)
-    GLfloat lightPosition[] = {0.0f, 10.0f, 0.0f, 0.0f}; // Directionnelle
+    // Configure directional light (downward)
+    GLfloat lightPosition[] = {0.0f, 10.0f, 0.0f, 0.0f}; // Directional
     GLfloat lightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
     GLfloat lightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -95,11 +131,11 @@ void MyGLWidget::setupLight()
 
 void MyGLWidget::drawCorridor()
 {
-    // Dessin du couloir
+    // Draw corridor
     glPushMatrix();
-    glColor3f(0.5f, 0.5f, 0.5f); // Gris
+    glColor3f(0.5f, 0.5f, 0.5f); // Gray
 
-    // Sol
+    // Floor
     glBegin(GL_QUADS);
     glNormal3f(0.0f, 1.0f, 0.0f);
     glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
@@ -108,7 +144,7 @@ void MyGLWidget::drawCorridor()
     glVertex3f(-corridorWidth / 2, 0.0f, -corridorLength);
     glEnd();
 
-    // Plafond
+    // Ceiling
     // glBegin(GL_QUADS);
     // glNormal3f(0.0f, -1.0f, 0.0f);
     // glVertex3f(-corridorWidth / 2, corridorHeight, 0.0f);
@@ -117,7 +153,7 @@ void MyGLWidget::drawCorridor()
     // glVertex3f(corridorWidth / 2, corridorHeight, 0.0f);
     // glEnd();
 
-    // Mur gauche
+    // Left wall
     // glBegin(GL_QUADS);
     // glNormal3f(1.0f, 0.0f, 0.0f);
     // glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
@@ -126,7 +162,7 @@ void MyGLWidget::drawCorridor()
     // glVertex3f(-corridorWidth / 2, corridotHeight, 0.0f);
     // glEnd();
 
-    // Mur droit
+    // Right wall
     // glBegin(GL_QUADS);
     // glNormal3f(-1.0f, 0.0f, 0.0f);
     // glVertex3f(corridorWidth / 2, 0.0f, 0.0f);
@@ -140,10 +176,10 @@ void MyGLWidget::drawCorridor()
 
 void MyGLWidget::drawCannon()
 {
-    // Dessin du canon
+    // Draw cannon
     glPushMatrix();
 
-    // Utilisation de la classe Cannon pour dessiner le canon
+    // Use the Cannon class to draw the cannon
     Cannon cannon;
     cannon.setPosition(QVector3D(0.0f, 0, -corridorLength));
     cannon.setAngle(-20.0f);
@@ -151,7 +187,7 @@ void MyGLWidget::drawCannon()
     cannon.setRadius(0.8f);
     cannon.setColor(QColor(50, 50, 50));
 
-    // Paramètres pour les roues
+    // Wheel parameters
     cannon.setWheelRadius(0.7f);
     cannon.setWheelThickness(0.3f);
 
@@ -162,23 +198,23 @@ void MyGLWidget::drawCannon()
 
 void MyGLWidget::drawCylindricalGrid()
 {
-    // Dessin de la grille cylindrique (60 degrés)
-    glPushMatrix();
-    glColor3f(0.0f, 0.8f, 0.8f);    // Cyan
-    glTranslatef(0.0f, 0.0f, 2.5f); // Rapproche la grille de la caméra
-
-    GLUquadric *quad = gluNewQuadric();
-    gluQuadricDrawStyle(quad, GLU_LINE); // Mode filaire
-
-    // Portion de cylindre (60°)
+    // Cylinder portion (60°)
     const int segments = 15;
     const float angleStep = gridAngle / segments;
     const float startAngle = -gridAngle / 2;
-    const float height = corridorHeight * 0.8f;
+    const float height = corridorHeight * 0.5f;
+
+    // Draw cylindrical grid (60 degrees)
+    glPushMatrix();
+    glColor3f(0.0f, 0.8f, 0.8f);    // Cyan
+    glTranslatef(0.0f, 2.0f, 0.0f); // Move grid closer to camera
+
+    GLUquadric *quad = gluNewQuadric();
+    gluQuadricDrawStyle(quad, GLU_LINE); // Wireframe mode
 
     glBegin(GL_LINES);
 
-    // Lignes longitudinales
+    // Longitudinal lines
     for (int i = 0; i <= segments; i++)
     {
         float angle = (startAngle + i * angleStep) * M_PI / 180.0f;
@@ -189,7 +225,7 @@ void MyGLWidget::drawCylindricalGrid()
         glVertex3f(x, height / 2, z);
     }
 
-    // Lignes horizontales
+    // Horizontal lines
     const int heightSegments = 10;
     for (int j = 0; j <= heightSegments; j++)
     {
@@ -214,32 +250,32 @@ void MyGLWidget::drawCylindricalGrid()
 
 void MyGLWidget::drawAxes()
 {
-    // Désactiver temporairement l'éclairage pour que les axes soient bien visibles
+    // Temporarily disable lighting to make axes clearly visible
     glDisable(GL_LIGHTING);
 
-    const float axisLength = 2.0f; // Longueur des axes
+    const float axisLength = 2.0f; // Axes length
 
-    // Axe X en rouge
+    // X axis in red
     glBegin(GL_LINES);
-    glColor3f(1.0f, 0.0f, 0.0f); // Rouge
+    glColor3f(1.0f, 0.0f, 0.0f); // Red
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(axisLength, 0.0f, 0.0f);
     glEnd();
 
-    // Axe Y en vert
+    // Y axis in green
     glBegin(GL_LINES);
-    glColor3f(0.0f, 1.0f, 0.0f); // Vert
+    glColor3f(0.0f, 1.0f, 0.0f); // Green
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, axisLength, 0.0f);
     glEnd();
 
-    // Axe Z en bleu
+    // Z axis in blue
     glBegin(GL_LINES);
-    glColor3f(0.0f, 0.0f, 1.0f); // Bleu
+    glColor3f(0.0f, 0.0f, 1.0f); // Blue
     glVertex3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, axisLength); // Z négatif pour aller dans la profondeur
+    glVertex3f(0.0f, 0.0f, axisLength); // Negative Z for depth
     glEnd();
 
-    // Réactiver l'éclairage
+    // Re-enable lighting
     glEnable(GL_LIGHTING);
 }
