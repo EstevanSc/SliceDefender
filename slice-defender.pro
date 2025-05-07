@@ -36,7 +36,8 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectiles/apple.cpp \
     projectiles/appleHalf.cpp \
     projectiles/orange.cpp \
-    projectiles/orangeHalf.cpp
+    projectiles/orangeHalf.cpp \
+    game.cpp
 HEADERS += myglwidget.h \
     cannon.h \
     CameraHandler.h\
@@ -47,7 +48,8 @@ HEADERS += myglwidget.h \
     projectiles/apple.h \
     projectiles/appleHalf.h \
     projectiles/orange.h \
-    projectiles/orangeHalf.h
+    projectiles/orangeHalf.h \
+    game.h
 
 FORMS += \
     camerahandler.ui \

@@ -18,6 +18,30 @@ public:
     explicit MyGLWidget(QWidget *parent = nullptr);
     ~MyGLWidget();
 
+    /**
+     * @brief Get a pointer to the Player object
+     * @return Pointer to the Player instance
+     */
+    Player *getPlayer() { return &m_player; }
+
+    /**
+     * @brief Get a pointer to the ProjectileManager
+     * @return Pointer to the ProjectileManager instance
+     */
+    ProjectileManager *getProjectileManager() { return &m_projectileManager; }
+
+    /**
+     * @brief Set the game update function
+     * @param updateFunc Function to call for game logic updates
+     *
+     * This allows connecting the OpenGL rendering loop with
+     * external game logic in the Game class.
+     */
+    void setGameUpdateFunction(std::function<void()> updateFunc)
+    {
+        m_gameUpdateFunc = updateFunc;
+    }
+
 protected:
     // QOpenGLWidget methods to override
     void initializeGL() override;
@@ -67,6 +91,9 @@ private:
 
     // For calculating elapsed time between frames
     QTime m_lastFrameTime;
+
+    // Function pointer for game updates
+    std::function<void()> m_gameUpdateFunc = nullptr;
 };
 
 #endif // MYGLWIDGET_H

@@ -21,8 +21,9 @@ Projectile::Projectile(float startX, float startY, float startZ, float velocityX
 
 void Projectile::update(float deltaTime)
 {
-    // Use of Euler implicit method for physics simulation
+    // Physics simulation using Euler implicit method
 
+    // Reset acceleration each frame, with gravity applied to Y-axis
     m_acceleration[0] = 0.0f;
     m_acceleration[1] = -GRAVITY;
     m_acceleration[2] = 0.0f;
@@ -37,17 +38,12 @@ void Projectile::update(float deltaTime)
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
-    // Deactivate projectile if it leaves the corridor or hits the ground
-    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
+    // Deactivate projectile if it leaves the play area (corridor boundaries)
+    // We only check X and Z limits here, Y limit (floor) is handled by collision detection
+    if (m_position[2] >= 0.0f || m_position[2] <= -30.0f ||
+        m_position[0] < -5.0f || m_position[0] > 5.0f)
     {
         m_isActive = false;
-    }
-
-    // Check if the projectile should be sliced (z >= -5)
-    if (m_position[2] >= -5.0f && !m_sliced && m_isActive)
-    {
-        m_sliced = true;
-        m_shouldSlice = true;
     }
 }
 
@@ -110,4 +106,9 @@ void Projectile::setSliced()
     // Mark as sliced and deactivate to avoid multiple slices
     m_shouldSlice = false;
     m_isActive = false;
+}
+
+void Projectile::setShouldSlice(bool value)
+{
+    m_shouldSlice = value;
 }

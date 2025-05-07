@@ -6,7 +6,7 @@
 
 ProjectileManager::ProjectileManager()
     : m_timeSinceLastLaunch(0.0f), m_initialProjectileSpeed(15.0f),
-      m_rng(std::random_device()()), m_projectileTypeDist(0, 1)
+      m_rng(std::random_device()()), m_projectileTypeDist(0, 1), m_projectilesLaunched(0)
 {
     // Default values replaced by setter methods
     m_cannonPosition[0] = 0.0f;
@@ -35,8 +35,8 @@ void ProjectileManager::update(float deltaTime)
     // Update timer for launching projectiles
     m_timeSinceLastLaunch += deltaTime;
 
-    // Launch new projectile if it's time
-    if (m_timeSinceLastLaunch >= LAUNCH_INTERVAL)
+    // Only launch new projectiles if the game is active
+    if (m_gameActive && m_timeSinceLastLaunch >= LAUNCH_INTERVAL)
     {
         // Debug print
         qDebug() << "Launching projectile from cannon at position: ("
@@ -69,25 +69,28 @@ void ProjectileManager::draw()
 
 void ProjectileManager::launchProjectile()
 {
-    // Distribution generator to slightly randomize velocity in X and Y
+    // Random offset generators for projectile trajectory variation
     std::uniform_real_distribution<float> randomVerticalOffset(-1.5f, 0.5f);
     std::uniform_real_distribution<float> randomHorizontalOffset(-1.5f, 1.5f);
 
-    // Calculate initial velocity based on cannon direction, initial speed and random offsets
+    // Calculate velocity with directional vector and random offsets for gameplay variety
     float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) + randomHorizontalOffset(m_rng);
     float velocityY = (m_cannonDirection[1] * m_initialProjectileSpeed) + randomVerticalOffset(m_rng);
     float velocityZ = m_cannonDirection[2] * m_initialProjectileSpeed;
 
-    // Debug - display initial velocity
+    // Increment launched projectile counter
+    m_projectilesLaunched++;
+
+    // Log diagnostic information
     qDebug() << "Launch velocity: (" << velocityX << ", " << velocityY << ", " << velocityZ << ")";
     qDebug() << "Launch position: (" << m_cannonPosition[0] << ", " << m_cannonPosition[1] << ", " << m_cannonPosition[2] << ")";
+    qDebug() << "Total projectiles launched: " << m_projectilesLaunched;
 
-    // Randomly choose projectile type to launch
+    // Select random projectile type (apple or orange)
     int projectileType = m_projectileTypeDist(m_rng);
-
     Projectile *newProjectile = nullptr;
 
-    // Adjust projectile size for better visibility
+    // Create the selected projectile type
     if (projectileType == 0)
     {
         newProjectile = new Apple(
@@ -101,6 +104,7 @@ void ProjectileManager::launchProjectile()
             velocityX, velocityY, velocityZ);
     }
 
+    // Add projectile to active projectiles list
     if (newProjectile)
     {
         m_projectiles.push_back(newProjectile);
@@ -167,7 +171,8 @@ void ProjectileManager::checkProjectilesForSlicing()
 {
     for (auto projectile : m_projectiles)
     {
-        // Check if the projectile should be sliced (property shouldSlice)
+        // Check if the projectile should be sliced (based on the shouldSlice flag)
+        // This flag is now only activated by collision with the sword
         if (projectile->shouldSlice())
         {
             qDebug() << "Slicing projectile at position: ("
@@ -190,4 +195,17 @@ void ProjectileManager::addProjectile(Projectile *projectile)
     {
         m_projectiles.push_back(projectile);
     }
+}
+
+void ProjectileManager::clearProjectiles()
+{
+    // Delete all projectiles
+    for (auto projectile : m_projectiles)
+    {
+        delete projectile;
+    }
+    m_projectiles.clear();
+
+    // Reset timer
+    m_timeSinceLastLaunch = 0.0f;
 }

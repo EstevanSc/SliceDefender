@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QVector3D>
 
 using namespace cv;
 
@@ -37,6 +38,12 @@ public:
      * @brief Destructor releases resources like timer and webcam
      */
     ~CameraHandler();
+
+    /**
+     * @brief Get the hand/sword position detected by the camera
+     * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
+     */
+    QVector3D getHandPosition() const;
 
 private:
     Ui::CameraHandler *ui;

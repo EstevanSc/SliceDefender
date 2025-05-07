@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
+#include <QPushButton>
 #include "myglwidget.h"
 #include "CameraHandler.h"
+#include "game.h"
 
 namespace Ui
 {
@@ -52,10 +55,45 @@ private slots:
      */
     void updateMatchQuality(int quality);
 
+    /**
+     * @brief Starts or restarts the game
+     * Resets the game state and begins countdown
+     */
+    void startGame();
+
+    /**
+     * @brief Updates the score display
+     * @param score New score value
+     */
+    void updateScoreLabel(int score);
+
+    /**
+     * @brief Updates the lives display
+     * @param lives Remaining lives
+     */
+    void updateLivesLabel(int lives);
+
+    /**
+     * @brief Updates the countdown display
+     * @param value Current countdown value
+     */
+    void updateCountdownLabel(int value);
+
+    /**
+     * @brief Shows the start button when game ends
+     */
+    void showStartButton();
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
+    Game *game;
     int gameScore;
+
+    // Game UI elements
+    QLabel *livesLabel;
+    QLabel *countdownLabel;
+    QPushButton *startButton;
 
     /**
      * @brief Update the score display

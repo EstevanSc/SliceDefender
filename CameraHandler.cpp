@@ -16,7 +16,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
-    webCam_ = new VideoCapture(1);
+    webCam_ = new VideoCapture(0);
     hasReference = false;
     hasDetection = false;
     consecutiveDetections = 0;
@@ -466,4 +466,39 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
     updateStatusText();
 
     return keypoints2;
+}
+
+/**
+ * @brief Get the hand/sword position detected by the camera
+ * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
+ *
+ * This method converts the detected hand position to normalized coordinates
+ * where (-1,-1,0) is the bottom-left corner of the screen,
+ * (0,0,0) is the center, and (1,1,0) is the top-right corner.
+ * If no hand is detected, returns (0,0,0).
+ */
+QVector3D CameraHandler::getHandPosition() const
+{
+    // If we don't have a reference image or detection, return center position
+    if (!hasReference || !hasDetection)
+    {
+        return QVector3D(0.0f, 0.0f, 0.0f);
+    }
+
+    // Get frame dimensions
+    int frameWidth = webCam_->get(cv::CAP_PROP_FRAME_WIDTH);
+    int frameHeight = webCam_->get(cv::CAP_PROP_FRAME_HEIGHT);
+
+    // Calculate center point of the detected rectangle
+    float handX_px = lastDetectedRect.x + lastDetectedRect.width / 2.0f;
+    float handY_px = lastDetectedRect.y + lastDetectedRect.height / 2.0f;
+
+    // Normalize to -1 to 1 range
+    // X: -1 (left) to 1 (right)
+    // Y: -1 (bottom) to 1 (top)
+    float normalizedX = 2.0f * (handX_px / frameWidth) - 1.0f;
+    float normalizedY = 1.0f - 2.0f * (handY_px / frameHeight); // Invert Y axis
+
+    // Create QVector3D with Z=0 (2D tracking)
+    return QVector3D(normalizedX, normalizedY, 0.0f);
 }

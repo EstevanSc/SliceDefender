@@ -60,7 +60,7 @@ void AppleHalf::draw()
     glEnable(GL_LIGHTING);
 }
 
-// Surcharge update pour empêcher les moitiés d'être découpées
+// Override to ignore the slicing area
 void AppleHalf::update(float deltaTime)
 {
     // Mise à jour de la physique
@@ -78,8 +78,10 @@ void AppleHalf::update(float deltaTime)
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
-    // Désactiver seulement si la demi-pomme sort de l'écran ou touche le sol
-    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
+    // Désactiver seulement si la demi-pomme sort des limites du corridor
+    // On ne désactive plus pour y <= 0 ici, cela est géré dans Game::checkCollisions
+    if (m_position[2] >= 0.0f || m_position[2] <= -30.0f ||
+        m_position[0] < -5.0f || m_position[0] > 5.0f)
     {
         m_isActive = false;
     }

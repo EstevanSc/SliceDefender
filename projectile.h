@@ -18,6 +18,7 @@ public:
     virtual void slice(ProjectileManager *manager) = 0;
     bool shouldSlice() const;
     void setSliced();
+    void setShouldSlice(bool value); // Nouvelle méthode pour définir si le projectile doit être découpé
     virtual float getRadius() const = 0;
     virtual void getColor(float &r, float &g, float &b) const = 0;
 

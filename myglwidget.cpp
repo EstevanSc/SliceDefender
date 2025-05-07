@@ -111,6 +111,12 @@ void MyGLWidget::paintGL()
     // Update projectile manager
     m_projectileManager.update(deltaTime);
 
+    // Call the game update function if it exists
+    if (m_gameUpdateFunc)
+    {
+        m_gameUpdateFunc();
+    }
+
     // Draw scene elements
     drawCorridor();
     drawCannon();
