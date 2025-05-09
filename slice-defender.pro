@@ -29,6 +29,7 @@ TARGET 	  = slice-defender
 SOURCES	+= main.cpp myglwidget.cpp \
     CameraHandler.cpp \
     cannon.cpp \
+    keyboardhandler.cpp \
     mainwindow.cpp \
     player.cpp \
     projectile.cpp \
@@ -48,6 +49,7 @@ HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
     CameraHandler.h\
+    keyboardhandler.h \
     mainwindow.h \
     player.h \
     projectile.h \

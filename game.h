@@ -7,6 +7,7 @@
 #include "player.h"
 #include "cameraHandler.h"
 #include "projectileManager.h"
+#include "keyboardhandler.h"
 
 /**
  * @class Game
@@ -27,10 +28,12 @@ public:
      * @brief Constructor initializes game with required components
      * @param player Pointer to the player (sword) object
      * @param cameraHandler Pointer to the camera handler for tracking hand position
+     * @param keyboardHandler Pointer to the keyboard handler for keyboard input
      * @param projectileManager Pointer to the projectile manager
      * @param parent Parent QObject for memory management
      */
     explicit Game(Player *player, CameraHandler *cameraHandler,
+                  KeyboardHandler *keyboardHandler,
                   ProjectileManager *projectileManager, QObject *parent = nullptr);
 
     /**
@@ -41,7 +44,7 @@ public:
     /**
      * @brief Update game state - called each frame
      *
-     * Updates player position based on camera tracking,
+     * Updates player position based on camera tracking and keyboard input,
      * checks for collisions, and handles game logic.
      */
     void update();
@@ -116,9 +119,16 @@ private:
      */
     void checkCollisions();
 
+    /**
+     * @brief Update player position based on input
+     * Combines camera tracking with keyboard controls
+     */
+    void updatePlayerPosition();
+
     // Game components
     Player *m_player;
     CameraHandler *m_cameraHandler;
+    KeyboardHandler *m_keyboardHandler;
     ProjectileManager *m_projectileManager;
 
     // Game state
@@ -126,6 +136,7 @@ private:
     int m_lives;
     bool m_gameStarted;
     QVector3D m_handPosition;
+    QVector3D m_playerPosition;
 
     // Countdown state
     int m_countdownValue;

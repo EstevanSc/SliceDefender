@@ -6,6 +6,7 @@
 #include "myglwidget.h"
 #include <cmath>
 #include "cannon.h"
+#include <QKeyEvent>
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
@@ -21,6 +22,9 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     // Using default parameters (0,0) which places it in the center
     // Setting to 0.0, 0.0 centers it on the grid
     positionPlayerOnGrid(0.5, 0.5);
+
+    // Set focus policy to allow keyboard input
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 MyGLWidget::~MyGLWidget()
@@ -342,4 +346,39 @@ void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
     // The Y rotation follows the curvature of the grid
     float rotationY = angle * 180.0f / M_PI;
     m_player.setRotation(0.0f, rotationY, 0.0f);
+}
+
+void MyGLWidget::keyPressEvent(QKeyEvent *event)
+{
+    // Handle numpad keys specifically, which sometimes need special treatment
+    int key = event->key();
+
+    // Map numpad keys to their corresponding standard keys if needed
+    if (event->modifiers() & Qt::KeypadModifier)
+    {
+        switch (key)
+        {
+        case Qt::Key_Plus:
+            key = Qt::Key_Plus; // Keep as is
+            break;
+        case Qt::Key_Minus:
+            key = Qt::Key_Minus; // Keep as is
+            break;
+        }
+    }
+
+    // Pass key events to the keyboard handler with possibly modified key
+    m_keyboardHandler.keyPressed(key);
+
+    // Allow standard processing
+    QOpenGLWidget::keyPressEvent(event);
+}
+
+void MyGLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    // Pass key events to the keyboard handler
+    m_keyboardHandler.keyReleased(event->key());
+
+    // Allow standard processing
+    QOpenGLWidget::keyReleaseEvent(event);
 }

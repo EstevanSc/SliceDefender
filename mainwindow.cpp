@@ -45,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent)
     countdownLabel->setStyleSheet("color: orange;");
     countdownLabel->hide();
 
+    speedLabel = new QLabel("Speed: 1.0x", this);
+    speedLabel->setAlignment(Qt::AlignCenter);
+    speedLabel->setFont(QFont("Arial", 10, QFont::Bold));
+    speedLabel->setStyleSheet("color: blue;");
+
     startButton = new QPushButton("Start Game", this);
     startButton->setFont(QFont("Arial", 12, QFont::Bold));
     startButton->setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;");
@@ -53,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Add them to the UI below the score
     ui->scoreLayout->addWidget(livesLabel);
     ui->scoreLayout->addWidget(countdownLabel);
+    ui->scoreLayout->addWidget(speedLabel);
     ui->scoreLayout->addWidget(startButton);
 
     // Get the OpenGL widget to access the player and projectile manager
@@ -63,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         game = new Game(glWidget->getPlayer(),
                         cameraHandler,
+                        glWidget->getKeyboardHandler(),
                         glWidget->getProjectileManager(),
                         this);
 
@@ -74,6 +81,10 @@ MainWindow::MainWindow(QWidget *parent)
 
         // Connect player position changes to the GL widget
         connect(game, &Game::playerPositionChanged, glWidget, &MyGLWidget::positionPlayerOnGrid);
+
+        // Connect keyboard speed changes
+        connect(glWidget->getKeyboardHandler(), &KeyboardHandler::speedMultiplierChanged,
+                this, &MainWindow::updateSpeedIndicator);
 
         // Set the game update function in the GL widget
         glWidget->setGameUpdateFunction([this]()
@@ -192,4 +203,13 @@ void MainWindow::showStartButton()
 {
     startButton->setText("Restart Game");
     startButton->show();
+}
+
+/**
+ * @brief Updates the speed indicator when the keyboard speed changes
+ * @param speedMultiplier The new speed multiplier value
+ */
+void MainWindow::updateSpeedIndicator(float speedMultiplier)
+{
+    speedLabel->setText(QString("Speed: %1x").arg(speedMultiplier, 0, 'f', 1));
 }
