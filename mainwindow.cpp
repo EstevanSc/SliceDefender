@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 /**
  * @brief Constructor initializes UI and camera resources
@@ -11,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
       cameraHandler(nullptr),
+      game(nullptr),
       gameScore(0)
 {
     ui->setupUi(this);
@@ -28,6 +32,56 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->cameraView->hide();
     ui->cameraStatus->hide();
+
+    // Create the game UI elements
+    livesLabel = new QLabel("Lives: 5", this);
+    livesLabel->setAlignment(Qt::AlignCenter);
+    livesLabel->setFont(QFont("Arial", 12, QFont::Bold));
+    livesLabel->setStyleSheet("color: red;");
+
+    countdownLabel = new QLabel("5", this);
+    countdownLabel->setAlignment(Qt::AlignCenter);
+    countdownLabel->setFont(QFont("Arial", 36, QFont::Bold));
+    countdownLabel->setStyleSheet("color: orange;");
+    countdownLabel->hide();
+
+    startButton = new QPushButton("Start Game", this);
+    startButton->setFont(QFont("Arial", 12, QFont::Bold));
+    startButton->setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;");
+    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
+
+    // Add them to the UI below the score
+    ui->scoreLayout->addWidget(livesLabel);
+    ui->scoreLayout->addWidget(countdownLabel);
+    ui->scoreLayout->addWidget(startButton);
+
+    // Get the OpenGL widget to access the player and projectile manager
+    MyGLWidget *glWidget = qobject_cast<MyGLWidget *>(ui->glWidget);
+
+    // Create the Game instance
+    if (glWidget)
+    {
+        game = new Game(glWidget->getPlayer(),
+                        cameraHandler,
+                        glWidget->getProjectileManager(),
+                        this);
+
+        // Connect game signals to UI slots
+        connect(game, &Game::scoreChanged, this, &MainWindow::updateScoreLabel);
+        connect(game, &Game::livesChanged, this, &MainWindow::updateLivesLabel);
+        connect(game, &Game::countdownUpdated, this, &MainWindow::updateCountdownLabel);
+        connect(game, &Game::gameEnded, this, &MainWindow::showStartButton);
+
+        // Connect player position changes to the GL widget
+        connect(game, &Game::playerPositionChanged, glWidget, &MyGLWidget::positionPlayerOnGrid);
+
+        // Set the game update function in the GL widget
+        glWidget->setGameUpdateFunction([this]()
+                                        {
+            if (game) {
+                game->update();
+            } });
+    }
 
     updateScoreDisplay();
 }
@@ -51,25 +105,11 @@ void MainWindow::updateMatchQuality(int quality)
 }
 
 /**
- * @brief Update the score display
- */
-void MainWindow::updateScoreDisplay()
-{
-    ui->scoreValue->setText(QString::number(gameScore));
-}
-
-/**
  * @brief Start a new game with reset score
  */
 void MainWindow::startNewGame()
 {
-    // Reset game state
-    gameScore = 0;
-    updateScoreDisplay();
-
-    ui->matchInfo->setText("Waiting for detection...");
-
-    QMessageBox::information(this, tr("New Game"), tr("Starting a new game. Get ready!"));
+    startGame();
 }
 
 /**
@@ -81,4 +121,75 @@ void MainWindow::showAboutDialog()
                        tr("Slice Defender v1.0\n\n"
                           "A game that uses computer vision to detect and track hand movements.\n\n"
                           "Created with Qt and OpenCV."));
+}
+
+/**
+ * @brief Starts or restarts the game
+ */
+void MainWindow::startGame()
+{
+    if (game)
+    {
+        // Reset the game state
+        game->resetGame();
+
+        // Hide the start button and show the countdown
+        startButton->hide();
+        countdownLabel->show();
+
+        // Start the countdown
+        game->startCountdown();
+    }
+}
+
+/**
+ * @brief Updates the score display
+ */
+void MainWindow::updateScoreDisplay()
+{
+    ui->scoreValue->setText(QString::number(gameScore));
+}
+
+/**
+ * @brief Updates the score display
+ * @param score New score value
+ */
+void MainWindow::updateScoreLabel(int score)
+{
+    gameScore = score;
+    updateScoreDisplay();
+}
+
+/**
+ * @brief Updates the lives display
+ * @param lives Remaining lives
+ */
+void MainWindow::updateLivesLabel(int lives)
+{
+    livesLabel->setText(QString("Lives: %1").arg(lives));
+}
+
+/**
+ * @brief Updates the countdown display
+ * @param value Current countdown value
+ */
+void MainWindow::updateCountdownLabel(int value)
+{
+    if (value <= 0)
+    {
+        countdownLabel->hide();
+    }
+    else
+    {
+        countdownLabel->setText(QString::number(value));
+    }
+}
+
+/**
+ * @brief Shows the start button when game ends
+ */
+void MainWindow::showStartButton()
+{
+    startButton->setText("Restart Game");
+    startButton->show();
 }

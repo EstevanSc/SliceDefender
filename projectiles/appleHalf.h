@@ -28,6 +28,9 @@ public:
     // Override to ignore the slicing area
     void update(float deltaTime) override;
 
+    // Indicate this is a half projectile
+    bool isHalf() const override { return true; }
+
 private:
     HalfType m_type;
     static constexpr float RADIUS = 0.25f;

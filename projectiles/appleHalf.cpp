@@ -80,8 +80,10 @@ void AppleHalf::update(float deltaTime)
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
-    // DDeactivate only if the half-apple goes off-screen or hits the ground
-    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
+    // Désactiver seulement si la demi-pomme sort des limites du corridor
+    // On ne désactive plus pour y <= 0 ici, cela est géré dans Game::checkCollisions
+    if (m_position[2] >= 0.0f || m_position[2] <= -30.0f ||
+        m_position[0] < -5.0f || m_position[0] > 5.0f)
     {
         m_isActive = false;
     }

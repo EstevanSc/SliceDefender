@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QVector3D>
 
 using namespace cv;
 
@@ -38,6 +39,28 @@ public:
      */
     ~CameraHandler();
 
+    /**
+     * @brief Get the hand/sword position detected by the camera
+     * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
+     */
+    QVector3D getHandPosition() const;
+
+    /**
+     * @brief Get the current tracked hand position in screen coordinates
+     * @return QPoint containing the x,y coordinates of the tracked hand
+     */
+    QPoint getTrackedHandPosition() const { return QPoint(m_handPosition[0], m_handPosition[1]); }
+
+    /**
+     * @brief Set the tracked hand position
+     * @param x X-coordinate of the hand position
+     * @param y Y-coordinate of the hand position
+     *
+     * This method updates the internal hand position that's used to control
+     * the player's sword in the game world.
+     */
+    void setTrackedHandPosition(int x, int y);
+
 private:
     Ui::CameraHandler *ui;
     VideoCapture *webCam_;
@@ -52,6 +75,13 @@ private:
     QElapsedTimer detectionTimer;
     bool debug;
     const float m_siftRationTresh = 0.85f;
+
+    /**
+     * @brief Stores the tracked hand position in screen coordinates
+     * [0] = x-coordinate, [1] = y-coordinate
+     */
+    int m_handPosition[2];
+
     bool isDetectionClose(const Rect &current, const Rect &previous);
 
     /**

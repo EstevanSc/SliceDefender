@@ -111,6 +111,12 @@ void MyGLWidget::paintGL()
     // Update projectile manager
     m_projectileManager.update(deltaTime);
 
+    // Call the game update function if it exists
+    if (m_gameUpdateFunc)
+    {
+        m_gameUpdateFunc();
+    }
+
     // Draw scene elements
     drawCorridor();
     drawCannon();
@@ -301,31 +307,32 @@ void MyGLWidget::drawAxes()
  * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
  *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
  *
- * @param gridZ Z coordinate on the grid (ranges from -1.0 to 1.0)
- *              Where -1.0 is the back edge, 0.0 is center, and 1.0 is the front edge
- *
- * Grid coordinates are normalized so (0,0) is the center of the grid,
- * and the edges are at (-1,-1) to (1,1), regardless of the actual grid size.
+ * @param gridY Y coordinate on the grid (ranges from -1.0 to 1.0)
+ *              Where -1.0 is the bottom, 0.0 is center, and 1.0 is the top
+ *              This parameter was previously named gridZ but has been renamed for clarity
  */
-void MyGLWidget::positionPlayerOnGrid(float gridX, float gridZ)
+void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
 {
     // Calculate the angle based on the gridX coordinate and gridAngle
     // gridX ranges from -1.0 (left) to 1.0 (right)
     // Convert to an angle within the gridAngle range
     float angle = (gridX * (gridAngle / 2.0f)) * M_PI / 180.0f;
 
-    // Calculate the radius based on the gridZ coordinate
-    // gridZ ranges from -1.0 (back) to 1.0 (front)
-    // Scale the radius accordingly (keep it within the grid limits)
-    float radius = gridRadius * (1.0f - std::abs(gridZ));
+    // Get the base Y-coordinate of the grid (height)
+    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
+    float baseY = 2.0f;
+
+    // Calculate the height offset based on gridY
+    // gridY ranges from -1.0 (bottom) to 1.0 (top)
+    // Scale to move within the grid height limits
+    float heightOffset = gridY * (corridorHeight * 0.25f); // Half of half height
+    float worldY = baseY + heightOffset;
+
+    // Use a fixed radius for the grid cylinder
+    float radius = gridRadius;
 
     // Convert from polar coordinates (angle, radius) to Cartesian coordinates (x, z)
     float worldX = radius * std::sin(angle);
-
-    // Get the y-coordinate directly from the grid
-    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
-    float worldY = 2.0f;
-
     float worldZ = -radius * std::cos(angle); // Negative for OpenGL z-axis orientation
 
     // Set the player's position directly on the grid surface

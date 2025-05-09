@@ -28,6 +28,9 @@ public:
     // Clean up inactive projectiles
     void cleanupProjectiles();
 
+    // Clear all projectiles (for game reset)
+    void clearProjectiles();
+
     // Methods to configure the cannon
     void setCannonPosition(const float position[3]);
     void setCannonDirection(const float direction[3]);
@@ -39,10 +42,23 @@ public:
     // Method to handle projectile slicing
     void checkProjectilesForSlicing();
 
+    // Get direct access to projectiles (for collision detection)
+    std::vector<Projectile *> &getProjectiles() { return m_projectiles; }
+
+    // Set whether or not the game is actively running
+    // When false, no projectiles will be launched
+    void setGameActive(bool active) { m_gameActive = active; }
+
+    // Get stats
+    int getProjectilesLaunched() const { return m_projectilesLaunched; }
+    void resetStats() { m_projectilesLaunched = 0; }
+
 private:
     std::vector<Projectile *> m_projectiles;
     float m_timeSinceLastLaunch;
     static constexpr float LAUNCH_INTERVAL = 2.0f;
+    bool m_gameActive = false;
+    int m_projectilesLaunched = 0;
 
     // Cannon properties
     float m_cannonPosition[3];

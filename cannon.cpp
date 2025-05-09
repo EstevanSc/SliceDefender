@@ -46,7 +46,6 @@ float Cannon::getAxisLength() const { return m_axisLength; }
 
 void Cannon::draw() const
 {
-    // Save the current matrix
     glPushMatrix();
 
     // Position the cannon
@@ -59,11 +58,9 @@ void Cannon::draw() const
     drawCannonTube();
     drawWheels();
 
-    // Restore the matrix
     glPopMatrix();
 }
 
-// Utility method to draw decorative rings around the cannon
 void Cannon::drawRing(GLUquadric *quadric, float distance, float ringWidth, float ringDepth) const
 {
     glPushMatrix();
@@ -82,7 +79,6 @@ void Cannon::drawRing(GLUquadric *quadric, float distance, float ringWidth, floa
     glPopMatrix();
 }
 
-// Utility method to draw a wheel
 void Cannon::drawWheel(GLUquadric *quadric, float xOffset) const
 {
     glPushMatrix();
@@ -109,7 +105,6 @@ void Cannon::drawCannonTube() const
 {
     GLUquadric *quadric = gluNewQuadric();
 
-    // Main cannon tube
     glPushMatrix();
 
     // Offset to align the cannon with the wheels
@@ -126,13 +121,8 @@ void Cannon::drawCannonTube() const
     glColor3f(0.3f, 0.2f, 0.1f);
 
     // Decorative rings at different positions
-    // First ring near the base
     drawRing(quadric, 0.05f, 0.12f);
-
-    // Ring at the middle of the cannon
     drawRing(quadric, m_length * 0.5f, 0.08f);
-
-    // Ring near the end of the cannon
     drawRing(quadric, m_length - 0.15f, 0.08f);
 
     // Cannon mouth (interior, darker)
@@ -151,7 +141,6 @@ void Cannon::drawWheels() const
 {
     GLUquadric *quadric = gluNewQuadric();
 
-    // Wheel axle (bar connecting the two wheels)
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, m_length * 0.3f);
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
@@ -164,10 +153,10 @@ void Cannon::drawWheels() const
 
     glPopMatrix();
 
-    // Left wheel - placed at the left edge of the cannon
+    // Left wheel
     drawWheel(quadric, -m_radius * 1.5f);
 
-    // Right wheel - placed at the right edge of the cannon
+    // Right wheel
     drawWheel(quadric, m_radius * 1.2f);
 
     gluDeleteQuadric(quadric);
