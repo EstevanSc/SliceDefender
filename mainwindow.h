@@ -84,6 +84,12 @@ private slots:
      */
     void showStartButton();
 
+    /**
+     * @brief Updates the speed indicator when the keyboard speed changes
+     * @param speedMultiplier The new speed multiplier value
+     */
+    void updateSpeedIndicator(float speedMultiplier);
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
@@ -93,6 +99,7 @@ private:
     // Game UI elements
     QLabel *livesLabel;
     QLabel *countdownLabel;
+    QLabel *speedLabel;
     QPushButton *startButton;
 
     /**

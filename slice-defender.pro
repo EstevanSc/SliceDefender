@@ -29,6 +29,7 @@ TARGET 	  = slice-defender
 SOURCES	+= main.cpp myglwidget.cpp \
     CameraHandler.cpp \
     cannon.cpp \
+    keyboardhandler.cpp \
     mainwindow.cpp \
     player.cpp \
     projectile.cpp \
@@ -42,11 +43,13 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectiles/orange.cpp \
     projectiles/orangeHalf.cpp \
     projectiles/strawberry.cpp \
-    projectiles/strawberryHalf.cpp
+    projectiles/strawberryHalf.cpp \
+    game.cpp
 HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
     CameraHandler.h\
+    keyboardhandler.h \
     mainwindow.h \
     player.h \
     projectile.h \
@@ -60,7 +63,8 @@ HEADERS += myglwidget.h \
     projectiles/orange.h \
     projectiles/orangeHalf.h \
     projectiles/strawberry.h \
-    projectiles/strawberryHalf.h
+    projectiles/strawberryHalf.h \
+    game.h
 
 RESOURCES += \
     res/textures.qrc

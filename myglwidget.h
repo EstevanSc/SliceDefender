@@ -10,6 +10,7 @@
 #include "projectileManager.h"
 #include <QOpenGLTexture>
 #include "player.h"
+#include "keyboardhandler.h"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -30,6 +31,12 @@ public:
      * @return Pointer to the ProjectileManager instance
      */
     ProjectileManager *getProjectileManager() { return &m_projectileManager; }
+
+    /**
+     * @brief Get a pointer to the KeyboardHandler
+     * @return Pointer to the KeyboardHandler instance
+     */
+    KeyboardHandler *getKeyboardHandler() { return &m_keyboardHandler; }
 
     /**
      * @brief Set the game update function
@@ -65,6 +72,10 @@ protected:
     void paintGL() override;
     void resizeGL(int width, int height) override;
 
+    // Handle keyboard events
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+
 private:
     // Drawing methods
     void drawCorridor();
@@ -94,6 +105,9 @@ private:
 
     // Player (sword) instance
     Player m_player;
+
+    // Keyboard handler for keyboard controls
+    KeyboardHandler m_keyboardHandler;
 
     // For calculating elapsed time between frames
     QTime m_lastFrameTime;
