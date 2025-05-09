@@ -9,6 +9,7 @@
 #include <QTime>
 #include "projectileManager.h"
 #include <QOpenGLTexture>
+#include "player.h"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
