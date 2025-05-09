@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>apple_color.jpg</file>
+        <file>apple_normal.png</file>
+        <file>orange_color.jpg</file>
+        <file>corn_color.jpg</file>
+        <file>banana_color.jpg</file>
+        <file>strawberry_color.jpg</file>
+    </qresource>
+</RCC>

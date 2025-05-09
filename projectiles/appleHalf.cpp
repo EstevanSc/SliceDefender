@@ -2,6 +2,10 @@
 #include <GL/glu.h>
 #include "appleHalf.h"
 #include "../projectileManager.h"
+#include <QOpenGLTexture>
+#include <QImage>
+
+static QOpenGLTexture *g_appleTexture = nullptr;
 
 AppleHalf::AppleHalf(float startX, float startY, float startZ,
                      float velocityX, float velocityY, float velocityZ,
@@ -9,7 +13,8 @@ AppleHalf::AppleHalf(float startX, float startY, float startZ,
     : Projectile(startX, startY, startZ, velocityX, velocityY, velocityZ),
       m_type(type)
 {
-    // AppleHalf specific initialization if needed
+    if (!g_appleTexture)
+        g_appleTexture = new QOpenGLTexture(QImage(":/apple_color.jpg").mirrored());
 }
 
 void AppleHalf::draw()
@@ -17,53 +22,50 @@ void AppleHalf::draw()
     if (!isActive())
         return;
 
-    // Disable lighting to ensure half apples are always visible
-    glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
-    // Save current state
     glPushMatrix();
-
-    // Position the half apple at the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Green color for apple half
-    glColor3f(0.0f, 1.0f, 0.0f);
-
-    // Set up clipping plane to make a half sphere
+    // Clipping for the half-sphere
     double planeEq[4] = {0.0, 0.0, 0.0, 0.0};
-
-    if (m_type == HalfType::LEFT)
-    {
-        planeEq[0] = 1.0; // Clip along x-axis (positive side)
-    }
-    else
-    {
-        planeEq[0] = -1.0; // Clip along x-axis (negative side)
-    }
+    planeEq[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
 
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    // Draw a sphere
+    // Rotate texture by 90° on X axis
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+    // Texture
+    if (g_appleTexture) {
+        glEnable(GL_TEXTURE_2D);
+        g_appleTexture->bind();
+    }
+    glColor3f(1.0f, 1.0f, 1.0f);
+
     GLUquadricObj *quadric = gluNewQuadric();
     gluQuadricDrawStyle(quadric, GLU_FILL);
+    gluQuadricTexture(quadric, GL_TRUE);
     gluSphere(quadric, RADIUS, 20, 20);
     gluDeleteQuadric(quadric);
 
-    // Disable clipping plane
-    glDisable(GL_CLIP_PLANE0);
+    if (g_appleTexture) {
+        g_appleTexture->release();
+        glDisable(GL_TEXTURE_2D);
+    }
 
-    // Restore previous state
+    glDisable(GL_CLIP_PLANE0);
     glPopMatrix();
 
-    // Re-enable lighting after drawing
     glEnable(GL_LIGHTING);
+    glColor3f(1.0f, 1.0f, 1.0f);
 }
 
-// Override to ignore the slicing area
+// Override to ignore the slicing of already sliced projectiles
 void AppleHalf::update(float deltaTime)
 {
-    // Mise à jour de la physique
+    // Physics update
     m_acceleration[0] = 0.0f;
     m_acceleration[1] = -GRAVITY;
     m_acceleration[2] = 0.0f;
@@ -86,13 +88,13 @@ void AppleHalf::update(float deltaTime)
         m_isActive = false;
     }
 
-    // Important: ne pas activer shouldSlice pour les moitiés
+    // Important: do not activate shouldSlice for halves
 }
 
 void AppleHalf::slice(ProjectileManager *manager)
 {
-    // Les moitiés ne peuvent pas être coupées
-    // Ne rien faire
+    // Halves cannot be sliced
+    // Do nothing
 }
 
 float AppleHalf::getRadius() const

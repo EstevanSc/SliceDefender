@@ -2,6 +2,10 @@
 #include <GL/glu.h>
 #include "orangeHalf.h"
 #include "../projectileManager.h"
+#include <QOpenGLTexture>
+#include <QImage>
+
+static QOpenGLTexture *g_orangeTexture = nullptr;
 
 OrangeHalf::OrangeHalf(float startX, float startY, float startZ,
                        float velocityX, float velocityY, float velocityZ,
@@ -9,7 +13,8 @@ OrangeHalf::OrangeHalf(float startX, float startY, float startZ,
     : Projectile(startX, startY, startZ, velocityX, velocityY, velocityZ),
       m_type(type)
 {
-    // OrangeHalf specific initialization if needed
+    if (!g_orangeTexture)
+        g_orangeTexture = new QOpenGLTexture(QImage(":/orange_color.jpg").mirrored());
 }
 
 void OrangeHalf::draw()
@@ -17,47 +22,44 @@ void OrangeHalf::draw()
     if (!isActive())
         return;
 
-    // Disable lighting to ensure half oranges are always visible
-    glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
-    // Save current state
     glPushMatrix();
-
-    // Position the half orange at the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Orange color
-    glColor3f(1.0f, 0.5f, 0.0f);
-
-    // Set up clipping plane to make a half sphere
+    // Clipping for half-sphere
     double planeEq[4] = {0.0, 0.0, 0.0, 0.0};
-
-    if (m_type == HalfType::LEFT)
-    {
-        planeEq[0] = 1.0; // Clip along x-axis (positive side)
-    }
-    else
-    {
-        planeEq[0] = -1.0; // Clip along x-axis (negative side)
-    }
+    planeEq[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
 
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    // Draw a sphere
+    // Rotate texture by 90° on X axis
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+    // Texture
+    if (g_orangeTexture) {
+        glEnable(GL_TEXTURE_2D);
+        g_orangeTexture->bind();
+    }
+    glColor3f(1.0f, 1.0f, 1.0f);
+
     GLUquadricObj *quadric = gluNewQuadric();
     gluQuadricDrawStyle(quadric, GLU_FILL);
+    gluQuadricTexture(quadric, GL_TRUE);
     gluSphere(quadric, RADIUS, 20, 20);
     gluDeleteQuadric(quadric);
 
-    // Disable clipping plane
-    glDisable(GL_CLIP_PLANE0);
+    if (g_orangeTexture) {
+        g_orangeTexture->release();
+        glDisable(GL_TEXTURE_2D);
+    }
 
-    // Restore previous state
+    glDisable(GL_CLIP_PLANE0);
     glPopMatrix();
 
-    // Re-enable lighting after drawing
     glEnable(GL_LIGHTING);
+    glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 // Override update to prevent halves from being sliced
