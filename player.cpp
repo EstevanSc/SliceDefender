@@ -366,3 +366,37 @@ void Player::drawBladeTip() const
     glPopMatrix();
     glPopMatrix();
 }
+
+/**
+ * @brief Gets the position of the blade tip for more precise collision detection
+ * @return Position of the blade tip in world coordinates
+ */
+QVector3D Player::getBladeTipPosition() const
+{
+    // Calculate the offset from the player position to the blade tip
+    float totalHeight = m_handleLength + m_guardHeight + m_bladeLength + m_tipLength;
+
+    // Start with the player position
+    QVector3D bladeTip = m_position;
+
+    // Apply rotations to calculate the blade tip position
+    float rotX = m_rotation.x() * M_PI / 180.0f;
+    float rotY = m_rotation.y() * M_PI / 180.0f;
+    float rotZ = m_rotation.z() * M_PI / 180.0f;
+
+    // Create a direction vector pointing along the blade
+    QVector3D bladeDir(0.0f, totalHeight, 0.0f);
+
+    // Apply Y rotation (most significant for sword orientation)
+    float cosY = cos(rotY);
+    float sinY = sin(rotY);
+    float newX = bladeDir.x() * cosY - bladeDir.z() * sinY;
+    float newZ = bladeDir.x() * sinY + bladeDir.z() * cosY;
+    bladeDir.setX(newX);
+    bladeDir.setZ(newZ);
+
+    // Add the direction vector to the base position
+    bladeTip += bladeDir;
+
+    return bladeTip;
+}

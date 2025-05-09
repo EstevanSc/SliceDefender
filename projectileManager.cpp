@@ -120,12 +120,20 @@ void ProjectileManager::createProjectile(Args &&...args)
 
 void ProjectileManager::cleanupProjectiles()
 {
-    // Remove inactive projectiles
+    // Only remove inactive projectiles after they've been properly processed
+    // This avoids destroying projectiles immediately upon contact with grid/player
     auto it = std::remove_if(m_projectiles.begin(), m_projectiles.end(),
                              [](Projectile *p)
                              {
                                  if (!p->isActive())
                                  {
+                                     const std::type_info &typeInfo = typeid(*p);
+                                     const char *typeName = typeInfo.name();
+
+                                     float *pos = p->getPosition();
+                                     qDebug() << "Cleaning up inactive projectile:" << typeName
+                                              << "at position:" << pos[0] << "," << pos[1] << "," << pos[2];
+
                                      delete p;
                                      return true;
                                  }

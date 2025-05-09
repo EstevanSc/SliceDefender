@@ -18,7 +18,7 @@ public:
     virtual void slice(ProjectileManager *manager) = 0;
     bool shouldSlice() const;
     void setSliced();
-    void setShouldSlice(bool value); // Nouvelle méthode pour définir si le projectile doit être découpé
+    void setShouldSlice(bool value);
     virtual float getRadius() const = 0;
     virtual void getColor(float &r, float &g, float &b) const = 0;
 
@@ -35,6 +35,12 @@ public:
     bool isActive() const;
     void setActive(bool active);
 
+    virtual bool isHalf() const { return false; }
+
+    // Life loss tracking
+    bool hasDecreasedLife() const { return m_hasDecreasedLife; }
+    void setDecreasedLife(bool decreased) { m_hasDecreasedLife = decreased; }
+
 protected:
     float m_position[3];
     float m_velocity[3];
@@ -42,6 +48,7 @@ protected:
     bool m_isActive;
     bool m_sliced = false;
     bool m_shouldSlice = false;
+    bool m_hasDecreasedLife = false; // Flag to track if projectile has already caused life loss
 
     static constexpr float GRAVITY = 9.81f; // Gravity constant
 };
