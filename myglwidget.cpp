@@ -111,6 +111,8 @@ void MyGLWidget::paintGL()
     drawCannon();
     drawCylindricalGrid();
 
+    // drawTestObject();
+
     m_projectileManager.draw();
 }
 
@@ -278,4 +280,8 @@ void MyGLWidget::drawAxes()
 
     // Re-enable lighting
     glEnable(GL_LIGHTING);
+}
+
+void MyGLWidget::drawTestObject()
+{
 }

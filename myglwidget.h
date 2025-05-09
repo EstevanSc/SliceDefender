@@ -31,6 +31,8 @@ private:
     void setupLight();
     void drawAxes();
 
+    void drawTestObject();
+
     // Timer for animations
     QTimer *timer;
 
