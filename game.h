@@ -64,14 +64,17 @@ public:
     void startCountdown();
 
     /**
-     * @brief Increase player's score by one point
+     * @brief Increase player's score by one point plus bonus
      * Called when a projectile is sliced by the player
+     * Implements a linear bonus system where each consecutive hit
+     * earns progressively more points
      */
     void gainPoint();
 
     /**
      * @brief Decrease player's lives by one
      * Called when a projectile hits the ground or passes through the grid
+     * Also resets the point bonus counter to zero
      * @return true if player still has lives remaining, false if game over
      */
     bool loseLife();
@@ -152,6 +155,7 @@ private:
     bool m_gameStarted;
     QVector3D m_handPosition;
     QVector3D m_playerPosition;
+    int m_pointsCounter;
 
     // Countdown state
     int m_countdownValue;

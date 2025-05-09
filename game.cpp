@@ -12,7 +12,8 @@ Game::Game(Player *player, CameraHandler *cameraHandler,
       m_score(0),
       m_lives(5),
       m_gameStarted(false),
-      m_countdownValue(5)
+      m_countdownValue(5),
+      m_pointsCounter(0)
 {
     // Initialize timers
     m_updateTimer = new QTimer(this);
@@ -91,9 +92,6 @@ void Game::updatePlayerPosition()
     // Only emit position changed signal if position actually changed
     if (positionChanged)
     {
-        // Log the sword position for debugging
-        qDebug() << "Moving sword to grid position: (" << m_playerPosition.x() << ", "
-                 << m_playerPosition.y() << ", " << m_playerPosition.z() << ")";
 
         // Update the player's position on the grid through signal
         emit playerPositionChanged(m_playerPosition.x(), m_playerPosition.y());
@@ -163,32 +161,34 @@ void Game::stopGame()
 }
 
 /**
- * @brief Increase player's score by one point
+ * @brief Increase player's score by one point plus bonus
  * Called when a projectile is sliced by the player
  */
 void Game::gainPoint()
 {
-    m_score++;
+    m_pointsCounter++;
+    m_score += m_pointsCounter;
 
-    qDebug() << "Score increased: New score:" << m_score
-             << "| Lives:" << m_lives
-             << "| Total projectiles:" << m_projectileManager->getProjectilesLaunched();
+    qDebug() << "Score increased: +" << m_pointsCounter << " points | Total score:" << m_score
+             << "| Combo:" << m_pointsCounter
+             << "| Lives:" << m_lives;
 
     emit scoreChanged(m_score);
 }
 
 /**
- * @brief Decrease player's lives by one
+ * @brief Decrease player's lives by one and reset combo counter
  * Called when a projectile hits the ground or passes through the grid
  * @return true if player still has lives remaining, false if game over
  */
 bool Game::loseLife()
 {
     m_lives--;
+    m_pointsCounter = 0;
 
     qDebug() << "Life lost: Lives remaining:" << m_lives
              << "| Score:" << m_score
-             << "| Total projectiles:" << m_projectileManager->getProjectilesLaunched();
+             << "| Combo reset";
 
     emit livesChanged(m_lives);
 
