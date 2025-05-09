@@ -30,6 +30,7 @@ SOURCES	+= main.cpp myglwidget.cpp \
     CameraHandler.cpp \
     cannon.cpp \
     mainwindow.cpp \
+    player.cpp \
     projectile.cpp \
     projectileManager.cpp \
     projectiles/apple.cpp \
@@ -45,7 +46,9 @@ SOURCES	+= main.cpp myglwidget.cpp \
 HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
+    CameraHandler.h\
     mainwindow.h \
+    player.h \
     projectile.h \
     projectileManager.h \
     projectiles/apple.h \

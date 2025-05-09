@@ -16,6 +16,11 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
     // Initialize last frame time
     m_lastFrameTime = QTime::currentTime();
+
+    // Position the player's sword at the center of the cylindrical grid
+    // Using default parameters (0,0) which places it in the center
+    // Setting to 0.0, 0.0 centers it on the grid
+    positionPlayerOnGrid(0.5, 0.5);
 }
 
 MyGLWidget::~MyGLWidget()
@@ -114,6 +119,11 @@ void MyGLWidget::paintGL()
     // drawTestObject();
 
     m_projectileManager.draw();
+
+    // Draw the player's sword at the center of the grid
+    // The positioning is handled by the positionPlayerOnGrid method,
+    // which ensures the sword is properly aligned with the grid
+    m_player.draw();
 }
 
 void MyGLWidget::setupLight()
@@ -282,6 +292,47 @@ void MyGLWidget::drawAxes()
     glEnable(GL_LIGHTING);
 }
 
-void MyGLWidget::drawTestObject()
+/**
+ * @brief Position the player's sword on the cylindrical grid using grid coordinates
+ *
+ * This method translates grid coordinates to actual 3D world coordinates
+ * and positions the player's sword directly on the cylindrical grid surface.
+ *
+ * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
+ *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
+ *
+ * @param gridZ Z coordinate on the grid (ranges from -1.0 to 1.0)
+ *              Where -1.0 is the back edge, 0.0 is center, and 1.0 is the front edge
+ *
+ * Grid coordinates are normalized so (0,0) is the center of the grid,
+ * and the edges are at (-1,-1) to (1,1), regardless of the actual grid size.
+ */
+void MyGLWidget::positionPlayerOnGrid(float gridX, float gridZ)
 {
+    // Calculate the angle based on the gridX coordinate and gridAngle
+    // gridX ranges from -1.0 (left) to 1.0 (right)
+    // Convert to an angle within the gridAngle range
+    float angle = (gridX * (gridAngle / 2.0f)) * M_PI / 180.0f;
+
+    // Calculate the radius based on the gridZ coordinate
+    // gridZ ranges from -1.0 (back) to 1.0 (front)
+    // Scale the radius accordingly (keep it within the grid limits)
+    float radius = gridRadius * (1.0f - std::abs(gridZ));
+
+    // Convert from polar coordinates (angle, radius) to Cartesian coordinates (x, z)
+    float worldX = radius * std::sin(angle);
+
+    // Get the y-coordinate directly from the grid
+    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
+    float worldY = 2.0f;
+
+    float worldZ = -radius * std::cos(angle); // Negative for OpenGL z-axis orientation
+
+    // Set the player's position directly on the grid surface
+    m_player.setPosition(QVector3D(worldX, worldY, worldZ));
+
+    // Set the player's rotation to face perpendicular to the grid surface
+    // The Y rotation follows the curvature of the grid
+    float rotationY = angle * 180.0f / M_PI;
+    m_player.setRotation(0.0f, rotationY, 0.0f);
 }
