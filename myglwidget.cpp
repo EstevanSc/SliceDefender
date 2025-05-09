@@ -116,6 +116,8 @@ void MyGLWidget::paintGL()
     drawCannon();
     drawCylindricalGrid();
 
+    // drawTestObject();
+
     m_projectileManager.draw();
 
     // Draw the player's sword at the center of the grid

@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <random>
 #include <QDebug>
+#include "projectiles/banana.h"
+#include "projectiles/strawberry.h"
 
 ProjectileManager::ProjectileManager()
     : m_timeSinceLastLaunch(0.0f), m_initialProjectileSpeed(15.0f),
-      m_rng(std::random_device()()), m_projectileTypeDist(0, 1)
+      m_rng(std::random_device()()), m_projectileTypeDist(0, 4) // <-- 0, 3 pour 4 types
 {
     // Default values replaced by setter methods
     m_cannonPosition[0] = 0.0f;
@@ -87,16 +89,33 @@ void ProjectileManager::launchProjectile()
 
     Projectile *newProjectile = nullptr;
 
-    // Adjust projectile size for better visibility
     if (projectileType == 0)
     {
         newProjectile = new Apple(
             m_cannonPosition[0], m_cannonPosition[1], m_cannonPosition[2],
             velocityX, velocityY, velocityZ);
     }
-    else
+    else if (projectileType == 1)
     {
         newProjectile = new Orange(
+            m_cannonPosition[0], m_cannonPosition[1], m_cannonPosition[2],
+            velocityX, velocityY, velocityZ);
+    }
+    else if (projectileType == 2)
+    {
+        newProjectile = new Corn(
+            m_cannonPosition[0], m_cannonPosition[1], m_cannonPosition[2],
+            velocityX, velocityY, velocityZ);
+    }
+    else if (projectileType == 3)
+    {
+        newProjectile = new Banana(
+            m_cannonPosition[0], m_cannonPosition[1], m_cannonPosition[2],
+            velocityX, velocityY, velocityZ);
+    }
+    else if (projectileType == 4)
+    {
+        newProjectile = new Strawberry(
             m_cannonPosition[0], m_cannonPosition[1], m_cannonPosition[2],
             velocityX, velocityY, velocityZ);
     }
@@ -119,14 +138,14 @@ void ProjectileManager::cleanupProjectiles()
     // Remove inactive projectiles
     auto it = std::remove_if(m_projectiles.begin(), m_projectiles.end(),
                              [](Projectile *p)
-                             {
-                                 if (!p->isActive())
-                                 {
-                                     delete p;
-                                     return true;
-                                 }
-                                 return false;
-                             });
+                            {
+                                if (!p->isActive())
+                                {
+                                    delete p;
+                                    return true;
+                                }
+                                return false;
+                            });
 
     m_projectiles.erase(it, m_projectiles.end());
 }

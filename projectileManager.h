@@ -2,11 +2,12 @@
 #define PROJECTILE_MANAGER_H
 
 #include <vector>
-#include <memory>
 #include <random>
 #include "projectile.h"
 #include "projectiles/apple.h"
 #include "projectiles/orange.h"
+#include "projectiles/corn.h"
+#include "projectiles/banana.h"
 
 class ProjectileManager
 {
@@ -50,7 +51,7 @@ private:
 
     // Random number generator
     std::mt19937 m_rng;
-    std::uniform_int_distribution<int> m_projectileTypeDist;
+    std::uniform_int_distribution<int> m_projectileTypeDist{0, 4}; // Ajout de la fraise
 };
 
 #endif // PROJECTILE_MANAGER_H

@@ -6,9 +6,9 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
 #include <QMatrix4x4>
-#include <QTime>               // Include for QTime
-#include "projectileManager.h" // Include for projectile manager
-#include "player.h"            // Include for Player class
+#include <QTime>
+#include "projectileManager.h"
+#include <QOpenGLTexture>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -30,7 +30,9 @@ private:
     void drawCannon();
     void drawCylindricalGrid();
     void setupLight();
-    void drawAxes(); // New method to draw XYZ axes
+    void drawAxes();
+
+    void drawTestObject();
 
     /**
      * @brief Position the player's sword on the cylindrical grid using grid coordinates

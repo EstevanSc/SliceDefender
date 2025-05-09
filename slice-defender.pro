@@ -35,9 +35,16 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectileManager.cpp \
     projectiles/apple.cpp \
     projectiles/appleHalf.cpp \
+    projectiles/banana.cpp \
+    projectiles/bananaHalf.cpp \
+    projectiles/corn.cpp \
+    projectiles/cornHalf.cpp \
     projectiles/orange.cpp \
-    projectiles/orangeHalf.cpp
+    projectiles/orangeHalf.cpp \
+    projectiles/strawberry.cpp \
+    projectiles/strawberryHalf.cpp
 HEADERS += myglwidget.h \
+    CameraHandler.h \
     cannon.h \
     CameraHandler.h\
     mainwindow.h \
@@ -46,15 +53,28 @@ HEADERS += myglwidget.h \
     projectileManager.h \
     projectiles/apple.h \
     projectiles/appleHalf.h \
+    projectiles/banana.h \
+    projectiles/bananaHalf.h \
+    projectiles/corn.h \
+    projectiles/cornHalf.h \
     projectiles/orange.h \
-    projectiles/orangeHalf.h
+    projectiles/orangeHalf.h \
+    projectiles/strawberry.h \
+    projectiles/strawberryHalf.h
 
-FORMS += \
-    camerahandler.ui \
-    mainwindow.ui
+RESOURCES += \
+    res/textures.qrc
 
+DISTFILES += \
+    res/apple_color.jpg \
+    res/apple_normal.png \
+    res/orange_color.jpg \
+    res/orange_normal.png
 
 INCLUDEPATH +=$$(OPENCV_DIR)\..\..\include
 
 LIBS += -L$$(OPENCV_DIR)\lib -lopencv_core4110 -lopencv_highgui4110 -lopencv_imgproc4110 -lopencv_imgcodecs4110 -lopencv_videoio4110 -lopencv_features2d4110 -lopencv_calib3d4110 -lopencv_objdetect4110
 
+FORMS += \
+    camerahandler.ui \
+    mainwindow.ui

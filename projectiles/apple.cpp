@@ -3,11 +3,17 @@
 #include "apple.h"
 #include "../projectileManager.h"
 #include "appleHalf.h"
+#include <QOpenGLTexture>
+#include <QImage>
+
+static QOpenGLTexture *g_appleTexture = nullptr;
 
 Apple::Apple(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ)
     : Projectile(startX, startY, startZ, velocityX, velocityY, velocityZ)
 {
     // Apple-specific initialization if needed
+    if (!g_appleTexture)
+        g_appleTexture = new QOpenGLTexture(QImage(":/apple_color.jpg").mirrored());
 }
 
 void Apple::draw()
@@ -15,8 +21,7 @@ void Apple::draw()
     if (!isActive())
         return;
 
-    // Disable lighting to ensure fruits are always visible
-    glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
     // Save current state
     glPushMatrix();
@@ -24,20 +29,37 @@ void Apple::draw()
     // Position the sphere at the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Bright green color for apple with high saturation
-    glColor3f(0.0f, 1.0f, 0.0f);
+    // Rotate texture by 90° on X axis
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+    // Activate texture
+    if (g_appleTexture) {
+        glEnable(GL_TEXTURE_2D);
+        g_appleTexture->bind();
+    }
+    // Ensure color is white
+    glColor3f(1.0f, 1.0f, 1.0f);
 
     // Draw a larger sphere
     GLUquadricObj *quadric = gluNewQuadric();
     gluQuadricDrawStyle(quadric, GLU_FILL);
+    gluQuadricTexture(quadric, GL_TRUE);
     gluSphere(quadric, RADIUS, 20, 20);
     gluDeleteQuadric(quadric);
+
+    if (g_appleTexture) {
+        g_appleTexture->release();
+        glDisable(GL_TEXTURE_2D);
+    }
 
     // Restore previous state
     glPopMatrix();
 
     // Re-enable lighting after drawing
     glEnable(GL_LIGHTING);
+
+    // Reset color to white for subsequent objects
+    glColor3f(1.0f, 1.0f, 1.0f);
 }
 
 void Apple::slice(ProjectileManager *manager)
