@@ -18,6 +18,9 @@ Game::Game(Player *player, CameraHandler *cameraHandler,
 
     // Connect countdown timer to slot
     connect(m_countdownTimer, &QTimer::timeout, this, &Game::decrementCountdown);
+
+    // Initialize the hand position
+    m_handPosition = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
 Game::~Game()
@@ -27,14 +30,44 @@ Game::~Game()
 
 void Game::update()
 {
+    // Get current hand position from camera handler
+    // This is done regardless of game state to allow sword movement at all times
+    QVector3D newHandPosition = m_cameraHandler->getHandPosition();
+
+    // Only update if there's a significant change and if the camera has a valid detection
+    const float MOVEMENT_THRESHOLD = 0.01f;
+    bool validPosition = (m_cameraHandler->getTrackedHandPosition() != QPoint(0, 0));
+
+    if (validPosition && ((newHandPosition - m_handPosition).length() > MOVEMENT_THRESHOLD))
+    {
+        m_handPosition = newHandPosition;
+
+        // Map the hand position to player position on the cylindrical grid
+        // X coordinate (left-right) maps directly to the grid X (-1 to 1)
+        // Y coordinate (up-down) now maps to grid Y instead of Z
+        // This fixes the issue where up/down movements were causing forward/backward motion
+
+        // Apply smoothing/constraints to prevent extreme movements
+        float gridX = qBound(-0.8f, m_handPosition.x(), 0.8f);
+
+        // Change this: now Y coordinate controls the vertical position (up/down)
+        // and Z coordinate (unused in camera tracking) is set to a fixed value
+        float gridY = qBound(-0.8f, m_handPosition.y(), 0.8f);
+        float gridZ = 0.0f; // Fixed Z position (neither forward nor backward)
+
+        // Log the sword position for debugging
+        qDebug() << "Moving sword to grid position: (" << gridX << ", " << gridY << ", " << gridZ << ")";
+
+        // Update the player's position on the grid through signal
+        // Now using gridY for up/down movement instead of gridZ
+        emit playerPositionChanged(gridX, gridY);
+    }
+
     // Return early if game is not running
     if (!m_gameStarted)
     {
         return;
     }
-
-    // Get current hand position from camera handler
-    m_handPosition = m_cameraHandler->getHandPosition();
 
     // Check for collisions between projectiles and player
     checkCollisions();

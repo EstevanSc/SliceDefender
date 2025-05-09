@@ -16,7 +16,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
-    webCam_ = new VideoCapture(0);
+    webCam_ = new VideoCapture(1);
     hasReference = false;
     hasDetection = false;
     consecutiveDetections = 0;
@@ -24,8 +24,13 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
     detectionTimer.start();
     debug = true; // Set debug to true by default
 
+    // Initialize hand position to middle of the camera frame
     int width = webCam_->get(CAP_PROP_FRAME_WIDTH);
     int height = webCam_->get(CAP_PROP_FRAME_HEIGHT);
+
+    // Initialize to middle of frame or reasonable fallback values
+    m_handPosition[0] = width > 0 ? width / 2 : 320;
+    m_handPosition[1] = height > 0 ? height / 2 : 240;
 
     if (!webCam_->isOpened())
     {
@@ -131,34 +136,74 @@ void CameraHandler::captureReference()
         {
             flip(frame, frame, 1); // Mirror image for natural interaction
 
+            // Get frame dimensions for boundary checking
+            int frameWidth = frame.cols;
+            int frameHeight = frame.rows;
+
+            // Safety check - ensure the detection rectangle is within the frame boundaries
+            Rect safeRect = lastDetectedRect;
+            safeRect.x = std::max(0, std::min(frameWidth - 1, safeRect.x));
+            safeRect.y = std::max(0, std::min(frameHeight - 1, safeRect.y));
+            safeRect.width = std::min(frameWidth - safeRect.x, safeRect.width);
+            safeRect.height = std::min(frameHeight - safeRect.y, safeRect.height);
+
+            // Skip if rectangle is too small after safety adjustments
+            if (safeRect.width < 10 || safeRect.height < 10)
+            {
+                std::cout << "Warning: Adjusted rectangle too small for reference image" << std::endl;
+                return;
+            }
+
             // Adjust detection rectangle to better focus on the hand
-            Rect adjustedRect = lastDetectedRect;
-            adjustedRect.y += adjustedRect.height * 0.2;
+            Rect adjustedRect = safeRect;
+            adjustedRect.y = std::min(frameHeight - 1, adjustedRect.y + static_cast<int>(adjustedRect.height * 0.2));
+
+            // Ensure adjusted height doesn't go beyond frame boundary
+            adjustedRect.height = std::min(frameHeight - adjustedRect.y, adjustedRect.height);
 
             // Calculate crop dimensions to focus on central part of hand
-            int cropX = adjustedRect.width * 0.3;
-            int cropY = -(adjustedRect.height * 0.2);
+            int cropX = static_cast<int>(adjustedRect.width * 0.3);
+            int cropY = static_cast<int>(-adjustedRect.height * 0.2);
 
-            // Define final rectangle for reference image
+            // Ensure cropY doesn't move the rectangle outside the frame
+            cropY = std::max(-adjustedRect.y, cropY);
+
+            // Define final rectangle for reference image with boundary checks
             Rect finalRect(
-                adjustedRect.x + cropX,
-                adjustedRect.y + cropY,
-                adjustedRect.width - 2 * cropX,
-                adjustedRect.height - 2 * cropY);
+                std::max(0, adjustedRect.x + cropX),
+                std::max(0, adjustedRect.y + cropY),
+                std::min(frameWidth - (adjustedRect.x + cropX), adjustedRect.width - 2 * cropX),
+                std::min(frameHeight - (adjustedRect.y + cropY), adjustedRect.height - 2 * cropY));
 
-            // Extract region of interest and store as reference
-            Mat roi = frame(finalRect);
-            reference = roi.clone();
-            hasReference = true;
-            updateStatusText();
-
-            // Display reference image when in debug mode
-            if (debug)
+            // Ensure the final rectangle is not empty or too small
+            if (finalRect.width <= 0 || finalRect.height <= 0 ||
+                finalRect.width < 10 || finalRect.height < 10)
             {
-                namedWindow("Reference Image", WINDOW_NORMAL);
-                imshow("Reference Image", reference);
-                resizeWindow("Reference Image", reference.cols, reference.rows);
-                waitKey(1); // Refresh the window
+                std::cout << "Warning: Invalid reference rectangle dimensions" << std::endl;
+                return;
+            }
+
+            try
+            {
+                // Extract region of interest and store as reference
+                Mat roi = frame(finalRect);
+                reference = roi.clone();
+                hasReference = true;
+                updateStatusText();
+
+                // Display reference image when in debug mode
+                if (debug)
+                {
+                    namedWindow("Reference Image", WINDOW_NORMAL);
+                    imshow("Reference Image", reference);
+                    resizeWindow("Reference Image", reference.cols, reference.rows);
+                    waitKey(1); // Refresh the window
+                }
+            }
+            catch (const cv::Exception &e)
+            {
+                std::cerr << "OpenCV error in captureReference: " << e.what() << std::endl;
+                hasReference = false;
             }
         }
     }
@@ -290,50 +335,111 @@ void CameraHandler::updateFrame()
                 {
                     lastDetectedRect = detected;
 
-                    Mat currentFrame = frameToDisplay(lastDetectedRect).clone();
+                    // Ensure the detected rectangle is within frame boundaries
+                    int frameWidth = frameToDisplay.cols;
+                    int frameHeight = frameToDisplay.rows;
 
-                    // Apply SIFT matching with reference image
-                    std::vector<KeyPoint> keypoints = applySIFT(reference, currentFrame);
+                    Rect safeRect = lastDetectedRect;
+                    safeRect.x = std::max(0, std::min(frameWidth - 1, safeRect.x));
+                    safeRect.y = std::max(0, std::min(frameHeight - 1, safeRect.y));
+                    safeRect.width = std::min(frameWidth - safeRect.x, safeRect.width);
+                    safeRect.height = std::min(frameHeight - safeRect.y, safeRect.height);
 
-                    // Draw detection rectangle
-                    rectangle(frameToDisplay, lastDetectedRect, Scalar(0, 255, 0), 1);
-
-                    // Fallback to center point if SIFT matching quality is poor
-                    if (matchQuality < 5)
+                    // Skip processing if the rectangle is too small after adjustments
+                    if (safeRect.width < 10 || safeRect.height < 10)
                     {
-                        static int lowQualityCounter = 0;
-                        lowQualityCounter++;
+                        std::cout << "Warning: Adjusted rectangle too small for feature matching" << std::endl;
+                        return;
+                    }
 
-                        // Draw the middle point of the detection as fallback
-                        Point centerPoint(lastDetectedRect.x + lastDetectedRect.width / 2,
-                                          lastDetectedRect.y + lastDetectedRect.height / 2);
-                        circle(frameToDisplay, centerPoint, 5, Scalar(0, 0, 255), -1);
+                    // Use safe rectangle instead of potentially unsafe lastDetectedRect
+                    try
+                    {
+                        Mat currentFrame = frameToDisplay(safeRect).clone();
 
-                        std::cout << "Low match quality, using detection center. Counter: "
-                                  << lowQualityCounter << "/10" << std::endl;
+                        // Apply SIFT matching with reference image
+                        std::vector<KeyPoint> keypoints = applySIFT(reference, currentFrame);
 
-                        // Reset reference if consistently poor matches
-                        if (lowQualityCounter > 10)
+                        // Draw detection rectangle
+                        rectangle(frameToDisplay, safeRect, Scalar(0, 255, 0), 1);
+
+                        // Fallback to center point if SIFT matching quality is poor
+                        if (matchQuality < 5)
                         {
-                            std::cout << "Consistently poor matches, capturing new reference..." << std::endl;
-                            hasReference = false;
-                            consecutiveDetections = 0;
+                            static int lowQualityCounter = 0;
+                            lowQualityCounter++;
+
+                            // Draw the middle point of the detection as fallback
+                            Point centerPoint(safeRect.x + safeRect.width / 2,
+                                              safeRect.y + safeRect.height / 2);
+
+                            // Update the tracked hand position
+                            setTrackedHandPosition(centerPoint.x, centerPoint.y);
+
+                            // Draw a red circle at the tracking point for visibility
+                            circle(frameToDisplay, centerPoint, 5, Scalar(0, 0, 255), -1);
+
+                            std::cout << "Low match quality, using detection center. Counter: "
+                                      << lowQualityCounter << "/10" << std::endl;
+
+                            // Reset reference if consistently poor matches
+                            if (lowQualityCounter > 10)
+                            {
+                                std::cout << "Consistently poor matches, capturing new reference..." << std::endl;
+                                hasReference = false;
+                                consecutiveDetections = 0;
+                                lowQualityCounter = 0;
+                            }
+                        }
+                        else
+                        {
+                            // Good SIFT match - reset counter and draw keypoints
+                            static int lowQualityCounter = 0;
                             lowQualityCounter = 0;
+
+                            // Calculate average position of keypoints for better tracking
+                            Point avgPoint(0, 0);
+                            if (keypoints.size() > 0)
+                            {
+                                for (const KeyPoint &kp : keypoints)
+                                {
+                                    avgPoint.x += safeRect.x + kp.pt.x;
+                                    avgPoint.y += safeRect.y + kp.pt.y;
+                                }
+                                avgPoint.x /= keypoints.size();
+                                avgPoint.y /= keypoints.size();
+
+                                // Update the tracked hand position
+                                setTrackedHandPosition(avgPoint.x, avgPoint.y);
+
+                                // Draw a red circle at the tracking point
+                                circle(frameToDisplay, avgPoint, 5, Scalar(0, 0, 255), -1);
+                            }
+                            else
+                            {
+                                // Fallback to center of detection rectangle if no keypoints
+                                Point centerPoint(safeRect.x + safeRect.width / 2,
+                                                  safeRect.y + safeRect.height / 2);
+                                setTrackedHandPosition(centerPoint.x, centerPoint.y);
+                                circle(frameToDisplay, centerPoint, 5, Scalar(0, 0, 255), -1);
+                            }
+
+                            // Visualize keypoints
+                            for (const KeyPoint &kp : keypoints)
+                            {
+                                // Adjust keypoint position to be relative to the detected rectangle
+                                Point pt(safeRect.x + kp.pt.x, safeRect.y + kp.pt.y);
+                                // Check if the point is within the frame boundaries
+                                if (pt.x >= 0 && pt.x < frameWidth && pt.y >= 0 && pt.y < frameHeight)
+                                {
+                                    circle(frameToDisplay, pt, 2, Scalar(0, 255, 0), -1);
+                                }
+                            }
                         }
                     }
-                    else
+                    catch (const cv::Exception &e)
                     {
-                        // Good SIFT match - reset counter and draw keypoints
-                        static int lowQualityCounter = 0;
-                        lowQualityCounter = 0;
-
-                        // Visualize keypoints
-                        for (const KeyPoint &kp : keypoints)
-                        {
-                            // Adjust keypoint position to be relative to the detected rectangle
-                            Point pt(lastDetectedRect.x + kp.pt.x, lastDetectedRect.y + kp.pt.y);
-                            circle(frameToDisplay, pt, 2, Scalar(0, 255, 0), -1);
-                        }
+                        std::cerr << "OpenCV error in updateFrame: " << e.what() << std::endl;
                     }
 
                     std::cout << "Match: " << matchQuality << "%" << std::endl;
@@ -404,27 +510,36 @@ Mat CameraHandler::rotateImage(const Mat &src, float angle)
  */
 std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
 {
-    Mat img1 = image1;
-    Mat img2 = image2;
-    Ptr<SIFT> detector = SIFT::create();
-    std::vector<KeyPoint> keypoints1, keypoints2;
-    Mat descriptors1, descriptors2;
-    detector->detectAndCompute(img1, noArray(), keypoints1, descriptors1);
-    detector->detectAndCompute(img2, noArray(), keypoints2, descriptors2);
-
-    // Check if descriptors are empty or not enough keypoints
-    if (descriptors1.empty() || descriptors2.empty() || keypoints1.size() < 5 || keypoints2.size() < 5)
+    // Check if input images are valid
+    if (image1.empty() || image2.empty())
     {
+        std::cerr << "Empty images provided to SIFT matcher" << std::endl;
         matchQuality = 0;
         updateStatusText();
-        return keypoints2;
+        return std::vector<KeyPoint>();
     }
-
-    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
-    std::vector<std::vector<DMatch>> knn_matches;
 
     try
     {
+        Mat img1 = image1;
+        Mat img2 = image2;
+        Ptr<SIFT> detector = SIFT::create();
+        std::vector<KeyPoint> keypoints1, keypoints2;
+        Mat descriptors1, descriptors2;
+        detector->detectAndCompute(img1, noArray(), keypoints1, descriptors1);
+        detector->detectAndCompute(img2, noArray(), keypoints2, descriptors2);
+
+        // Check if descriptors are empty or not enough keypoints
+        if (descriptors1.empty() || descriptors2.empty() || keypoints1.size() < 5 || keypoints2.size() < 5)
+        {
+            matchQuality = 0;
+            updateStatusText();
+            return keypoints2;
+        }
+
+        Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
+        std::vector<std::vector<DMatch>> knn_matches;
+
         // Check if we have enough matches to do knnMatch with k=2
         if (descriptors1.rows < 2 || descriptors2.rows < 2)
         {
@@ -438,34 +553,33 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
         }
 
         matcher->knnMatch(descriptors1, descriptors2, knn_matches, 2);
-    }
-    catch (cv::Exception &e)
-    {
-        std::cout << "SIFT matching exception: " << e.what() << std::endl;
-        matchQuality = 0;
+
+        // Apply ratio test to find good matches
+        std::vector<DMatch> good_matches;
+        for (size_t i = 0; i < knn_matches.size(); i++)
+        {
+            if (knn_matches[i].size() > 1)
+            {
+                if (knn_matches[i][0].distance < m_siftRationTresh * knn_matches[i][1].distance)
+                {
+                    good_matches.push_back(knn_matches[i][0]);
+                }
+            }
+        }
+
+        // Calculate match quality as a percentage (0-100)
+        matchQuality = min(100, static_cast<int>(good_matches.size() * 100.0 / max(1, static_cast<int>(keypoints1.size()))));
+
         updateStatusText();
         return keypoints2;
     }
-
-    // Apply ratio test to find good matches
-    std::vector<DMatch> good_matches;
-    for (size_t i = 0; i < knn_matches.size(); i++)
+    catch (const cv::Exception &e)
     {
-        if (knn_matches[i].size() > 1)
-        {
-            if (knn_matches[i][0].distance < m_siftRationTresh * knn_matches[i][1].distance)
-            {
-                good_matches.push_back(knn_matches[i][0]);
-            }
-        }
+        std::cerr << "OpenCV error in applySIFT: " << e.what() << std::endl;
+        matchQuality = 0;
+        updateStatusText();
+        return std::vector<KeyPoint>();
     }
-
-    // Calculate match quality as a percentage (0-100)
-    matchQuality = min(100, static_cast<int>(good_matches.size() * 100.0 / max(1, static_cast<int>(keypoints1.size()))));
-
-    updateStatusText();
-
-    return keypoints2;
 }
 
 /**
@@ -475,23 +589,17 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
  * This method converts the detected hand position to normalized coordinates
  * where (-1,-1,0) is the bottom-left corner of the screen,
  * (0,0,0) is the center, and (1,1,0) is the top-right corner.
- * If no hand is detected, returns (0,0,0).
+ * If no hand is detected, returns the last valid position instead of (0,0,0).
  */
 QVector3D CameraHandler::getHandPosition() const
 {
-    // If we don't have a reference image or detection, return center position
-    if (!hasReference || !hasDetection)
-    {
-        return QVector3D(0.0f, 0.0f, 0.0f);
-    }
-
     // Get frame dimensions
     int frameWidth = webCam_->get(cv::CAP_PROP_FRAME_WIDTH);
     int frameHeight = webCam_->get(cv::CAP_PROP_FRAME_HEIGHT);
 
-    // Calculate center point of the detected rectangle
-    float handX_px = lastDetectedRect.x + lastDetectedRect.width / 2.0f;
-    float handY_px = lastDetectedRect.y + lastDetectedRect.height / 2.0f;
+    // Use the tracked hand position
+    float handX_px = m_handPosition[0];
+    float handY_px = m_handPosition[1];
 
     // Normalize to -1 to 1 range
     // X: -1 (left) to 1 (right)
@@ -501,4 +609,17 @@ QVector3D CameraHandler::getHandPosition() const
 
     // Create QVector3D with Z=0 (2D tracking)
     return QVector3D(normalizedX, normalizedY, 0.0f);
+}
+
+/**
+ * @brief Set the tracked hand position
+ * @param x X-coordinate of the hand position
+ * @param y Y-coordinate of the hand position
+ *
+ * Updates the internal tracking of hand position that controls the player's sword.
+ */
+void CameraHandler::setTrackedHandPosition(int x, int y)
+{
+    m_handPosition[0] = x;
+    m_handPosition[1] = y;
 }

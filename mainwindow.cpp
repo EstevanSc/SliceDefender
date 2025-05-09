@@ -72,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent)
         connect(game, &Game::countdownUpdated, this, &MainWindow::updateCountdownLabel);
         connect(game, &Game::gameEnded, this, &MainWindow::showStartButton);
 
+        // Connect player position changes to the GL widget
+        connect(game, &Game::playerPositionChanged, glWidget, &MyGLWidget::positionPlayerOnGrid);
+
         // Set the game update function in the GL widget
         glWidget->setGameUpdateFunction([this]()
                                         {

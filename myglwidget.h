@@ -42,6 +42,22 @@ public:
         m_gameUpdateFunc = updateFunc;
     }
 
+public slots:
+    /**
+     * @brief Position the player's sword on the cylindrical grid using grid coordinates
+     *
+     * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
+     *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
+     * @param gridY Y coordinate on the grid (ranges from -1.0 to 1.0)
+     *              Where -1.0 is the bottom, 0.0 is center, and 1.0 is the top
+     *
+     * This method translates grid coordinates to world coordinates and positions
+     * the player's sword directly on the cylindrical grid surface. It is connected
+     * to the Game class's playerPositionChanged signal to allow continuous movement
+     * of the sword based on camera-tracked hand position.
+     */
+    void positionPlayerOnGrid(float gridX = 0.0f, float gridY = 0.0f);
+
 protected:
     // QOpenGLWidget methods to override
     void initializeGL() override;
@@ -55,19 +71,6 @@ private:
     void drawCylindricalGrid();
     void setupLight();
     void drawAxes(); // New method to draw XYZ axes
-
-    /**
-     * @brief Position the player's sword on the cylindrical grid using grid coordinates
-     *
-     * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
-     *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
-     * @param gridZ Z coordinate on the grid (ranges from -1.0 to 1.0)
-     *              Where -1.0 is the back edge, 0.0 is center, and 1.0 is the front edge
-     *
-     * This method translates grid coordinates to world coordinates and positions
-     * the player's sword directly on the cylindrical grid surface.
-     */
-    void positionPlayerOnGrid(float gridX = 0.0f, float gridZ = 0.0f);
 
     // Timer for animations
     QTimer *timer;

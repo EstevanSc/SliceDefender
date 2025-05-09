@@ -84,6 +84,16 @@ signals:
      */
     void gameEnded();
 
+    /**
+     * @brief Signal emitted when the player's position should change
+     * @param gridX X-coordinate on the grid (-1 to 1)
+     * @param gridZ Z-coordinate on the grid (-1 to 1)
+     *
+     * This signal connects the Game class to the MyGLWidget to update
+     * the player's position on the cylindrical grid based on hand tracking.
+     */
+    void playerPositionChanged(float gridX, float gridZ);
+
 private slots:
     /**
      * @brief Decrements the countdown timer and starts game when countdown reaches zero
