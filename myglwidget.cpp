@@ -19,9 +19,8 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     m_lastFrameTime = QTime::currentTime();
 
     // Position the player's sword at the center of the cylindrical grid
-    // Using default parameters (0,0) which places it in the center
-    // Setting to 0.0, 0.0 centers it on the grid
-    positionPlayerOnGrid(0.5, 0.5);
+    // Using (0.0, 0.0) which places it in the center of the grid
+    positionPlayerOnGrid(0.0, 0.0);
 
     // Set focus policy to allow keyboard input
     setFocusPolicy(Qt::StrongFocus);

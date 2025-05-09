@@ -11,13 +11,13 @@
 
 /**
  * @class Game
- * @brief Main game logic controller that manages game state, collision detection and scoring
+ * @brief Main game logic controller that manages game state and scoring
  *
  * This class handles:
  * - Game state (active/inactive)
- * - Collision detection between projectiles and the player's sword
  * - Score tracking and lives management
  * - Game startup countdown
+ * - Player movement through camera tracking and keyboard input
  */
 class Game : public QObject
 {
@@ -44,8 +44,8 @@ public:
     /**
      * @brief Update game state - called each frame
      *
-     * Updates player position based on camera tracking and keyboard input,
-     * checks for collisions, and handles game logic.
+     * Updates player position based on camera tracking and keyboard input
+     * and handles game logic.
      */
     void update();
 
@@ -62,6 +62,31 @@ public:
      * Initializes and displays a countdown before the game starts.
      */
     void startCountdown();
+
+    /**
+     * @brief Increase player's score by one point
+     * Called when a projectile is sliced by the player
+     */
+    void gainPoint();
+
+    /**
+     * @brief Decrease player's lives by one
+     * Called when a projectile hits the ground or passes through the grid
+     * @return true if player still has lives remaining, false if game over
+     */
+    bool loseLife();
+
+    /**
+     * @brief Get the player's sword object
+     * @return Pointer to the player
+     */
+    Player *getPlayer() const { return m_player; }
+
+    /**
+     * @brief Check if the game is currently running
+     * @return true if game is active, false otherwise
+     */
+    bool isGameStarted() const { return m_gameStarted; }
 
 signals:
     /**
@@ -108,16 +133,6 @@ private:
      * @brief Stops the active game
      */
     void stopGame();
-
-    /**
-     * @brief Checks for collisions between projectiles and player's sword
-     *
-     * Determines if projectiles:
-     * - Collide with the player's sword (giving points)
-     * - Pass through the grid zone without being sliced (losing lives)
-     * - Hit the ground (losing lives)
-     */
-    void checkCollisions();
 
     /**
      * @brief Update player position based on input

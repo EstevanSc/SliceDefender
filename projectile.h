@@ -2,8 +2,11 @@
 #define PROJECTILE_H
 
 #include <vector>
+#include <QVector3D>
 
 class ProjectileManager; // Forward declaration
+class Game;              // Forward declaration
+class Player;            // Forward declaration
 
 class Projectile
 {
@@ -22,6 +25,13 @@ public:
     virtual float getRadius() const = 0;
     virtual void getColor(float &r, float &g, float &b) const = 0;
 
+    // Collision detection methods
+    bool isNearPlayer(const Player &player) const;
+    bool isInGridZone(float gridZPosition, float gridYPosition, float gridThickness) const;
+    bool isInGridZoneAndPassed(float gridZPosition, float gridYPosition, float gridThickness) const;
+    bool hasTouchedFloor() const;
+    void checkCollisionWithPlayer(Player *player);
+
     // Getters
     float *getPosition() const;
     float *getVelocity() const;
@@ -31,6 +41,7 @@ public:
     void setPosition(float x, float y, float z);
     void setVelocity(float vx, float vy, float vz);
     void setAcceleration(float ax, float ay, float az);
+    void setGame(Game *game) { m_game = game; }
 
     bool isActive() const;
     void setActive(bool active);
@@ -50,7 +61,14 @@ protected:
     bool m_shouldSlice = false;
     bool m_hasDecreasedLife = false; // Flag to track if projectile has already caused life loss
 
-    static constexpr float GRAVITY = 9.81f; // Gravity constant
+    // Grid zone definition constants
+    static constexpr float GRID_Z_POSITION = -3.5f;    // Z position of cylindrical grid
+    static constexpr float GRID_Y_POSITION = 2.0f;     // Y position of grid (height)
+    static constexpr float GRID_THICKNESS = 3.0f;      // Collision detection zone thickness
+    static constexpr float COLLISION_THRESHOLD = 0.3f; // Sword collision detection threshold
+    static constexpr float GRAVITY = 9.81f;            // Gravity constant
+
+    Game *m_game = nullptr; // Pointer to the game instance for scoring and life management
 };
 
 #endif // PROJECTILE_H

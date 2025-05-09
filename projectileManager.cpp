@@ -126,6 +126,12 @@ void ProjectileManager::launchProjectile()
     // Add projectile to active projectiles list
     if (newProjectile)
     {
+        // Set the game reference for the projectile if it exists
+        if (m_game)
+        {
+            newProjectile->setGame(m_game);
+        }
+
         m_projectiles.push_back(newProjectile);
     }
 }
@@ -220,6 +226,12 @@ void ProjectileManager::addProjectile(Projectile *projectile)
 {
     if (projectile)
     {
+        // Set the game reference for the projectile if it exists
+        if (m_game)
+        {
+            projectile->setGame(m_game);
+        }
+
         m_projectiles.push_back(projectile);
     }
 }
