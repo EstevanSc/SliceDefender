@@ -42,7 +42,8 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectiles/orange.cpp \
     projectiles/orangeHalf.cpp \
     projectiles/strawberry.cpp \
-    projectiles/strawberryHalf.cpp
+    projectiles/strawberryHalf.cpp \
+    game.cpp
 HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
@@ -60,7 +61,8 @@ HEADERS += myglwidget.h \
     projectiles/orange.h \
     projectiles/orangeHalf.h \
     projectiles/strawberry.h \
-    projectiles/strawberryHalf.h
+    projectiles/strawberryHalf.h \
+    game.h
 
 RESOURCES += \
     res/textures.qrc
