@@ -44,7 +44,9 @@ SOURCES	+= main.cpp myglwidget.cpp \
     projectiles/orangeHalf.cpp \
     projectiles/strawberry.cpp \
     projectiles/strawberryHalf.cpp \
-    game.cpp
+    game.cpp \
+    scoreboard.cpp
+    
 HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
@@ -64,7 +66,8 @@ HEADERS += myglwidget.h \
     projectiles/orangeHalf.h \
     projectiles/strawberry.h \
     projectiles/strawberryHalf.h \
-    game.h
+    game.h \
+    scoreboard.h
 
 RESOURCES += \
     res/textures.qrc

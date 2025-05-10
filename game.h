@@ -63,6 +63,12 @@ public:
      */
     void startCountdown();
 
+    /**
+     * @brief Check if the game is currently active
+     * @return True if the game is running, false otherwise
+     */
+    bool isGameActive() const { return m_gameStarted; }
+
 signals:
     /**
      * @brief Signal emitted when the score changes
