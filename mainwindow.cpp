@@ -263,7 +263,7 @@ void MainWindow::toggleScoreboard()
         ui->scoreboardOverlay->hide();
 
         // Make sure game controls are in the correct state
-        if (game && game->isGameActive())
+        if (game && game->isGameStarted())
         {
             ui->startButton->hide();
         }
