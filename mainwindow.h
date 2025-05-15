@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QLabel>
-#include <QPushButton>
+#include <QTimer>
 #include "myglwidget.h"
 #include "CameraHandler.h"
 #include "game.h"
+#include "scoreboard.h"
 
 namespace Ui
 {
@@ -21,6 +21,7 @@ namespace Ui
  * - OpenGL rendering area for the main game
  * - Camera processing via CameraHandler in the top-right corner
  * - Score and game statistics in the bottom-right corner
+ * - Scoreboard overlay for displaying high scores
  */
 class MainWindow : public QMainWindow
 {
@@ -48,12 +49,6 @@ private slots:
      * @brief Display the about dialog
      */
     void showAboutDialog();
-
-    /**
-     * @brief Update the match quality display
-     * @param quality Match quality value
-     */
-    void updateMatchQuality(int quality);
 
     /**
      * @brief Starts or restarts the game
@@ -90,22 +85,41 @@ private slots:
      */
     void updateSpeedIndicator(float speedMultiplier);
 
+    /**
+     * @brief Toggles the scoreboard visibility
+     */
+    void toggleScoreboard();
+
+    /**
+     * @brief Saves the current score with the player's name
+     */
+    void savePlayerScore();
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
     Game *game;
     int gameScore;
-
-    // Game UI elements
-    QLabel *livesLabel;
-    QLabel *countdownLabel;
-    QLabel *speedLabel;
-    QPushButton *startButton;
+    bool m_showingScoreboard;
+    Scoreboard *m_scoreboard;
+    QTimer *m_statusTimer;
 
     /**
      * @brief Update the score display
      */
     void updateScoreDisplay();
+
+    /**
+     * @brief Updates the scoreboard display with the latest scores
+     */
+    void updateScoreboardDisplay();
+
+    /**
+     * @brief Displays a status message in the scoreboard overlay
+     * @param message The message to display
+     * @param success Whether the operation was successful (green) or failed (red)
+     */
+    void showStatusMessage(const QString &message, bool success);
 };
 
 #endif // MAINWINDOW_H

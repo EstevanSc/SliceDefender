@@ -2,9 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
+#include <QTimer>
 
 /**
  * @brief Constructor initializes UI and camera resources
@@ -15,51 +13,40 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       cameraHandler(nullptr),
       game(nullptr),
-      gameScore(0)
+      gameScore(0),
+      m_showingScoreboard(false)
 {
     ui->setupUi(this);
+
+    // Create scoreboard
+    m_scoreboard = new Scoreboard(this);
+
+    // Initialize status timer for temporary messages
+    m_statusTimer = new QTimer(this);
+    m_statusTimer->setSingleShot(true);
+    connect(m_statusTimer, &QTimer::timeout, [this]()
+            { ui->statusLabel->clear(); });
+
+    // Hide the scoreboard overlay initially
+    ui->scoreboardOverlay->hide();
 
     // Configure splitter proportions (80% game view, 20% control panel)
     QList<int> sizes;
     sizes << (width() * 0.8) << (width() * 0.2);
     ui->mainSplitter->setSizes(sizes);
 
+    // Connect action signals
     connect(ui->actionNew_Game, &QAction::triggered, this, &MainWindow::startNewGame);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
 
+    // Setup camera handler
     cameraHandler = new CameraHandler();
     ui->cameraLayout->insertWidget(0, cameraHandler);
-
     ui->cameraView->hide();
     ui->cameraStatus->hide();
 
-    // Create the game UI elements
-    livesLabel = new QLabel("Lives: 5", this);
-    livesLabel->setAlignment(Qt::AlignCenter);
-    livesLabel->setFont(QFont("Arial", 12, QFont::Bold));
-    livesLabel->setStyleSheet("color: red;");
-
-    countdownLabel = new QLabel("5", this);
-    countdownLabel->setAlignment(Qt::AlignCenter);
-    countdownLabel->setFont(QFont("Arial", 36, QFont::Bold));
-    countdownLabel->setStyleSheet("color: orange;");
-    countdownLabel->hide();
-
-    speedLabel = new QLabel("Speed: 1.0x", this);
-    speedLabel->setAlignment(Qt::AlignCenter);
-    speedLabel->setFont(QFont("Arial", 10, QFont::Bold));
-    speedLabel->setStyleSheet("color: blue;");
-
-    startButton = new QPushButton("Start Game", this);
-    startButton->setFont(QFont("Arial", 12, QFont::Bold));
-    startButton->setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;");
-    connect(startButton, &QPushButton::clicked, this, &MainWindow::startGame);
-
-    // Add them to the UI below the score
-    ui->scoreLayout->addWidget(livesLabel);
-    ui->scoreLayout->addWidget(countdownLabel);
-    ui->scoreLayout->addWidget(speedLabel);
-    ui->scoreLayout->addWidget(startButton);
+    // Initialize UI states
+    ui->countdownLabel->hide();
 
     // Get the OpenGL widget to access the player and projectile manager
     MyGLWidget *glWidget = qobject_cast<MyGLWidget *>(ui->glWidget);
@@ -103,16 +90,8 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete cameraHandler;
+    delete m_scoreboard;
     delete ui;
-}
-
-/**
- * @brief Update the match quality display
- * @param quality Match quality value
- */
-void MainWindow::updateMatchQuality(int quality)
-{
-    ui->matchInfo->setText(QString("Detection in progress..."));
 }
 
 /**
@@ -120,6 +99,12 @@ void MainWindow::updateMatchQuality(int quality)
  */
 void MainWindow::startNewGame()
 {
+    // If scoreboard is showing, hide it first
+    if (m_showingScoreboard)
+    {
+        toggleScoreboard();
+    }
+
     startGame();
 }
 
@@ -141,12 +126,21 @@ void MainWindow::startGame()
 {
     if (game)
     {
+        // Hide scoreboard if it's visible
+        if (m_showingScoreboard)
+        {
+            toggleScoreboard();
+        }
+
         // Reset the game state
         game->resetGame();
 
         // Hide the start button and show the countdown
-        startButton->hide();
-        countdownLabel->show();
+        ui->startButton->hide();
+        ui->countdownLabel->show();
+
+        // Disable save button during gameplay
+        ui->saveButton->setEnabled(false);
 
         // Start the countdown
         game->startCountdown();
@@ -158,7 +152,24 @@ void MainWindow::startGame()
  */
 void MainWindow::updateScoreDisplay()
 {
-    ui->scoreValue->setText(QString::number(gameScore));
+    ui->scoreValue->setText(QString("POINTS:\n%1").arg(gameScore));
+}
+
+/**
+ * @brief Updates the scoreboard display with the latest scores
+ */
+void MainWindow::updateScoreboardDisplay()
+{
+    QStringList scores = m_scoreboard->loadTopScores();
+
+    if (scores.isEmpty())
+    {
+        ui->scoreText->setText("No scores yet. Play a game!");
+    }
+    else
+    {
+        ui->scoreText->setText(scores.join("\n"));
+    }
 }
 
 /**
@@ -177,7 +188,7 @@ void MainWindow::updateScoreLabel(int score)
  */
 void MainWindow::updateLivesLabel(int lives)
 {
-    livesLabel->setText(QString("Lives: %1").arg(lives));
+    ui->livesLabel->setText(QString("Lives:\n%1").arg(lives));
 }
 
 /**
@@ -188,11 +199,11 @@ void MainWindow::updateCountdownLabel(int value)
 {
     if (value <= 0)
     {
-        countdownLabel->hide();
+        ui->countdownLabel->hide();
     }
     else
     {
-        countdownLabel->setText(QString::number(value));
+        ui->countdownLabel->setText(QString::number(value));
     }
 }
 
@@ -201,8 +212,11 @@ void MainWindow::updateCountdownLabel(int value)
  */
 void MainWindow::showStartButton()
 {
-    startButton->setText("Restart Game");
-    startButton->show();
+    ui->startButton->setText("Restart Game");
+    ui->startButton->show();
+
+    // Enable save button if it's a high score
+    ui->saveButton->setEnabled(m_scoreboard->isHighScore(gameScore));
 }
 
 /**
@@ -211,5 +225,84 @@ void MainWindow::showStartButton()
  */
 void MainWindow::updateSpeedIndicator(float speedMultiplier)
 {
-    speedLabel->setText(QString("Speed: %1x").arg(speedMultiplier, 0, 'f', 1));
+    ui->speedLabel->setText(QString("Speed: %1x").arg(speedMultiplier, 0, 'f', 1));
+}
+
+/**
+ * @brief Displays a status message in the scoreboard overlay
+ * @param message The message to display
+ * @param success Whether the operation was successful (green) or failed (red)
+ */
+void MainWindow::showStatusMessage(const QString &message, bool success)
+{
+    ui->statusLabel->setText(message);
+    ui->statusLabel->setStyleSheet(success ? "color: #4CAF50; font-weight: bold;" : "color: #F44336; font-weight: bold;");
+
+    // Auto-clear message after 3 seconds
+    m_statusTimer->start(3000);
+}
+
+/**
+ * @brief Toggles the scoreboard visibility
+ */
+void MainWindow::toggleScoreboard()
+{
+    m_showingScoreboard = !m_showingScoreboard;
+
+    if (m_showingScoreboard)
+    {
+        // Show scoreboard overlay
+        updateScoreboardDisplay();
+        ui->scoreboardButton->setText("Back to Game");
+        ui->scoreboardOverlay->show();
+    }
+    else
+    {
+        // Hide scoreboard overlay
+        ui->scoreboardButton->setText("Scoreboard");
+        ui->scoreboardOverlay->hide();
+
+        // Make sure game controls are in the correct state
+        if (game && game->isGameActive())
+        {
+            ui->startButton->hide();
+        }
+        else
+        {
+            ui->startButton->show();
+        }
+    }
+}
+
+/**
+ * @brief Saves the current score with the player's name
+ */
+void MainWindow::savePlayerScore()
+{
+    // Get the player name, default to "No Name" if empty
+    QString playerName = ui->nameInput->text().trimmed();
+    if (playerName.isEmpty())
+    {
+        playerName = "No Name";
+    }
+
+    // Save the score
+    bool success = m_scoreboard->saveScore(playerName, gameScore);
+
+    // Show success/failure message
+    showStatusMessage(
+        success ? "Score saved successfully!" : "Failed to save score",
+        success);
+
+    // Update the scoreboard display
+    if (success)
+    {
+        updateScoreboardDisplay();
+
+        // Clear the input field
+        ui->nameInput->clear();
+
+        // Disable save button to prevent multiple saves
+        ui->saveButton->setEnabled(false);
+    }
 }
