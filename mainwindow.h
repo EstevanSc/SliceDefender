@@ -95,6 +95,11 @@ private slots:
      */
     void savePlayerScore();
 
+    /**
+     * @brief Toggles the instructions overlay visibility
+     */
+    void toggleInstructions();
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
@@ -103,6 +108,7 @@ private:
     bool m_showingScoreboard;
     Scoreboard *m_scoreboard;
     QTimer *m_statusTimer;
+    bool m_showingInstructions;
 
     /**
      * @brief Update the score display
