@@ -12,7 +12,8 @@ Game::Game(Player *player, CameraHandler *cameraHandler,
       m_score(0),
       m_lives(5),
       m_gameStarted(false),
-      m_countdownValue(5)
+      m_countdownValue(5),
+      m_pointsCounter(0)
 {
     // Initialize timers
     m_updateTimer = new QTimer(this);
@@ -24,6 +25,12 @@ Game::Game(Player *player, CameraHandler *cameraHandler,
     // Initialize the hand position
     m_handPosition = QVector3D(0.0f, 0.0f, 0.0f);
     m_playerPosition = QVector3D(0.0f, 0.0f, 0.0f);
+
+    // Set this Game instance in the ProjectileManager
+    if (m_projectileManager)
+    {
+        m_projectileManager->setGame(this);
+    }
 }
 
 Game::~Game()
@@ -41,9 +48,6 @@ void Game::update()
     {
         return;
     }
-
-    // Check for collisions between projectiles and player
-    checkCollisions();
 }
 
 void Game::updatePlayerPosition()
@@ -88,9 +92,6 @@ void Game::updatePlayerPosition()
     // Only emit position changed signal if position actually changed
     if (positionChanged)
     {
-        // Log the sword position for debugging
-        qDebug() << "Moving sword to grid position: (" << m_playerPosition.x() << ", "
-                 << m_playerPosition.y() << ", " << m_playerPosition.z() << ")";
 
         // Update the player's position on the grid through signal
         emit playerPositionChanged(m_playerPosition.x(), m_playerPosition.y());
@@ -159,136 +160,43 @@ void Game::stopGame()
     emit gameEnded();
 }
 
-void Game::checkCollisions()
+/**
+ * @brief Increase player's score by one point plus bonus
+ * Called when a projectile is sliced by the player
+ */
+void Game::gainPoint()
 {
-    // Collision detection parameters
-    // Make the sword hit box much smaller to limit it to just the sword
-    const float COLLISION_THRESHOLD = 0.3f; // Reduced from 1.2f to make hitbox tighter
+    m_pointsCounter++;
+    m_score += m_pointsCounter;
 
-    // Grid zone definition - where projectiles should be sliced
-    const float GRID_Z_POSITION = -3.5f; // Z position of cylindrical grid
-    const float GRID_Y_POSITION = 2.0f;  // Y position of grid (height)
-    const float GRID_THICKNESS = 3.0f;   // Collision detection zone thickness
+    qDebug() << "Score increased: +" << m_pointsCounter << " points | Total score:" << m_score
+             << "| Combo:" << m_pointsCounter
+             << "| Lives:" << m_lives;
 
-    // Log game state for debugging
-    qDebug() << "Game state: Sword position:" << m_player->getPosition()
-             << "Active projectiles:" << m_projectileManager->getProjectiles().size()
-             << "Score:" << m_score
-             << "Lives:" << m_lives;
+    emit scoreChanged(m_score);
+}
 
-    // Access projectiles vector and sword position
-    auto &projectiles = m_projectileManager->getProjectiles();
-    QVector3D playerSwordPos = m_player->getPosition();
+/**
+ * @brief Decrease player's lives by one and reset combo counter
+ * Called when a projectile hits the ground or passes through the grid
+ * @return true if player still has lives remaining, false if game over
+ */
+bool Game::loseLife()
+{
+    m_lives--;
+    m_pointsCounter = 0;
 
-    // Get player blade position more precisely
-    // The blade is positioned above the handle and guard
-    float handleLength = 0.5f / 3.0f;
-    float guardHeight = 0.05f / 3.0f;
-    float bladeLength = 1.0f / 3.0f;
+    qDebug() << "Life lost: Lives remaining:" << m_lives
+             << "| Score:" << m_score
+             << "| Combo reset";
 
-    // Calculate more accurate sword blade position (center of the blade)
-    QVector3D swordBladePos = playerSwordPos;
-    swordBladePos.setY(playerSwordPos.y() + (handleLength + guardHeight + bladeLength / 2) *
-                                                cos(m_player->getRotation().x() * M_PI / 180.0f));
+    emit livesChanged(m_lives);
 
-    // Process each active projectile
-    for (size_t i = 0; i < projectiles.size(); ++i)
+    if (m_lives <= 0)
     {
-        Projectile *projectile = projectiles[i];
-
-        // Skip inactive projectiles
-        if (!projectile->isActive())
-        {
-            continue;
-        }
-
-        // Get projectile position and type information
-        float *pos = projectile->getPosition();
-        QVector3D projectilePos(pos[0], pos[1], pos[2]);
-        bool isHalf = projectile->isHalf();
-
-        // Check for floor collision - ONLY MARK INACTIVE, DON'T DESTROY
-        if (projectilePos.y() <= 0.0f)
-        {
-            qDebug() << "Floor collision: Projectile at" << projectilePos;
-
-            // Only whole projectiles cause life loss, and only if they haven't already decreased a life
-            if (!isHalf && !projectile->hasDecreasedLife())
-            {
-                m_lives--;
-                projectile->setDecreasedLife(true);
-
-                qDebug() << "Life lost (floor): Lives remaining:" << m_lives
-                         << "| Score:" << m_score
-                         << "| Total projectiles:" << m_projectileManager->getProjectilesLaunched();
-
-                emit livesChanged(m_lives);
-
-                if (m_lives <= 0)
-                {
-                    stopGame();
-                }
-            }
-
-            // Mark as inactive but don't destroy yet
-            projectile->setActive(false);
-            continue;
-        }
-
-        // Check if projectile is in grid zone
-        bool isInGridZone = (projectilePos.z() >= GRID_Z_POSITION - GRID_THICKNESS &&
-                             projectilePos.z() <= GRID_Z_POSITION + GRID_THICKNESS &&
-                             std::abs(projectilePos.y() - GRID_Y_POSITION) <= GRID_THICKNESS);
-
-        // Check collision with player's sword - use more precise blade position and smaller threshold
-        float distance = (projectilePos - swordBladePos).length();
-        bool collidesWithSword = (distance < COLLISION_THRESHOLD + projectile->getRadius());
-
-        // Handle sword collision - slice projectile
-        if (collidesWithSword)
-        {
-            qDebug() << "Sword collision: Projectile sliced at" << projectilePos
-                     << "Distance:" << distance;
-
-            // Only process slicing for whole projectiles
-            if (!isHalf)
-            {
-                projectile->setShouldSlice(true);
-                projectile->slice(m_projectileManager);
-
-                m_score++;
-
-                qDebug() << "Score increased: New score:" << m_score
-                         << "| Lives:" << m_lives
-                         << "| Total projectiles:" << m_projectileManager->getProjectilesLaunched();
-
-                emit scoreChanged(m_score);
-
-                // Mark as inactive but let the slice method handle creating the halves
-                projectile->setActive(false);
-            }
-
-            continue;
-        }
-
-        // Handle projectile passing through grid without being sliced
-        if (isInGridZone && !isHalf && projectilePos.z() > GRID_Z_POSITION && !projectile->hasDecreasedLife())
-        {
-            m_lives--;
-            projectile->setDecreasedLife(true);
-
-            qDebug() << "Grid missed: Life lost! Projectile passed through grid at" << projectilePos
-                     << "Lives remaining:" << m_lives
-                     << "| Score:" << m_score;
-
-            emit livesChanged(m_lives);
-
-            if (m_lives <= 0)
-            {
-                stopGame();
-            }
-
-            continue;
-        }
+        stopGame();
+        return false;
     }
+
+    return true;
 }

@@ -74,6 +74,7 @@ private:
     static constexpr float MIN_SPEED_MULTIPLIER = 0.5f;
     static constexpr float MAX_SPEED_MULTIPLIER = 4.0f;
     static constexpr float SPEED_CHANGE_STEP = 0.5f;
+    static constexpr float SWORD_SPEED_FACTOR = 0.5f; 
 };
 
 #endif // KEYBOARDHANDLER_H

@@ -13,11 +13,8 @@ KeyboardHandler::KeyboardHandler(QObject *parent)
 
 QVector3D KeyboardHandler::getMovementDirection() const
 {
-    // Return current movement direction in normalized coordinates
-    // similar to how the camera handler returns position
-    // Apply speed multiplier to the movement
-    return QVector3D(m_horizontalMovement * m_speedMultiplier,
-                     m_verticalMovement * m_speedMultiplier,
+    return QVector3D(m_horizontalMovement * m_speedMultiplier * SWORD_SPEED_FACTOR,
+                     m_verticalMovement * m_speedMultiplier * SWORD_SPEED_FACTOR,
                      0.0f);
 }
 
