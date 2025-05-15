@@ -95,15 +95,6 @@ MainWindow::~MainWindow()
 }
 
 /**
- * @brief Update the match quality display
- * @param quality Match quality value
- */
-void MainWindow::updateMatchQuality(int quality)
-{
-    ui->matchInfo->setText(QString("Detection in progress..."));
-}
-
-/**
  * @brief Start a new game with reset score
  */
 void MainWindow::startNewGame()
@@ -161,7 +152,7 @@ void MainWindow::startGame()
  */
 void MainWindow::updateScoreDisplay()
 {
-    ui->scoreValue->setText(QString::number(gameScore));
+    ui->scoreValue->setText(QString("POINTS:\n%1").arg(gameScore));
 }
 
 /**
@@ -197,7 +188,7 @@ void MainWindow::updateScoreLabel(int score)
  */
 void MainWindow::updateLivesLabel(int lives)
 {
-    ui->livesLabel->setText(QString("Lives: %1").arg(lives));
+    ui->livesLabel->setText(QString("Lives:\n%1").arg(lives));
 }
 
 /**
@@ -245,9 +236,7 @@ void MainWindow::updateSpeedIndicator(float speedMultiplier)
 void MainWindow::showStatusMessage(const QString &message, bool success)
 {
     ui->statusLabel->setText(message);
-    ui->statusLabel->setStyleSheet(success ? "color: #4CAF50; font-weight: bold;" : // Green for success
-                                       "color: #F44336; font-weight: bold;"         // Red for failure
-    );
+    ui->statusLabel->setStyleSheet(success ? "color: #4CAF50; font-weight: bold;" : "color: #F44336; font-weight: bold;");
 
     // Auto-clear message after 3 seconds
     m_statusTimer->start(3000);

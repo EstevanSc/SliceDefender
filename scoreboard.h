@@ -7,7 +7,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QVector>
-#include <QPair>
 
 /**
  * @class Scoreboard
@@ -29,11 +28,6 @@ public:
      * @param parent Parent object
      */
     explicit Scoreboard(QObject *parent = nullptr);
-
-    /**
-     * @brief Destructor
-     */
-    ~Scoreboard();
 
     /**
      * @brief Save a player's score to the scoreboard file
@@ -74,8 +68,16 @@ public:
     void toggleVisibility() { m_isVisible = !m_isVisible; }
 
 private:
-    static const int MAX_SCORES = 10;
-    QVector<QPair<QString, int>> m_scores;
+    static const int MAX_SCORES = 20;
+
+    // Structure to store player scores
+    struct PlayerScore
+    {
+        QString name;
+        int score;
+    };
+
+    QVector<PlayerScore> m_scores;
     QString m_scoreboardFile;
     bool m_isVisible;
 

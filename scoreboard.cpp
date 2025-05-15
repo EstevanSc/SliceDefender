@@ -20,14 +20,6 @@ Scoreboard::Scoreboard(QObject *parent)
 }
 
 /**
- * @brief Destructor cleans up resources
- */
-Scoreboard::~Scoreboard()
-{
-    // No special cleanup needed
-}
-
-/**
  * @brief Save a player's score to the scoreboard file
  * @param playerName Player's name
  * @param score Player's score
@@ -38,8 +30,13 @@ bool Scoreboard::saveScore(const QString &playerName, int score)
     // Use default name if empty
     QString name = playerName.trimmed().isEmpty() ? "No Name" : playerName.trimmed();
 
+    // Create a new score entry
+    PlayerScore newScore;
+    newScore.name = name;
+    newScore.score = score;
+
     // Add new score to the list
-    m_scores.append(qMakePair(name, score));
+    m_scores.append(newScore);
 
     // Sort scores
     sortScores();
@@ -70,8 +67,8 @@ QStringList Scoreboard::loadTopScores()
     {
         QString scoreEntry = QString("%1. %2 : %3")
                                  .arg(i + 1, 2)
-                                 .arg(m_scores[i].first)
-                                 .arg(m_scores[i].second);
+                                 .arg(m_scores[i].name)
+                                 .arg(m_scores[i].score);
         topScores.append(scoreEntry);
     }
 
@@ -95,7 +92,7 @@ bool Scoreboard::isHighScore(int score)
     }
 
     // Check if the score is higher than the lowest score in the list
-    return score > m_scores.last().second;
+    return score > m_scores.last().score;
 }
 
 /**
@@ -115,10 +112,9 @@ bool Scoreboard::loadScores()
         return false;
     }
 
-    // Open file for reading
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QFile::ReadOnly))
     {
-        qDebug() << "Failed to open scoreboard file for reading: " << m_scoreboardFile;
+        qDebug() << "Failed to open scoreboard file for reading:" << m_scoreboardFile;
         return false;
     }
 
@@ -130,9 +126,10 @@ bool Scoreboard::loadScores()
         QStringList parts = line.split("|");
         if (parts.size() >= 2)
         {
-            QString name = parts[0];
-            int score = parts[1].toInt();
-            m_scores.append(qMakePair(name, score));
+            PlayerScore score;
+            score.name = parts[0];
+            score.score = parts[1].toInt();
+            m_scores.append(score);
         }
     }
 
@@ -150,9 +147,9 @@ bool Scoreboard::loadScores()
 void Scoreboard::sortScores()
 {
     std::sort(m_scores.begin(), m_scores.end(),
-              [](const QPair<QString, int> &a, const QPair<QString, int> &b)
+              [](const PlayerScore &a, const PlayerScore &b)
               {
-                  return a.second > b.second;
+                  return a.score > b.score;
               });
 }
 
@@ -172,19 +169,9 @@ bool Scoreboard::saveAllScores()
     QTextStream out(&file);
     for (const auto &score : m_scores)
     {
-        out << score.first << "|" << score.second << "\n";
+        out << score.name << "|" << score.score << "\n";
     }
 
     file.close();
     return true;
-}
-
-/**
- * @brief Updates the scoreboard display
- * This is a placeholder method as the actual rendering is done in myglwidget
- */
-void Scoreboard::updateScoreboardDisplay()
-{
-    // The actual rendering is done in myglwidget
-    // This method is kept for API compatibility
 }

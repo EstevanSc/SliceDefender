@@ -51,12 +51,6 @@ private slots:
     void showAboutDialog();
 
     /**
-     * @brief Update the match quality display
-     * @param quality Match quality value
-     */
-    void updateMatchQuality(int quality);
-
-    /**
      * @brief Starts or restarts the game
      * Resets the game state and begins countdown
      */
