@@ -47,8 +47,8 @@ void Projectile::update(float deltaTime)
     m_position[2] += m_velocity[2] * deltaTime;
 
     // Deactivate projectile if it leaves the play area (corridor boundaries)
-    if (m_position[2] >= 0.0f || m_position[2] <= -30.0f ||
-        m_position[0] < -5.0f || m_position[0] > 5.0f)
+    // We only check X and Z limits here, Y limit (floor) is handled by collision detection
+    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
         return;

@@ -82,8 +82,7 @@ void OrangeHalf::update(float deltaTime)
 
     // Désactiver seulement si la demi-orange sort des limites du corridor
     // On ne désactive plus pour y <= 0 ici, cela est géré dans Game::checkCollisions
-    if (m_position[2] >= 0.0f || m_position[2] <= -30.0f ||
-        m_position[0] < -5.0f || m_position[0] > 5.0f)
+    if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
     }
