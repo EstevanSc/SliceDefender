@@ -28,9 +28,11 @@ void StrawberryHalf::draw()
 
     // --- Corps de la fraise (rouge, texturé) ---
     static GLuint strawberryTex = 0;
-    if (strawberryTex == 0) {
+    if (strawberryTex == 0)
+    {
         QImage img(":/strawberry_color.jpg");
-        if (!img.isNull()) {
+        if (!img.isNull())
+        {
             img = img.convertToFormat(QImage::Format_RGBA8888);
             glGenTextures(1, &strawberryTex);
             glBindTexture(GL_TEXTURE_2D, strawberryTex);
@@ -58,7 +60,8 @@ void StrawberryHalf::draw()
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    for (int j = 0; j < stacks; ++j) {
+    for (int j = 0; j < stacks; ++j)
+    {
         float t0 = float(j) / stacks;
         float t1 = float(j + 1) / stacks;
         float y0 = height * (1.0f - t0);
@@ -69,7 +72,8 @@ void StrawberryHalf::draw()
         float r1 = baseRadius * (1.0f - t1 * 0.8f) * (0.6f + 0.4f * std::sin(M_PI * t1));
 
         glBegin(GL_TRIANGLE_STRIP);
-        for (int i = 0; i <= sides; ++i) {
+        for (int i = 0; i <= sides; ++i)
+        {
             float angle = 2.0f * M_PI * i / sides;
             float x0 = r0 * std::cos(angle);
             float z0 = r0 * std::sin(angle);
@@ -100,7 +104,8 @@ void StrawberryHalf::draw()
     glColor3f(0.1f, 0.8f, 0.1f); // Green
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, height, 0.0f); // Center of the circle
-    for (int i = 0; i <= circleSegments; ++i) {
+    for (int i = 0; i <= circleSegments; ++i)
+    {
         float angle = 2.0f * M_PI * i / circleSegments;
         float x = r * std::cos(angle);
         float z = r * std::sin(angle);
@@ -119,13 +124,15 @@ void StrawberryHalf::draw()
 
     float leafStart = 0.9f * r; // Start the leaf at radius 0.9r
 
-    for (int leaf = 0; leaf < leafNumber; ++leaf) {
+    for (int leaf = 0; leaf < leafNumber; ++leaf)
+    {
         float angle = 2.0f * M_PI * leaf / leafNumber;
         float cosA = std::cos(angle);
         float sinA = std::sin(angle);
 
         glBegin(GL_QUADS);
-        for (int i = 0; i < leafSegments; ++i) {
+        for (int i = 0; i < leafSegments; ++i)
+        {
             float t0 = float(i) / leafSegments;
             float t1 = float(i + 1) / leafSegments;
 
@@ -146,7 +153,7 @@ void StrawberryHalf::draw()
 
             // Offset leaf width perpendicular to leaf direction
             float wx = -sinA * (leafWidth / 2);
-            float wz =  cosA * (leafWidth / 2);
+            float wz = cosA * (leafWidth / 2);
 
             glVertex3f(vx0a + wx, y0, vz0a + wz);
             glVertex3f(vx0a - wx, y0, vz0a - wz);

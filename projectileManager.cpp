@@ -63,6 +63,13 @@ void ProjectileManager::update(float deltaTime)
 
 void ProjectileManager::draw()
 {
+    // First draw all shadows so they appear underneath the projectiles
+    for (auto projectile : m_projectiles)
+    {
+        projectile->drawShadow();
+    }
+
+    // Then draw all projectiles
     for (auto projectile : m_projectiles)
     {
         projectile->draw();
