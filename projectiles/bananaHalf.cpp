@@ -26,9 +26,12 @@ void BananaHalf::draw()
     if (!isActive())
         return;
 
-    // Apply a 90° rotation around the Z axis to align with the whole banana
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
+
+    // Apply the rotation of the banana half (inherited from the original banana)
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
     glTranslatef(-m_position[0], -m_position[1], -m_position[2]);
 
@@ -61,9 +64,9 @@ void BananaHalf::draw()
         // Reproduce the thickness variation of the whole banana on the corresponding half
         float tGlobal;
         if (m_type == HalfType::FRONT) {
-            tGlobal = t * 0.5f; // LEFT = 0 à 0.5 de la banane entière
+            tGlobal = t * 0.5f; // LEFT = 0 à 0.5 of the whole banana
         } else {
-            tGlobal = 0.5f + t * 0.5f; // RIGHT = 0.5 à 1 de la banane entière
+            tGlobal = 0.5f + t * 0.5f; // RIGHT = 0.5 à 1 of the whole banana
         }
         float scale = 0.5f + 0.5f * std::sin(M_PI * tGlobal);
 

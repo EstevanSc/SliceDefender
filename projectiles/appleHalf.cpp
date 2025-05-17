@@ -4,6 +4,8 @@
 #include "../projectileManager.h"
 #include <QOpenGLTexture>
 #include <QImage>
+#include <QQuaternion>
+#include <QVector3D>
 
 static QOpenGLTexture *g_appleTexture = nullptr;
 
@@ -27,14 +29,18 @@ void AppleHalf::draw()
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Clipping for the half-sphere
-    double planeEq[4] = {0.0, 0.0, 0.0, 0.0};
-    planeEq[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
+    // Cutting plane (for slicing)
+    float angle = m_rotationSpeed * m_rotationTime;
+    QVector3D baseNormal((m_type == HalfType::LEFT) ? 1.0f : -1.0f, 0.0f, 0.0f);
+    QVector3D axis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
+    QVector3D rotatedNormal = q.rotatedVector(baseNormal);
 
+    double planeEq[4] = {rotatedNormal.x(), rotatedNormal.y(), rotatedNormal.z(), 0.0};
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    // Rotate texture by 90° on X axis
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
     // Texture
@@ -80,7 +86,7 @@ void AppleHalf::update(float deltaTime)
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
-    // DDeactivate only if the half-apple goes off-screen or hits the ground
+    // Deactivate only if the half-apple goes off-screen or hits the ground
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;

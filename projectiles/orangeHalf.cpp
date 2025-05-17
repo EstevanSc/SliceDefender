@@ -4,6 +4,8 @@
 #include "../projectileManager.h"
 #include <QOpenGLTexture>
 #include <QImage>
+#include <QQuaternion>
+#include <QVector3D>
 
 static QOpenGLTexture *g_orangeTexture = nullptr;
 
@@ -27,14 +29,18 @@ void OrangeHalf::draw()
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Clipping for half-sphere
-    double planeEq[4] = {0.0, 0.0, 0.0, 0.0};
-    planeEq[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
+    // Computing the cutting plane (for slicing)
+    float angle = m_rotationSpeed * m_rotationTime;
+    QVector3D baseNormal((m_type == HalfType::LEFT) ? 1.0f : -1.0f, 0.0f, 0.0f);
+    QVector3D axis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
+    QVector3D rotatedNormal = q.rotatedVector(baseNormal);
 
+    double planeEq[4] = {rotatedNormal.x(), rotatedNormal.y(), rotatedNormal.z(), 0.0};
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    // Rotate texture by 90° on X axis
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
     // Texture

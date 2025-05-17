@@ -5,6 +5,8 @@
 #include "cornHalf.h"
 #include <QOpenGLTexture>
 #include <QImage>
+#include <QVector3D>
+#include <QQuaternion>
 
 static QOpenGLTexture *g_cornTexture = nullptr;
 
@@ -24,7 +26,11 @@ void Corn::draw()
 
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
-    glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Ajouté : rotation pour aligner le cylindre sur X
+
+    // Rotate the corn over time
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 
     if (g_cornTexture) {
         glEnable(GL_TEXTURE_2D);
@@ -59,27 +65,45 @@ void Corn::draw()
 
 void Corn::slice(ProjectileManager *manager)
 {
-    // Left/right impulse to separate the halves (X axis)
+    // Slicing according to the rotation plane
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> lateralVelocity(1.0f, 3.0f);
 
-    // Offset to place the halves to the left and right
-    float dx = LENGTH / 4.0f;
+    // Calculate the normal of the cutting plane (perpendicular to the rotation axis, arbitrarily oriented)
+    QVector3D axis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    float angle = m_rotationSpeed * m_rotationTime;
+    // Take the base normal (X) and rotate it according to the axis and current angle
+    QVector3D baseNormal(1.0f, 0.0f, 0.0f);
+    QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
+    QVector3D normal = q.rotatedVector(baseNormal).normalized();
 
-    // Left
-    float leftVelocityX = m_velocity[0] - lateralVelocity(gen);
+    // Offset to avoid overlap
+    float offset = LENGTH / 4.0f;
+    QVector3D pos(m_position[0], m_position[1], m_position[2]);
+    QVector3D leftPos = pos - normal * offset;
+    QVector3D rightPos = pos + normal * offset;
+
+    // Lateral impulse to separate the halves
+    float impulse = lateralVelocity(gen);
+    QVector3D leftVel = QVector3D(m_velocity[0], m_velocity[1], m_velocity[2]) - normal * impulse;
+    QVector3D rightVel = QVector3D(m_velocity[0], m_velocity[1], m_velocity[2]) + normal * impulse;
+
     CornHalf *leftHalf = new CornHalf(
-        m_position[0] - dx, m_position[1], m_position[2],
-        leftVelocityX, m_velocity[1], m_velocity[2],
+        leftPos.x(), leftPos.y(), leftPos.z(),
+        leftVel.x(), leftVel.y(), leftVel.z(),
         CornHalf::HalfType::FRONT);
-
-    // Right
-    float rightVelocityX = m_velocity[0] + lateralVelocity(gen);
     CornHalf *rightHalf = new CornHalf(
-        m_position[0] + dx, m_position[1], m_position[2],
-        rightVelocityX, m_velocity[1], m_velocity[2],
+        rightPos.x(), rightPos.y(), rightPos.z(),
+        rightVel.x(), rightVel.y(), rightVel.z(),
         CornHalf::HalfType::BACK);
+
+    leftHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    leftHalf->setRotationSpeed(m_rotationSpeed);
+    leftHalf->setRotationTime(m_rotationTime);
+    rightHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    rightHalf->setRotationSpeed(m_rotationSpeed);
+    rightHalf->setRotationTime(m_rotationTime);
 
     manager->addProjectile(leftHalf);
     manager->addProjectile(rightHalf);

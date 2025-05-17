@@ -23,11 +23,14 @@ void Strawberry::draw()
 
     glPushMatrix();
 
-    // Position the strawberry at its current position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
+
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+
     glScalef(0.7f, 1.0f, 0.7f);
 
-    // --- Corps de la fraise (rouge, texturé) ---
+    // Strawberry main body
     static GLuint strawberryTex = 0;
     if (strawberryTex == 0) {
         QImage img(":/strawberry_color.jpg");
@@ -51,7 +54,7 @@ void Strawberry::draw()
     const float baseRadius = 0.7f;
 
     // Texture zoom factor (>1 means zoom in)
-    const float texZoom = 2.5f;
+    const float texZoom = 5.0f;
 
     for (int j = 0; j < stacks; ++j) {
         float t0 = float(j) / stacks;
@@ -171,18 +174,25 @@ void Strawberry::slice(ProjectileManager *manager)
         rightVelocityX, m_velocity[1], m_velocity[2],
         StrawberryHalf::HalfType::RIGHT);
 
+    leftHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    leftHalf->setRotationSpeed(m_rotationSpeed);
+    leftHalf->setRotationTime(m_rotationTime);
+    rightHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    rightHalf->setRotationSpeed(m_rotationSpeed);
+    rightHalf->setRotationTime(m_rotationTime);
+
     manager->addProjectile(leftHalf);
     manager->addProjectile(rightHalf);
 }
 
 float Strawberry::getRadius() const
 {
-    return 0.25f; // Rayon de la fraise
+    return 0.25f; // Strawberry radius
 }
 
 void Strawberry::getColor(float &r, float &g, float &b) const
 {
     r = 1.0f;
     g = 0.0f;
-    b = 0.0f; // Rouge pour la fraise
+    b = 0.0f; // Red for the strawberry
 }

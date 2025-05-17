@@ -24,9 +24,12 @@ void Banana::draw()
     if (!isActive())
         return;
 
-    // Apply a 90° rotation around the Z axis
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
+
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+
     glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
     glTranslatef(-m_position[0], -m_position[1], -m_position[2]);
 
@@ -204,6 +207,14 @@ void Banana::slice(ProjectileManager *manager)
         m_position[0] + dx * 0.2f, m_position[1], m_position[2],
         m_velocity[0] + dx, m_velocity[1], m_velocity[2],
         BananaHalf::HalfType::BACK);
+
+
+    frontHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    frontHalf->setRotationSpeed(m_rotationSpeed);
+    frontHalf->setRotationTime(m_rotationTime);
+    backHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    backHalf->setRotationSpeed(m_rotationSpeed);
+    backHalf->setRotationTime(m_rotationTime);
 
     manager->addProjectile(frontHalf);
     manager->addProjectile(backHalf);

@@ -26,9 +26,13 @@ void CornHalf::draw()
 
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
-    glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Rotate the cylinder 90° around Y (horizontal)
 
-    // Offset the half so it matches the correct part of the corn
+    // Apply the rotation of the corn half (inherited from the original corn)
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+
+    // Offset the corn half to match the correct half
     float offset = (m_type == HalfType::FRONT) ? -LENGTH / 2.0f : +LENGTH / 2.0f;
     glTranslatef(0.0f, 0.0f, offset);
 

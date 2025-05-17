@@ -8,7 +8,7 @@
 
 ProjectileManager::ProjectileManager()
     : m_timeSinceLastLaunch(0.0f), m_initialProjectileSpeed(15.0f),
-      m_rng(std::random_device()()), m_projectileTypeDist(0, 4) // <-- 0, 3 pour 4 types
+      m_rng(std::random_device()()), m_projectileTypeDist(0, 4) // <-- 0, 4 for 5 types
 {
     // Default values replaced by setter methods
     m_cannonPosition[0] = 0.0f;
@@ -120,8 +120,22 @@ void ProjectileManager::launchProjectile()
             velocityX, velocityY, velocityZ);
     }
 
+    // Random rotation axis
+    std::uniform_real_distribution<float> axisDist(-1.0f, 1.0f);
+    float axis[3] = {axisDist(m_rng), axisDist(m_rng), axisDist(m_rng)};
+    float norm = std::sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
+    if (norm < 0.001f) { axis[0]=0.0f; axis[1]=1.0f; axis[2]=0.0f; norm=1.0f; }
+    axis[0] /= norm; axis[1] /= norm; axis[2] /= norm;
+
+    // Angular speed (degrees/sec)
+    std::uniform_real_distribution<float> speedDist(90.0f, 180.0f); // between 90° and 180°/sec
+    float rotationSpeed = speedDist(m_rng);
+
+    // Apply rotation axis and speed
     if (newProjectile)
     {
+        newProjectile->setRotationAxis(axis[0], axis[1], axis[2]);
+        newProjectile->setRotationSpeed(rotationSpeed);
         m_projectiles.push_back(newProjectile);
     }
 }

@@ -30,6 +30,10 @@ public:
     void setPosition(float x, float y, float z);
     void setVelocity(float vx, float vy, float vz);
     void setAcceleration(float ax, float ay, float az);
+    
+    void setRotationAxis(float x, float y, float z);
+    void setRotationSpeed(float speed);
+    void setRotationTime(float t);
 
     bool isActive() const;
     void setActive(bool active);
@@ -41,6 +45,12 @@ protected:
     bool m_isActive;
     bool m_sliced = false;
     bool m_shouldSlice = false;
+
+    // For rotation
+    float m_rotationAxis[3] = {0.0f, 1.0f, 0.0f};
+    float m_rotationAngle = 0.0f;
+    float m_rotationSpeed = 0.0f;
+    float m_rotationTime = 0.0f;
 
     static constexpr float GRAVITY = 9.81f; // Gravity constant
 };
