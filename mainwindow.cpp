@@ -14,7 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
       cameraHandler(nullptr),
       game(nullptr),
       gameScore(0),
-      m_showingScoreboard(false)
+      m_showingScoreboard(false),
+      m_showingInstructions(false)
 {
     ui->setupUi(this);
 
@@ -27,8 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_statusTimer, &QTimer::timeout, [this]()
             { ui->statusLabel->clear(); });
 
-    // Hide the scoreboard overlay initially
+    // Hide the scoreboard and instructions overlays initially
     ui->scoreboardOverlay->hide();
+    ui->instructionsOverlay->hide();
 
     // Configure splitter proportions (80% game view, 20% control panel)
     QList<int> sizes;
@@ -99,10 +101,14 @@ MainWindow::~MainWindow()
  */
 void MainWindow::startNewGame()
 {
-    // If scoreboard is showing, hide it first
+    // If scoreboard or instructions is showing, hide it first
     if (m_showingScoreboard)
     {
         toggleScoreboard();
+    }
+    else if (m_showingInstructions)
+    {
+        toggleInstructions();
     }
 
     startGame();
@@ -126,10 +132,14 @@ void MainWindow::startGame()
 {
     if (game)
     {
-        // Hide scoreboard if it's visible
+        // Hide scoreboard or instructions if it's visible
         if (m_showingScoreboard)
         {
             toggleScoreboard();
+        }
+        else if (m_showingInstructions)
+        {
+            toggleInstructions();
         }
 
         // Reset the game state
@@ -243,6 +253,49 @@ void MainWindow::showStatusMessage(const QString &message, bool success)
 }
 
 /**
+ * @brief Toggles the instructions overlay visibility
+ *
+ * Shows or hides the instructions overlay. When showing instructions,
+ * it first hides the scoreboard if it's visible. Uses the same button
+ * for toggling the overlay without a separate back button for simplicity.
+ */
+void MainWindow::toggleInstructions()
+{
+    m_showingInstructions = !m_showingInstructions;
+
+    if (m_showingInstructions)
+    {
+        // Hide scoreboard if it's visible
+        if (m_showingScoreboard)
+        {
+            m_showingScoreboard = false;
+            ui->scoreboardOverlay->hide();
+            ui->scoreboardButton->setText("Scoreboard");
+        }
+
+        // Show instructions overlay
+        ui->instructionsButton->setText("Back to Game");
+        ui->instructionsOverlay->show();
+    }
+    else
+    {
+        // Hide instructions overlay
+        ui->instructionsButton->setText("Instructions");
+        ui->instructionsOverlay->hide();
+
+        // Make sure game controls are in the correct state
+        if (game && game->isGameStarted())
+        {
+            ui->startButton->hide();
+        }
+        else
+        {
+            ui->startButton->show();
+        }
+    }
+}
+
+/**
  * @brief Toggles the scoreboard visibility
  */
 void MainWindow::toggleScoreboard()
@@ -251,6 +304,14 @@ void MainWindow::toggleScoreboard()
 
     if (m_showingScoreboard)
     {
+        // Hide instructions if it's visible
+        if (m_showingInstructions)
+        {
+            m_showingInstructions = false;
+            ui->instructionsOverlay->hide();
+            ui->instructionsButton->setText("Instructions");
+        }
+
         // Show scoreboard overlay
         updateScoreboardDisplay();
         ui->scoreboardButton->setText("Back to Game");
