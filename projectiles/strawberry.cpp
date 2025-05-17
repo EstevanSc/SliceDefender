@@ -80,11 +80,21 @@ void Strawberry::draw()
             float v0 = (1.0f - t0) / texZoom + 0.5f - 0.5f / texZoom;
             float v1 = (1.0f - t1) / texZoom + 0.5f - 0.5f / texZoom;
 
-            glNormal3f(x0, 0.3f, z0);
+            float nx = -std::cos(angle);
+            float nz = -std::sin(angle);
+            float ny = -(r0 - r1) / (y0 - y1);
+
+            // Normalize the inverted normal vector
+            float len = std::sqrt(nx * nx + ny * ny + nz * nz);
+            nx /= len;
+            ny /= len;
+            nz /= len;
+
+            glNormal3f(nx, ny, nz);
             glTexCoord2f(u, v0);
             glVertex3f(x0, y0, z0);
 
-            glNormal3f(x1, 0.3f, z1);
+            glNormal3f(nx, ny, nz);
             glTexCoord2f(u, v1);
             glVertex3f(x1, y1, z1);
         }

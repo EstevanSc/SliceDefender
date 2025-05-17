@@ -46,7 +46,8 @@ void BananaHalf::draw()
     std::vector<std::vector<QVector3D>> ringVertices(segments + 1);
     std::vector<std::vector<QVector2D>> ringTexCoords(segments + 1);
 
-    for (int i = 0; i <= segments; ++i) {
+    for (int i = 0; i <= segments; ++i)
+    {
         float t = float(i) / segments;
         float angle = startAngle + t * curveAngle;
         float rad = angle * M_PI / 180.0f;
@@ -60,14 +61,18 @@ void BananaHalf::draw()
 
         // Reproduce the thickness variation of the whole banana on the corresponding half
         float tGlobal;
-        if (m_type == HalfType::FRONT) {
+        if (m_type == HalfType::FRONT)
+        {
             tGlobal = t * 0.5f; // LEFT = 0 à 0.5 de la banane entière
-        } else {
+        }
+        else
+        {
             tGlobal = 0.5f + t * 0.5f; // RIGHT = 0.5 à 1 de la banane entière
         }
         float scale = 0.5f + 0.5f * std::sin(M_PI * tGlobal);
 
-        for (int j = 0; j < sides; ++j) {
+        for (int j = 0; j < sides; ++j)
+        {
             float theta = 2.0f * M_PI * j / sides;
             float x = std::cos(theta) * radius * scale;
             float y = std::sin(theta) * radius * scale;
@@ -80,14 +85,17 @@ void BananaHalf::draw()
     }
 
     // Yellow textured part
-    if (s_bananaTexture) {
+    if (s_bananaTexture)
+    {
         glEnable(GL_TEXTURE_2D);
         s_bananaTexture->bind();
     }
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    for (int i = 0; i < segments; ++i) {
-        for (int j = 0; j < sides; ++j) {
+    for (int i = 0; i < segments; ++i)
+    {
+        for (int j = 0; j < sides; ++j)
+        {
             int nextJ = (j + 1) % sides;
             QVector3D v0 = ringVertices[i][j];
             QVector3D v1 = ringVertices[i][nextJ];
@@ -97,19 +105,29 @@ void BananaHalf::draw()
             QVector2D t1 = ringTexCoords[i][nextJ];
             QVector2D t2 = ringTexCoords[i + 1][nextJ];
             QVector2D t3 = ringTexCoords[i + 1][j];
-            QVector3D normal = QVector3D::normal(v0, v1, v2);
+
+            // Calculate the normal from the triangular face
+            // Use v0, v1, v2 to compute a normal that points outward
+            QVector3D edge1 = v1 - v0;
+            QVector3D edge2 = v2 - v0;
+            QVector3D normal = QVector3D::crossProduct(edge1, edge2).normalized();
 
             glBegin(GL_QUADS);
             glNormal3f(normal.x(), normal.y(), normal.z());
-            glTexCoord2f(t0.x(), t0.y()); glVertex3f(v0.x(), v0.y(), v0.z());
-            glTexCoord2f(t1.x(), t1.y()); glVertex3f(v1.x(), v1.y(), v1.z());
-            glTexCoord2f(t2.x(), t2.y()); glVertex3f(v2.x(), v2.y(), v2.z());
-            glTexCoord2f(t3.x(), t3.y()); glVertex3f(v3.x(), v3.y(), v3.z());
+            glTexCoord2f(t0.x(), t0.y());
+            glVertex3f(v0.x(), v0.y(), v0.z());
+            glTexCoord2f(t1.x(), t1.y());
+            glVertex3f(v1.x(), v1.y(), v1.z());
+            glTexCoord2f(t2.x(), t2.y());
+            glVertex3f(v2.x(), v2.y(), v2.z());
+            glTexCoord2f(t3.x(), t3.y());
+            glVertex3f(v3.x(), v3.y(), v3.z());
             glEnd();
         }
     }
 
-    if (s_bananaTexture) {
+    if (s_bananaTexture)
+    {
         s_bananaTexture->release();
         glDisable(GL_TEXTURE_2D);
     }
@@ -125,11 +143,13 @@ void BananaHalf::draw()
     QVector3D coreNext = ringVertices[capNext][0];
     QVector3D capDir = (core - coreNext).normalized();
     std::vector<QVector3D> capExtruded(sides);
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         QVector3D fromCenter = ringVertices[capIndex][j] - core;
         capExtruded[j] = core + fromCenter * capScale + capDir * capExtrude;
     }
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         int nextJ = (j + 1) % sides;
         QVector3D v0 = ringVertices[capIndex][j];
         QVector3D v1 = ringVertices[capIndex][nextJ];
@@ -147,13 +167,18 @@ void BananaHalf::draw()
     glBegin(GL_POLYGON);
     QVector3D capNormal = capDir;
     glNormal3f(capNormal.x(), capNormal.y(), capNormal.z());
-    if (m_type == HalfType::FRONT) {
-        for (int j = 0; j < sides; ++j) {
+    if (m_type == HalfType::FRONT)
+    {
+        for (int j = 0; j < sides; ++j)
+        {
             QVector3D v = capExtruded[j];
             glVertex3f(v.x(), v.y(), v.z());
         }
-    } else {
-        for (int j = sides - 1; j >= 0; --j) {
+    }
+    else
+    {
+        for (int j = sides - 1; j >= 0; --j)
+        {
             QVector3D v = capExtruded[j];
             glVertex3f(v.x(), v.y(), v.z());
         }
