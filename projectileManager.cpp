@@ -72,12 +72,12 @@ void ProjectileManager::draw()
 void ProjectileManager::launchProjectile()
 {
     // Distribution generator to slightly randomize velocity in X and Y
-    std::uniform_real_distribution<float> randomVerticalOffset(-1.5f, 0.5f);
-    std::uniform_real_distribution<float> randomHorizontalOffset(-1.5f, 1.5f);
+    std::uniform_real_distribution<float> randomVerticalOffset(-1.2f, 0.2f);
+    std::uniform_real_distribution<float> randomHorizontalOffset(-1.2f, 1.2f);
 
     // Calculate initial velocity based on cannon direction, initial speed and random offsets
-    float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) + randomHorizontalOffset(m_rng);
-    float velocityY = (m_cannonDirection[1] * m_initialProjectileSpeed) + randomVerticalOffset(m_rng);
+    float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) -1.5f; // + randomHorizontalOffset(m_rng);
+    float velocityY = (m_cannonDirection[1] * m_initialProjectileSpeed) -1.5f; // + randomVerticalOffset(m_rng);
     float velocityZ = m_cannonDirection[2] * m_initialProjectileSpeed;
 
     // Debug - display initial velocity

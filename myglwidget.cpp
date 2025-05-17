@@ -6,6 +6,7 @@
 #include "myglwidget.h"
 #include <cmath>
 #include "cannon.h"
+#include "player.h"
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
