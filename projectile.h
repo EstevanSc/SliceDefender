@@ -46,6 +46,8 @@ public:
     void setRotationSpeed(float speed);
     void setRotationTime(float t);
 
+    void setGame(Game *game) { m_game = game; }
+
     bool isActive() const;
     void setActive(bool active);
 
@@ -74,6 +76,22 @@ protected:
     float m_rotationTime = 0.0f;
 
     static constexpr float GRAVITY = 9.81f; // Gravity constant
+
+    // Grid zone definition constants
+    static constexpr float GRID_Z_POSITION = -3.5f;    // Z position of cylindrical grid
+    static constexpr float GRID_Y_POSITION = 2.0f;     // Y position of grid (height)
+    static constexpr float GRID_THICKNESS = 3.0f;      // Collision detection zone thickness
+    static constexpr float COLLISION_THRESHOLD = 0.3f; // Sword collision detection threshold
+
+    Game *m_game = nullptr; // Pointer to the game instance for scoring and life management
+
+    // Shadow constants
+    static constexpr float SHADOW_ALPHA = 0.5f;     // Shadow transparency
+    static constexpr float MIN_SHADOW_SCALE = 0.5f; // Minimum shadow scale factor
+    static constexpr float MAX_SHADOW_SCALE = 1.2f; // Maximum shadow scale factor
+
+    // Helper method for shadow calculations
+    float calculateShadowScale() const;
 };
 
 #endif // PROJECTILE_H

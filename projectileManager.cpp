@@ -79,8 +79,8 @@ void ProjectileManager::draw()
 void ProjectileManager::launchProjectile()
 {
     // Random offset generators for projectile trajectory variation
-    std::uniform_real_distribution<float> randomVerticalOffset(-1.5f, 0.5f);
-    std::uniform_real_distribution<float> randomHorizontalOffset(-1.5f, 1.5f);
+    std::uniform_real_distribution<float> randomVerticalOffset(-1.2f, 0.2f);
+    std::uniform_real_distribution<float> randomHorizontalOffset(-1.2f, 1.2f);
 
     // Calculate velocity with directional vector and random offsets for gameplay variety
     float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) + randomHorizontalOffset(m_rng);
@@ -144,6 +144,12 @@ void ProjectileManager::launchProjectile()
     // Apply rotation axis and speed
     if (newProjectile)
     {
+        // Set the game reference for the projectile if it exists
+        if (m_game)
+        {
+            newProjectile->setGame(m_game);
+        }
+
         newProjectile->setRotationAxis(axis[0], axis[1], axis[2]);
         newProjectile->setRotationSpeed(rotationSpeed);
         m_projectiles.push_back(newProjectile);
