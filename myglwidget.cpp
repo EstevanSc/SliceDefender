@@ -96,6 +96,9 @@ void MyGLWidget::paintGL()
               0.0f, 0.0f, -corridorLength,
               0.0f, 1.0f, 0.0f);
 
+    // Set up lighting after camera to ensure light1 is fixed in world space
+    setupLight();
+
     // Set up lighting
     setupLight();
 
@@ -148,6 +151,35 @@ void MyGLWidget::setupLight()
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+
+    // Calculate point light position relative to cannon
+    // Cannon position is at (0.0, 0.0, -corridorLength)
+    // Camera is at (0.0, 2.5, 0.0)
+    float cannonZ = -corridorLength;
+    float halfDistanceZ = cannonZ / 2.0f; // Half distance between cannon and camera in Z
+
+    // Position the light high above the scene at the midpoint of the corridor
+    // Use a positional light (w=1.0) for proper distance-based attenuation
+    GLfloat light1Position[] = {
+        0.0f,        
+        20.0f,         
+        halfDistanceZ, 
+        1.0f           
+    };
+
+    GLfloat light1Ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat light1Diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat light1Specular[] = {0.8f, 0.8f, 0.8f, 1.0f};
+
+    glEnable(GL_LIGHT1);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light1Ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, light1Specular);
+
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.8f);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.03f);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.005f);
 }
 
 void MyGLWidget::drawCorridor()

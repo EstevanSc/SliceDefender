@@ -52,6 +52,9 @@ public:
     bool hasDecreasedLife() const { return m_hasDecreasedLife; }
     void setDecreasedLife(bool decreased) { m_hasDecreasedLife = decreased; }
 
+    // Shadow rendering method
+    void drawShadow() const;
+
 protected:
     float m_position[3];
     float m_velocity[3];
@@ -69,6 +72,14 @@ protected:
     static constexpr float GRAVITY = 9.81f;            // Gravity constant
 
     Game *m_game = nullptr; // Pointer to the game instance for scoring and life management
+
+    // Shadow constants
+    static constexpr float SHADOW_ALPHA = 0.5f;     // Shadow transparency
+    static constexpr float MIN_SHADOW_SCALE = 0.5f; // Minimum shadow scale factor
+    static constexpr float MAX_SHADOW_SCALE = 1.2f; // Maximum shadow scale factor
+
+    // Helper method for shadow calculations
+    float calculateShadowScale() const;
 };
 
 #endif // PROJECTILE_H

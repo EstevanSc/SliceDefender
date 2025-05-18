@@ -244,3 +244,65 @@ void Projectile::setShouldSlice(bool value)
 {
     m_shouldSlice = value;
 }
+
+/**
+ * @brief Draws a shadow disk underneath the projectile
+ *
+ * The shadow is a simple transparent black disk that follows the projectile's
+ * X and Z position but remains on the ground (Y=0). The shadow size is
+ * dynamically calculated based on the projectile's height from the ground.
+ */
+void Projectile::drawShadow() const
+{
+    // Don't draw shadow for inactive projectiles
+    if (!m_isActive)
+    {
+        return;
+    }
+    
+    float shadowScale = calculateShadowScale();
+
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Position the shadow on the ground directly below the projectile
+    glPushMatrix();
+    glTranslatef(m_position[0], 0.01f, m_position[2]); 
+    glScalef(shadowScale, 1.0f, shadowScale);
+    float alphaFactor = std::max(0.2f, std::min(1.0f, 1.0f - m_position[1] / 10.0f));
+    float finalAlpha = SHADOW_ALPHA * alphaFactor;
+    glColor4f(0.0f, 0.0f, 0.0f, finalAlpha);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    const int segments = 16;
+    const float radius = getRadius();
+    for (int i = 0; i <= segments; i++)
+    {
+        float angle = 2.0f * M_PI * i / segments;
+        float x = radius * cosf(angle);
+        float z = radius * sinf(angle);
+        glVertex3f(x, 0.0f, z);
+    }
+    glEnd();
+    glPopMatrix();
+    glPopAttrib();
+}
+
+/**
+ * @brief Calculates the shadow scale based on projectile height
+ *
+ * As the projectile gets closer to the ground, the shadow grows larger.
+ * The scale varies between MIN_SHADOW_SCALE (furthest) and MAX_SHADOW_SCALE (closest).
+ *
+ * @return The scale factor to apply to the shadow radius
+ */
+float Projectile::calculateShadowScale() const
+{
+    const float MAX_HEIGHT = 5.0f;
+    float heightFactor = 1.0f - std::min(m_position[1], MAX_HEIGHT) / MAX_HEIGHT;
+    heightFactor = heightFactor * heightFactor;
+    return MIN_SHADOW_SCALE + heightFactor * (MAX_SHADOW_SCALE - MIN_SHADOW_SCALE);
+}
