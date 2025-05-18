@@ -37,8 +37,8 @@ void ProjectileManager::update(float deltaTime)
     // Update timer for launching projectiles
     m_timeSinceLastLaunch += deltaTime;
 
-    // Launch new projectile if it's time
-    if (m_timeSinceLastLaunch >= LAUNCH_INTERVAL)
+    // Only launch new projectiles if the game is active
+    if (m_gameActive && m_timeSinceLastLaunch >= LAUNCH_INTERVAL)
     {
         // Debug print
         qDebug() << "Launching projectile from cannon at position: ("
@@ -63,6 +63,13 @@ void ProjectileManager::update(float deltaTime)
 
 void ProjectileManager::draw()
 {
+    // First draw all shadows so they appear underneath the projectiles
+    for (auto projectile : m_projectiles)
+    {
+        projectile->drawShadow();
+    }
+
+    // Then draw all projectiles
     for (auto projectile : m_projectiles)
     {
         projectile->draw();
@@ -71,22 +78,25 @@ void ProjectileManager::draw()
 
 void ProjectileManager::launchProjectile()
 {
-    // Distribution generator to slightly randomize velocity in X and Y
-    std::uniform_real_distribution<float> randomVerticalOffset(-1.2f, 0.2f);
-    std::uniform_real_distribution<float> randomHorizontalOffset(-1.2f, 1.2f);
+    // Random offset generators for projectile trajectory variation
+    std::uniform_real_distribution<float> randomVerticalOffset(-1.5f, 0.5f);
+    std::uniform_real_distribution<float> randomHorizontalOffset(-1.5f, 1.5f);
 
-    // Calculate initial velocity based on cannon direction, initial speed and random offsets
-    float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) -1.5f; // + randomHorizontalOffset(m_rng);
-    float velocityY = (m_cannonDirection[1] * m_initialProjectileSpeed) -1.5f; // + randomVerticalOffset(m_rng);
+    // Calculate velocity with directional vector and random offsets for gameplay variety
+    float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) + randomHorizontalOffset(m_rng);
+    float velocityY = (m_cannonDirection[1] * m_initialProjectileSpeed) + randomVerticalOffset(m_rng);
     float velocityZ = m_cannonDirection[2] * m_initialProjectileSpeed;
 
-    // Debug - display initial velocity
+    // Increment launched projectile counter
+    m_projectilesLaunched++;
+
+    // Log diagnostic information
     qDebug() << "Launch velocity: (" << velocityX << ", " << velocityY << ", " << velocityZ << ")";
     qDebug() << "Launch position: (" << m_cannonPosition[0] << ", " << m_cannonPosition[1] << ", " << m_cannonPosition[2] << ")";
+    qDebug() << "Total projectiles launched: " << m_projectilesLaunched;
 
-    // Randomly choose projectile type to launch
+    // Select random projectile type (apple or orange)
     int projectileType = m_projectileTypeDist(m_rng);
-
     Projectile *newProjectile = nullptr;
 
     if (projectileType == 0)
@@ -149,17 +159,25 @@ void ProjectileManager::createProjectile(Args &&...args)
 
 void ProjectileManager::cleanupProjectiles()
 {
-    // Remove inactive projectiles
+    // Only remove inactive projectiles after they've been properly processed
+    // This avoids destroying projectiles immediately upon contact with grid/player
     auto it = std::remove_if(m_projectiles.begin(), m_projectiles.end(),
                              [](Projectile *p)
-                            {
-                                if (!p->isActive())
-                                {
-                                    delete p;
-                                    return true;
-                                }
-                                return false;
-                            });
+                             {
+                                 if (!p->isActive())
+                                 {
+                                     const std::type_info &typeInfo = typeid(*p);
+                                     const char *typeName = typeInfo.name();
+
+                                     float *pos = p->getPosition();
+                                     qDebug() << "Cleaning up inactive projectile:" << typeName
+                                              << "at position:" << pos[0] << "," << pos[1] << "," << pos[2];
+
+                                     delete p;
+                                     return true;
+                                 }
+                                 return false;
+                             });
 
     m_projectiles.erase(it, m_projectiles.end());
 }
@@ -200,7 +218,8 @@ void ProjectileManager::checkProjectilesForSlicing()
 {
     for (auto projectile : m_projectiles)
     {
-        // Check if the projectile should be sliced (property shouldSlice)
+        // Check if the projectile should be sliced (based on the shouldSlice flag)
+        // This flag is now only activated by collision with the sword
         if (projectile->shouldSlice())
         {
             qDebug() << "Slicing projectile at position: ("
@@ -221,6 +240,25 @@ void ProjectileManager::addProjectile(Projectile *projectile)
 {
     if (projectile)
     {
+        // Set the game reference for the projectile if it exists
+        if (m_game)
+        {
+            projectile->setGame(m_game);
+        }
+
         m_projectiles.push_back(projectile);
     }
+}
+
+void ProjectileManager::clearProjectiles()
+{
+    // Delete all projectiles
+    for (auto projectile : m_projectiles)
+    {
+        delete projectile;
+    }
+    m_projectiles.clear();
+
+    // Reset timer
+    m_timeSinceLastLaunch = 0.0f;
 }

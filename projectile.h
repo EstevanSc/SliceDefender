@@ -2,8 +2,11 @@
 #define PROJECTILE_H
 
 #include <vector>
+#include <QVector3D>
 
 class ProjectileManager; // Forward declaration
+class Game;              // Forward declaration
+class Player;            // Forward declaration
 
 class Projectile
 {
@@ -18,8 +21,16 @@ public:
     virtual void slice(ProjectileManager *manager) = 0;
     bool shouldSlice() const;
     void setSliced();
+    void setShouldSlice(bool value);
     virtual float getRadius() const = 0;
     virtual void getColor(float &r, float &g, float &b) const = 0;
+
+    // Collision detection methods
+    bool isNearPlayer(const Player &player) const;
+    bool isInGridZone(float gridZPosition, float gridYPosition, float gridThickness) const;
+    bool isInGridZoneAndPassed(float gridZPosition, float gridYPosition, float gridThickness) const;
+    bool hasTouchedFloor() const;
+    void checkCollisionWithPlayer(Player *player);
 
     // Getters
     float *getPosition() const;
@@ -38,6 +49,15 @@ public:
     bool isActive() const;
     void setActive(bool active);
 
+    virtual bool isHalf() const { return false; }
+
+    // Life loss tracking
+    bool hasDecreasedLife() const { return m_hasDecreasedLife; }
+    void setDecreasedLife(bool decreased) { m_hasDecreasedLife = decreased; }
+
+    // Shadow rendering method
+    void drawShadow() const;
+
 protected:
     float m_position[3];
     float m_velocity[3];
@@ -45,6 +65,7 @@ protected:
     bool m_isActive;
     bool m_sliced = false;
     bool m_shouldSlice = false;
+    bool m_hasDecreasedLife = false; // Flag to track if projectile has already caused life loss
 
     // For rotation
     float m_rotationAxis[3] = {0.0f, 1.0f, 0.0f};

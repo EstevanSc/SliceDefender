@@ -19,9 +19,11 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     m_lastFrameTime = QTime::currentTime();
 
     // Position the player's sword at the center of the cylindrical grid
-    // Using default parameters (0,0) which places it in the center
-    // Setting to 0.0, 0.0 centers it on the grid
-    positionPlayerOnGrid(0.5, 0.5);
+    // Using (0.0, 0.0) which places it in the center of the grid
+    positionPlayerOnGrid(0.0, 0.0);
+
+    // Set focus policy to allow keyboard input
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 MyGLWidget::~MyGLWidget()
@@ -94,6 +96,9 @@ void MyGLWidget::paintGL()
               0.0f, 0.0f, -corridorLength,
               0.0f, 1.0f, 0.0f);
 
+    // Set up lighting after camera to ensure light1 is fixed in world space
+    setupLight();
+
     // Set up lighting
     setupLight();
 
@@ -111,6 +116,12 @@ void MyGLWidget::paintGL()
 
     // Update projectile manager
     m_projectileManager.update(deltaTime);
+
+    // Call the game update function if it exists
+    if (m_gameUpdateFunc)
+    {
+        m_gameUpdateFunc();
+    }
 
     // Draw scene elements
     drawCorridor();
@@ -140,6 +151,35 @@ void MyGLWidget::setupLight()
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+
+    // Calculate point light position relative to cannon
+    // Cannon position is at (0.0, 0.0, -corridorLength)
+    // Camera is at (0.0, 2.5, 0.0)
+    float cannonZ = -corridorLength;
+    float halfDistanceZ = cannonZ / 2.0f; // Half distance between cannon and camera in Z
+
+    // Position the light high above the scene at the midpoint of the corridor
+    // Use a positional light (w=1.0) for proper distance-based attenuation
+    GLfloat light1Position[] = {
+        0.0f,        
+        20.0f,         
+        halfDistanceZ, 
+        1.0f           
+    };
+
+    GLfloat light1Ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat light1Diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat light1Specular[] = {0.8f, 0.8f, 0.8f, 1.0f};
+
+    glEnable(GL_LIGHT1);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light1Ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, light1Specular);
+
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.8f);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.03f);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.005f);
 }
 
 void MyGLWidget::drawCorridor()
@@ -302,31 +342,32 @@ void MyGLWidget::drawAxes()
  * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
  *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
  *
- * @param gridZ Z coordinate on the grid (ranges from -1.0 to 1.0)
- *              Where -1.0 is the back edge, 0.0 is center, and 1.0 is the front edge
- *
- * Grid coordinates are normalized so (0,0) is the center of the grid,
- * and the edges are at (-1,-1) to (1,1), regardless of the actual grid size.
+ * @param gridY Y coordinate on the grid (ranges from -1.0 to 1.0)
+ *              Where -1.0 is the bottom, 0.0 is center, and 1.0 is the top
+ *              This parameter was previously named gridZ but has been renamed for clarity
  */
-void MyGLWidget::positionPlayerOnGrid(float gridX, float gridZ)
+void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
 {
     // Calculate the angle based on the gridX coordinate and gridAngle
     // gridX ranges from -1.0 (left) to 1.0 (right)
     // Convert to an angle within the gridAngle range
     float angle = (gridX * (gridAngle / 2.0f)) * M_PI / 180.0f;
 
-    // Calculate the radius based on the gridZ coordinate
-    // gridZ ranges from -1.0 (back) to 1.0 (front)
-    // Scale the radius accordingly (keep it within the grid limits)
-    float radius = gridRadius * (1.0f - std::abs(gridZ));
+    // Get the base Y-coordinate of the grid (height)
+    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
+    float baseY = 2.0f;
+
+    // Calculate the height offset based on gridY
+    // gridY ranges from -1.0 (bottom) to 1.0 (top)
+    // Scale to move within the grid height limits
+    float heightOffset = gridY * (corridorHeight * 0.25f); // Half of half height
+    float worldY = baseY + heightOffset;
+
+    // Use a fixed radius for the grid cylinder
+    float radius = gridRadius;
 
     // Convert from polar coordinates (angle, radius) to Cartesian coordinates (x, z)
     float worldX = radius * std::sin(angle);
-
-    // Get the y-coordinate directly from the grid
-    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
-    float worldY = 2.0f;
-
     float worldZ = -radius * std::cos(angle); // Negative for OpenGL z-axis orientation
 
     // Set the player's position directly on the grid surface
@@ -336,4 +377,39 @@ void MyGLWidget::positionPlayerOnGrid(float gridX, float gridZ)
     // The Y rotation follows the curvature of the grid
     float rotationY = angle * 180.0f / M_PI;
     m_player.setRotation(0.0f, rotationY, 0.0f);
+}
+
+void MyGLWidget::keyPressEvent(QKeyEvent *event)
+{
+    // Handle numpad keys specifically, which sometimes need special treatment
+    int key = event->key();
+
+    // Map numpad keys to their corresponding standard keys if needed
+    if (event->modifiers() & Qt::KeypadModifier)
+    {
+        switch (key)
+        {
+        case Qt::Key_Plus:
+            key = Qt::Key_Plus; // Keep as is
+            break;
+        case Qt::Key_Minus:
+            key = Qt::Key_Minus; // Keep as is
+            break;
+        }
+    }
+
+    // Pass key events to the keyboard handler with possibly modified key
+    m_keyboardHandler.keyPressed(key);
+
+    // Allow standard processing
+    QOpenGLWidget::keyPressEvent(event);
+}
+
+void MyGLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    // Pass key events to the keyboard handler
+    m_keyboardHandler.keyReleased(event->key());
+
+    // Allow standard processing
+    QOpenGLWidget::keyReleaseEvent(event);
 }

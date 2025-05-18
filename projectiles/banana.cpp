@@ -47,7 +47,8 @@ void Banana::draw()
     std::vector<std::vector<QVector3D>> ringVertices(segments + 1);
     std::vector<std::vector<QVector2D>> ringTexCoords(segments + 1);
 
-    for (int i = 0; i <= segments; ++i) {
+    for (int i = 0; i <= segments; ++i)
+    {
         float t = float(i) / segments;
         float angle = startAngle + t * curveAngle;
         float rad = angle * M_PI / 180.0f;
@@ -61,11 +62,12 @@ void Banana::draw()
         float tangentAngle = rad + M_PI_2;
         float scale = 0.5f + 0.5f * std::sin(M_PI * t);
 
-        for (int j = 0; j < sides; ++j) {
+        for (int j = 0; j < sides; ++j)
+        {
             float theta = 2.0f * M_PI * j / sides;
             float x = std::cos(theta) * radius * scale;
             float y = std::sin(theta) * radius * scale;
-            
+
             // Section perpendicular to the arc (in the Z plane)
             float px = cx - y * std::sin(tangentAngle);
             float py = cy + y * std::cos(tangentAngle);
@@ -76,14 +78,17 @@ void Banana::draw()
     }
 
     // Textured yellow part
-    if (g_bananaTexture) {
+    if (g_bananaTexture)
+    {
         glEnable(GL_TEXTURE_2D);
         g_bananaTexture->bind();
     }
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    for (int i = 0; i < segments; ++i) {
-        for (int j = 0; j < sides; ++j) {
+    for (int i = 0; i < segments; ++i)
+    {
+        for (int j = 0; j < sides; ++j)
+        {
             int nextJ = (j + 1) % sides;
             QVector3D v0 = ringVertices[i][j];
             QVector3D v1 = ringVertices[i][nextJ];
@@ -93,19 +98,30 @@ void Banana::draw()
             QVector2D t1 = ringTexCoords[i][nextJ];
             QVector2D t2 = ringTexCoords[i + 1][nextJ];
             QVector2D t3 = ringTexCoords[i + 1][j];
-            QVector3D normal = QVector3D::normal(v0, v1, v2);
+
+            // Calculate the normal from the triangular face
+            // Use v0, v1, v2 to compute a normal that points outward
+            QVector3D edge1 = v1 - v0;
+            QVector3D edge2 = v2 - v0;
+            // Invert normal by negating the cross product
+            QVector3D normal = -QVector3D::crossProduct(edge1, edge2).normalized();
 
             glBegin(GL_QUADS);
             glNormal3f(normal.x(), normal.y(), normal.z());
-            glTexCoord2f(t0.x(), t0.y()); glVertex3f(v0.x(), v0.y(), v0.z());
-            glTexCoord2f(t1.x(), t1.y()); glVertex3f(v1.x(), v1.y(), v1.z());
-            glTexCoord2f(t2.x(), t2.y()); glVertex3f(v2.x(), v2.y(), v2.z());
-            glTexCoord2f(t3.x(), t3.y()); glVertex3f(v3.x(), v3.y(), v3.z());
+            glTexCoord2f(t0.x(), t0.y());
+            glVertex3f(v0.x(), v0.y(), v0.z());
+            glTexCoord2f(t1.x(), t1.y());
+            glVertex3f(v1.x(), v1.y(), v1.z());
+            glTexCoord2f(t2.x(), t2.y());
+            glVertex3f(v2.x(), v2.y(), v2.z());
+            glTexCoord2f(t3.x(), t3.y());
+            glVertex3f(v3.x(), v3.y(), v3.z());
             glEnd();
         }
     }
 
-    if (g_bananaTexture) {
+    if (g_bananaTexture)
+    {
         g_bananaTexture->release();
         glDisable(GL_TEXTURE_2D);
     }
@@ -122,17 +138,20 @@ void Banana::draw()
     QVector3D coreNext = ringVertices[1][0];
     QVector3D capDirStart = (coreStart - coreNext).normalized();
     std::vector<QVector3D> capStartExtruded(sides);
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         QVector3D fromCenter = ringVertices[0][j] - coreStart;
         capStartExtruded[j] = coreStart + fromCenter * capScaleStart + capDirStart * capExtrudeStart;
     }
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         int nextJ = (j + 1) % sides;
         QVector3D v0 = ringVertices[0][j];
         QVector3D v1 = ringVertices[0][nextJ];
         QVector3D v2 = capStartExtruded[nextJ];
         QVector3D v3 = capStartExtruded[j];
-        QVector3D normal = QVector3D::normal(v0, v1, v2);
+        // Invert the normal to point outward
+        QVector3D normal = -QVector3D::normal(v0, v1, v2);
         glBegin(GL_QUADS);
         glNormal3f(normal.x(), normal.y(), normal.z());
         glVertex3f(v0.x(), v0.y(), v0.z());
@@ -142,9 +161,11 @@ void Banana::draw()
         glEnd();
     }
     glBegin(GL_POLYGON);
-    QVector3D capNormalStart = capDirStart;
+    // Invert cap normal to point outward
+    QVector3D capNormalStart = -capDirStart;
     glNormal3f(capNormalStart.x(), capNormalStart.y(), capNormalStart.z());
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         QVector3D v = capStartExtruded[j];
         glVertex3f(v.x(), v.y(), v.z());
     }
@@ -156,17 +177,20 @@ void Banana::draw()
     QVector3D corePrev = ringVertices[segments - 1][0];
     QVector3D capDirEnd = (coreEnd - corePrev).normalized();
     std::vector<QVector3D> capEndExtruded(sides);
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         QVector3D fromCenter = ringVertices[segments][j] - coreEnd;
         capEndExtruded[j] = coreEnd + fromCenter * capScaleEnd + capDirEnd * capExtrudeEnd;
     }
-    for (int j = 0; j < sides; ++j) {
+    for (int j = 0; j < sides; ++j)
+    {
         int nextJ = (j + 1) % sides;
         QVector3D v0 = ringVertices[segments][j];
         QVector3D v1 = ringVertices[segments][nextJ];
         QVector3D v2 = capEndExtruded[nextJ];
         QVector3D v3 = capEndExtruded[j];
-        QVector3D normal = QVector3D::normal(v0, v1, v2);
+        // Invert the normal to point outward
+        QVector3D normal = -QVector3D::normal(v0, v1, v2);
         glBegin(GL_QUADS);
         glNormal3f(normal.x(), normal.y(), normal.z());
         glVertex3f(v0.x(), v0.y(), v0.z());
@@ -176,9 +200,11 @@ void Banana::draw()
         glEnd();
     }
     glBegin(GL_POLYGON);
-    QVector3D capNormalEnd = capDirEnd;
+    // Invert cap normal to point outward
+    QVector3D capNormalEnd = -capDirEnd;
     glNormal3f(capNormalEnd.x(), capNormalEnd.y(), capNormalEnd.z());
-    for (int j = sides - 1; j >= 0; --j) {
+    for (int j = sides - 1; j >= 0; --j)
+    {
         QVector3D v = capEndExtruded[j];
         glVertex3f(v.x(), v.y(), v.z());
     }

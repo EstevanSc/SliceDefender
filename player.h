@@ -57,6 +57,12 @@ public:
     QVector3D getRotation() const;
 
     /**
+     * @brief Gets the blade tip position for more precise collision detection
+     * @return QVector3D containing the world position of the blade tip
+     */
+    QVector3D getBladeTipPosition() const;
+
+    /**
      * @brief Draws the sword with all its components
      */
     void draw() const;

@@ -6,9 +6,7 @@
 
 Player::Player()
     : m_position(0.0f, 0.0f, 0.0f),
-      // Default orientation - sword points upward (positive Y-axis)
       m_rotation(0.0f, 0.0f, 0.0f),
-      // All dimensions are divided by 3 to make the sword 3 times smaller
       m_handleLength(0.5f / 3.0f),
       m_handleRadius(0.05f / 3.0f),
       m_guardWidth(0.3f / 3.0f),
@@ -19,15 +17,14 @@ Player::Player()
       m_bladeThickness(0.02f / 3.0f),
       m_tipLength(0.2f / 3.0f),
       m_segments(8),
-      m_handleColor(QColor(100, 70, 40)), // Brown
-      m_guardColor(QColor(255, 215, 0)),  // Gold/Yellow
-      m_bladeColor(QColor(200, 200, 220)) // Silver
+      m_handleColor(QColor(100, 70, 40)),
+      m_guardColor(QColor(255, 215, 0)),
+      m_bladeColor(QColor(200, 200, 220))
 {
 }
 
 Player::~Player()
 {
-    // Nothing to clean up
 }
 
 void Player::setPosition(const QVector3D &pos)
@@ -52,13 +49,12 @@ QVector3D Player::getRotation() const
 
 void Player::draw() const
 {
-    // Save current matrix
     glPushMatrix();
 
     // Position the sword
     glTranslatef(m_position.x(), m_position.y(), m_position.z());
 
-    // Apply rotation from user-provided values (m_rotation)
+    // Apply rotation from user-provided values
     glRotatef(m_rotation.x(), 1.0f, 0.0f, 0.0f);
     glRotatef(m_rotation.y(), 0.0f, 1.0f, 0.0f);
     glRotatef(m_rotation.z(), 0.0f, 0.0f, 1.0f);
@@ -97,8 +93,6 @@ void Player::drawHandle() const
 
     // Cap the bottom of the handle
     gluDisk(quadric, 0.0f, m_handleRadius, m_segments, 1);
-
-    // Decorative rings on the handle (inspired by cannon design)
 
     // Base pommel ring (wider, golden like the guard)
     glColor3f(
@@ -371,4 +365,38 @@ void Player::drawBladeTip() const
 
     glPopMatrix();
     glPopMatrix();
+}
+
+/**
+ * @brief Gets the position of the blade tip for more precise collision detection
+ * @return Position of the blade tip in world coordinates
+ */
+QVector3D Player::getBladeTipPosition() const
+{
+    // Calculate the offset from the player position to the blade tip
+    float totalHeight = m_handleLength + m_guardHeight + m_bladeLength + m_tipLength;
+
+    // Start with the player position
+    QVector3D bladeTip = m_position;
+
+    // Apply rotations to calculate the blade tip position
+    float rotX = m_rotation.x() * M_PI / 180.0f;
+    float rotY = m_rotation.y() * M_PI / 180.0f;
+    float rotZ = m_rotation.z() * M_PI / 180.0f;
+
+    // Create a direction vector pointing along the blade
+    QVector3D bladeDir(0.0f, totalHeight, 0.0f);
+
+    // Apply Y rotation (most significant for sword orientation)
+    float cosY = cos(rotY);
+    float sinY = sin(rotY);
+    float newX = bladeDir.x() * cosY - bladeDir.z() * sinY;
+    float newZ = bladeDir.x() * sinY + bladeDir.z() * cosY;
+    bladeDir.setX(newX);
+    bladeDir.setZ(newZ);
+
+    // Add the direction vector to the base position
+    bladeTip += bladeDir;
+
+    return bladeTip;
 }
