@@ -10,7 +10,6 @@
 #include "projectileManager.h"
 #include <QOpenGLTexture>
 #include "player.h"
-#include "keyboardhandler.h"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {

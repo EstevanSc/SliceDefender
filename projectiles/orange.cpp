@@ -25,7 +25,8 @@ void Orange::draw()
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Rotate texture by 90° on X axis
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
     // Activate texture
@@ -72,6 +73,13 @@ void Orange::slice(ProjectileManager *manager)
         m_position[0] - 0.1f, m_position[1], m_position[2], // Initial offset to avoid interpenetration
         rightVelocityX, m_velocity[1], m_velocity[2],
         OrangeHalf::HalfType::RIGHT);
+
+    leftHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    leftHalf->setRotationSpeed(m_rotationSpeed);
+    leftHalf->setRotationTime(m_rotationTime);
+    rightHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    rightHalf->setRotationSpeed(m_rotationSpeed);
+    rightHalf->setRotationTime(m_rotationTime);
 
     // Add the halves to the projectile manager
     manager->addProjectile(leftHalf);

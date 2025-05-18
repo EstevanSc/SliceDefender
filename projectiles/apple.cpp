@@ -23,13 +23,14 @@ void Apple::draw()
 
     glEnable(GL_LIGHTING);
 
-    // Save current state
     glPushMatrix();
 
-    // Position the sphere at the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Rotate texture by 90° on X axis
+    // Rotate the apple over time
+    float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+
     glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
     // Activate texture
@@ -52,13 +53,10 @@ void Apple::draw()
         glDisable(GL_TEXTURE_2D);
     }
 
-    // Restore previous state
     glPopMatrix();
 
-    // Re-enable lighting after drawing
     glEnable(GL_LIGHTING);
 
-    // Reset color to white for subsequent objects
     glColor3f(1.0f, 1.0f, 1.0f);
 }
 
@@ -83,7 +81,14 @@ void Apple::slice(ProjectileManager *manager)
         rightVelocityX, m_velocity[1], m_velocity[2],
         AppleHalf::HalfType::RIGHT);
 
-    // Add the halves to the projectile manager
+    // Sync the rotation of halves with the original apple
+    leftHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    leftHalf->setRotationSpeed(m_rotationSpeed);
+    leftHalf->setRotationTime(m_rotationTime);
+    rightHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    rightHalf->setRotationSpeed(m_rotationSpeed);
+    rightHalf->setRotationTime(m_rotationTime);
+
     manager->addProjectile(leftHalf);
     manager->addProjectile(rightHalf);
 }

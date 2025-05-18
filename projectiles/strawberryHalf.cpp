@@ -4,6 +4,8 @@
 #include "../projectileManager.h"
 #include <QOpenGLTexture>
 #include <QImage>
+#include <QQuaternion>
+#include <QVector3D>
 
 static QOpenGLTexture *g_strawberryTexture = nullptr;
 
@@ -24,9 +26,22 @@ void StrawberryHalf::draw()
 
     glPushMatrix();
     glTranslatef(m_position[0], m_position[1], m_position[2]);
+
+    // --- Plan de coupe tourné ---
+    float angle = m_rotationSpeed * m_rotationTime;
+    QVector3D baseNormal((m_type == HalfType::LEFT) ? 1.0f : -1.0f, 0.0f, 0.0f);
+    QVector3D axis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
+    QVector3D rotatedNormal = q.rotatedVector(baseNormal);
+
+    double planeEq[4] = {rotatedNormal.x(), rotatedNormal.y(), rotatedNormal.z(), 0.0};
+    glClipPlane(GL_CLIP_PLANE0, planeEq);
+    glEnable(GL_CLIP_PLANE0);
+
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     glScalef(0.7f, 1.0f, 0.7f);
 
-    // --- Corps de la fraise (rouge, texturé) ---
+    // Strawberry main body
     static GLuint strawberryTex = 0;
     if (strawberryTex == 0)
     {
@@ -55,9 +70,9 @@ void StrawberryHalf::draw()
     const float texZoom = 2.5f;
 
     // Clip for half strawberry
-    double planeEq[4] = {0.0, 0.0, 0.0, 0.0};
-    planeEq[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
-    glClipPlane(GL_CLIP_PLANE0, planeEq);
+    double planeEq2[4] = {0.0, 0.0, 0.0, 0.0};
+    planeEq2[0] = (m_type == HalfType::LEFT) ? 1.0 : -1.0;
+    glClipPlane(GL_CLIP_PLANE0, planeEq2);
     glEnable(GL_CLIP_PLANE0);
 
     for (int j = 0; j < stacks; ++j)

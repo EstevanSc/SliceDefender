@@ -73,7 +73,7 @@ private:
 
     // Random number generator
     std::mt19937 m_rng;
-    std::uniform_int_distribution<int> m_projectileTypeDist{0, 4}; // Ajout de la fraise
+    std::uniform_int_distribution<int> m_projectileTypeDist{0, 4};
 };
 
 #endif // PROJECTILE_MANAGER_H
