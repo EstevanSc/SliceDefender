@@ -23,8 +23,11 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     // Using (0.0, 0.0) which places it in the center of the grid
     positionPlayerOnGrid(0.0, 0.0);
 
-    // Set focus policy to allow keyboard input
+    // Set focus policy to explicitly capture keyboard input
     setFocusPolicy(Qt::StrongFocus);
+
+    // Accept keyboard input when in focus
+    setFocus();
 }
 
 MyGLWidget::~MyGLWidget()
@@ -162,11 +165,10 @@ void MyGLWidget::setupLight()
     // Position the light high above the scene at the midpoint of the corridor
     // Use a positional light (w=1.0) for proper distance-based attenuation
     GLfloat light1Position[] = {
-        0.0f,        
-        20.0f,         
-        halfDistanceZ, 
-        1.0f           
-    };
+        0.0f,
+        20.0f,
+        halfDistanceZ,
+        1.0f};
 
     GLfloat light1Ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
     GLfloat light1Diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
