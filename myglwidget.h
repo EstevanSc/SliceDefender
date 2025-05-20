@@ -10,6 +10,7 @@
 #include "projectileManager.h"
 #include <QOpenGLTexture>
 #include "player.h"
+#include "corridor.h"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -30,7 +31,6 @@ private:
     void drawCorridor();
     void drawCannon();
     void drawCylindricalGrid();
-    void setupLight();
     void drawAxes();
 
     void drawTestObject();
@@ -67,6 +67,9 @@ private:
 
     // Player (sword) instance
     Player m_player;
+
+    // Corridor instance (persistent, à initialiser dynamiquement)
+    Corridor* m_corridor;
 
     // For calculating elapsed time between frames
     QTime m_lastFrameTime;

@@ -29,6 +29,7 @@ TARGET 	  = slice-defender
 SOURCES	+= main.cpp myglwidget.cpp \
     CameraHandler.cpp \
     cannon.cpp \
+    corridor.cpp \
     mainwindow.cpp \
     player.cpp \
     projectile.cpp \
@@ -47,6 +48,7 @@ HEADERS += myglwidget.h \
     CameraHandler.h \
     cannon.h \
     CameraHandler.h\
+    corridor.h \
     mainwindow.h \
     player.h \
     projectile.h \
@@ -69,7 +71,8 @@ DISTFILES += \
     res/apple_color.jpg \
     res/apple_normal.png \
     res/orange_color.jpg \
-    res/orange_normal.png
+    res/orange_normal.png \
+    res/wall.png
 
 INCLUDEPATH +=$$(OPENCV_DIR)\..\..\include
 

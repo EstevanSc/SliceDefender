@@ -46,6 +46,12 @@ float Cannon::getAxisLength() const { return m_axisLength; }
 
 void Cannon::draw() const
 {
+    // Active l'éclairage pour que le canon soit affecté par les lumières
+    glEnable(GL_LIGHTING);
+    // Active GL_COLOR_MATERIAL pour permettre l'utilisation de glColor* avec le matériau
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
     // Save the current matrix
     glPushMatrix();
 
@@ -115,12 +121,26 @@ void Cannon::drawCannonTube() const
     // Offset to align the cannon with the wheels
     glTranslatef(0.0f, m_wheelRadius * 0.5f, 0.0f);
 
-    // Black color for the cannon tube
-    glColor3f(0.1f, 0.1f, 0.1f);
+    // Matériau canon (gris foncé, réagit à la lumière)
+    GLfloat diffuse[4] = {50.0f/255.0f, 50.0f/255.0f, 50.0f/255.0f, 1.0f};
+    GLfloat ambient[4] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat specular[4] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat shininess = 20.0f;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 
     // Draw the main tube
     gluQuadricDrawStyle(quadric, GLU_FILL);
     gluCylinder(quadric, m_radius, m_radius * 0.9f, m_length, m_segments, 1);
+
+    // Bouche l'arrière du canon (z=0) avec une couleur "bois"
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 0.0f);
+    glColor3f(0.4f, 0.25f, 0.05f); // Couleur bois
+    gluDisk(quadric, 0.0f, m_radius, m_segments, 1);
+    glPopMatrix();
 
     // Copper/bronze color for the rings
     glColor3f(0.3f, 0.2f, 0.1f);
