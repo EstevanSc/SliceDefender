@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
       game(nullptr),
       gameScore(0),
       m_showingScoreboard(false),
-      m_showingInstructions(false)
+      m_showingInstructions(false),
+      m_standardMode(true) // Default to Standard Mode
 {
     ui->setupUi(this);
 
@@ -84,6 +85,9 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     updateScoreDisplay();
+
+    // Set default button text to show what mode will be switched to if clicked
+    ui->modeSwitchButton->setText("Original Mode");
 }
 
 /**
@@ -145,6 +149,9 @@ void MainWindow::startGame()
         // Reset the game state
         game->resetGame();
 
+        // Ensure the game uses the correct mode
+        game->setStandardMode(m_standardMode);
+
         // Hide the start button and show the countdown
         ui->startButton->hide();
         ui->countdownLabel->show();
@@ -152,8 +159,17 @@ void MainWindow::startGame()
         // Disable save button during gameplay
         ui->saveButton->setEnabled(false);
 
+        // Clear focus from name input to prevent accidental keyboard input capture
+        ui->nameInput->clearFocus();
+
         // Start the countdown
         game->startCountdown();
+
+        // Set focus explicitly to the OpenGL widget for immediate keyboard control
+        ui->glWidget->setFocus();
+
+        // Force the widget to get focus
+        ui->glWidget->grabKeyboard();
     }
 }
 
@@ -366,4 +382,40 @@ void MainWindow::savePlayerScore()
         // Disable save button to prevent multiple saves
         ui->saveButton->setEnabled(false);
     }
+}
+
+/**
+ * @brief Toggles between standard and original game modes
+ */
+void MainWindow::toggleGameMode()
+{
+    // Only allow mode change when not in active gameplay
+    if (game && game->isGameStarted())
+    {
+        showStatusMessage("Cannot change mode during active game", false);
+        return;
+    }
+
+    // Toggle the mode
+    m_standardMode = !m_standardMode;
+
+    // Update button text
+    if (m_standardMode)
+    {
+        ui->modeSwitchButton->setText("Original Mode");
+    }
+    else
+    {
+        ui->modeSwitchButton->setText("Standard Mode");
+    }
+
+    // Update game settings
+    if (game)
+    {
+        game->setStandardMode(m_standardMode);
+    }
+
+    // Show confirmation message
+    QString message = QString("Switched to %1").arg(m_standardMode ? "Standard Mode" : "Original Mode");
+    showStatusMessage(message, true);
 }

@@ -187,17 +187,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:16pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Goal:&lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Get a maximum of points.&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Game Modes:&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Original Mode:&lt;/span&gt; 5 lives, increasing score per projectile(1,2,3... until you lose life, then it goes back to 1).&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Standard Mode:&lt;/span&gt; One life, 1 point per sliced projectile.&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Gameplay:&lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Move:&lt;/span&gt; Arrows/ZQSD/WASD keys or fist on the camera&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Change speed:&lt;/span&gt; +/- from numpad&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Rules:&lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Cut projectiles with the sword to get points. If you miss one, you lose a life.&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In combo, you get more and more points (1, 2, 3...). However, it returns to one if you lose a life.&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Buttons:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Start Game:&lt;/span&gt; start the game with a 5 seconds countdown&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Scoreboard:&lt;/span&gt; show the 20 highest scores (type a name and click on save to save a score)&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Instructions:&lt;/span&gt; show these informations&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Start Game:&lt;/span&gt; start the game with a 5 seconds countdown&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Scoreboard:&lt;/span&gt; show the 20 highest scores (type a name and click on save to save a score)&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Instructions:&lt;/span&gt; show these informations&lt;br /&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Mode Switch:&lt;/span&gt; toggle between Original and Standard modes&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Good Luck!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -339,7 +337,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="text">
               <string>Lives:
-5</string>
+1</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -482,6 +480,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="text">
               <string>Instructions</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="modeSwitchButton">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: #2196F3; color: white; padding: 8px;</string>
+             </property>
+             <property name="text">
+              <string>Original Mode</string>
              </property>
             </widget>
            </item>
@@ -640,6 +654,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>modeSwitchButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggleGameMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>850</x>
+     <y>510</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>780</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>startNewGame()</slot>
@@ -648,5 +678,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>savePlayerScore()</slot>
   <slot>startGame()</slot>
   <slot>toggleInstructions()</slot>
+  <slot>toggleGameMode()</slot>
  </slots>
 </ui>
