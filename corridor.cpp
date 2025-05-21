@@ -388,7 +388,7 @@ void Corridor::drawTorch(const QVector3D &pos, bool leftWall, int lightIdx)
     float flicker = 0.03f * std::sin(t * 1.0f + lightIdx * 1.7f)
         + 0.01f * std::sin(t * 30.0f + lightIdx * 2.3f)
         + 0.005f * std::sin(t * 27.0f + lightIdx * 0.9f);
-    float lightPower = 0.7f + flicker;
+    float lightPower = 1.0f + flicker;
     GLfloat diffuse[4] = {0.95f * lightPower, 0.65f * lightPower, 0.18f * lightPower, 1.0f};
     GLfloat ambient[4] = {0.18f * lightPower, 0.10f * lightPower, 0.03f * lightPower, 1.0f};
     GLfloat specular[4] = {0.5f * lightPower, 0.35f * lightPower, 0.08f * lightPower, 1.0f};
