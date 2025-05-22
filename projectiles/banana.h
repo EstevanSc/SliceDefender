@@ -3,14 +3,13 @@
 
 #include "../projectile.h"
 #include "bananaHalf.h"
+#include "../projectileManager.h"
 
 /**
  * @brief Represents a whole banana projectile.
  * Handles drawing, slicing, and radius information.
  * @author Aubin SIONVILLE
  */
-class ProjectileManager;
-
 class Banana : public Projectile
 {
 public:

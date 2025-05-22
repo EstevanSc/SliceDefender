@@ -15,13 +15,11 @@ namespace Ui
 
 /**
  * @class MainWindow
- * @brief The main application window containing the game and camera interface
+ * @brief Main application window for Slice Defender (game, camera, UI overlays).
  *
- * This class manages the main window of the Slice Defender game, including:
- * - OpenGL rendering area for the main game
- * - Camera processing via CameraHandler in the top-right corner
- * - Score and game statistics in the bottom-right corner
- * - Scoreboard overlay for displaying high scores
+ * Manages the main window, OpenGL game view, camera interface, score/statistics, overlays, and user interactions.
+ *
+ * @author Estevan SCHMITT, Aubin SIONVILLE
  */
 class MainWindow : public QMainWindow
 {
@@ -29,36 +27,35 @@ class MainWindow : public QMainWindow
 
 public:
     /**
-     * @brief Constructor initializes UI and camera resources
+     * @brief Constructor. Initializes UI and camera resources.
      * @param parent Parent widget
      */
     explicit MainWindow(QWidget *parent = nullptr);
 
     /**
-     * @brief Destructor cleans up resources
+     * @brief Destructor. Cleans up resources.
      */
     ~MainWindow();
 
     /**
-     * @brief Gets the current game mode setting
+     * @brief Returns the current game mode (standard/original)
      * @return True if standard mode, false if original mode
      */
     bool isStandardMode() const { return m_standardMode; }
 
 private slots:
     /**
-     * @brief Start a new game with reset score
+     * @brief Starts a new game and resets the score
      */
     void startNewGame();
 
     /**
-     * @brief Display the about dialog
+     * @brief Displays the about dialog
      */
     void showAboutDialog();
 
     /**
-     * @brief Starts or restarts the game
-     * Resets the game state and begins countdown
+     * @brief Starts or restarts the game (resets state and begins countdown)
      */
     void startGame();
 
@@ -81,7 +78,7 @@ private slots:
     void updateCountdownLabel(int value);
 
     /**
-     * @brief Shows the start button when game ends
+     * @brief Shows the start button when the game ends
      */
     void showStartButton();
 
@@ -92,7 +89,7 @@ private slots:
     void updateSpeedIndicator(float speedMultiplier);
 
     /**
-     * @brief Toggles the scoreboard visibility
+     * @brief Toggles the scoreboard overlay visibility
      */
     void toggleScoreboard();
 
@@ -108,6 +105,7 @@ private slots:
 
     /**
      * @brief Toggles between standard and original game modes
+     *
      * Standard mode: 1 life, 1 point per projectile
      * Original mode: 5 lives, combo scoring system
      */
@@ -117,20 +115,24 @@ private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
     Game *game;
+
     int gameScore;
+
     bool m_showingScoreboard;
     Scoreboard *m_scoreboard;
+
     QTimer *m_statusTimer;
+
     bool m_showingInstructions;
-    bool m_standardMode = true; // Default to Standard Mode
+    bool m_standardMode = true;
 
     /**
-     * @brief Update the score display
+     * @brief Updates the score display
      */
     void updateScoreDisplay();
 
     /**
-     * @brief Updates the scoreboard display with the latest scores
+     * @brief Updates the scoreboard overlay with the latest scores
      */
     void updateScoreboardDisplay();
 

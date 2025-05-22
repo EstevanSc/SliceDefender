@@ -7,35 +7,37 @@
 
 /**
  * @class KeyboardHandler
- * @brief Tracks keyboard input for player movement
+ * @brief Handles keyboard input for player movement and speed control.
  *
- * This class maintains keyboard state and provides normalized
- * position data similar to the camera handler, allowing for
- * seamless integration with existing player movement code.
+ * @author Estevan SCHMITT
  */
 class KeyboardHandler : public QObject
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructor
+     * @param parent Parent QObject (default nullptr)
+     */
     explicit KeyboardHandler(QObject *parent = nullptr);
     ~KeyboardHandler() = default;
 
     /**
      * @brief Get the current movement direction based on key presses
-     * @return Normalized direction vector in the range (-1,-1,0) to (1,1,0)
+     * @return Direction vector (X, Y, 0), scaled by speed and factor
      */
     QVector3D getMovementDirection() const;
 
     /**
      * @brief Handle a key press event
-     * @param key The key code that was pressed
+     * @param key The key code pressed
      */
     void keyPressed(int key);
 
     /**
      * @brief Handle a key release event
-     * @param key The key code that was released
+     * @param key The key code released
      */
     void keyReleased(int key);
 
@@ -53,20 +55,15 @@ public:
 
 signals:
     /**
-     * @brief Signal emitted when the speed multiplier changes
+     * @brief Emitted when the speed multiplier changes
      * @param speedMultiplier The new speed multiplier value
      */
     void speedMultiplierChanged(float speedMultiplier);
 
 private:
-    // Set of currently pressed keys
     QSet<int> m_pressedKeys;
-
-    // Current accumulated movement direction
     float m_horizontalMovement;
     float m_verticalMovement;
-
-    // Movement speed
     float m_baseMovementSpeed;
     float m_speedMultiplier;
 
@@ -74,7 +71,7 @@ private:
     static constexpr float MIN_SPEED_MULTIPLIER = 0.5f;
     static constexpr float MAX_SPEED_MULTIPLIER = 4.0f;
     static constexpr float SPEED_CHANGE_STEP = 0.5f;
-    static constexpr float SWORD_SPEED_FACTOR = 0.5f; 
+    static constexpr float SWORD_SPEED_FACTOR = 0.5f;
 };
 
 #endif // KEYBOARDHANDLER_H

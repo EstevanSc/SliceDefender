@@ -16,6 +16,8 @@
  *
  * The sword is positioned vertically and oriented to cut projectiles
  * coming from the cannon.
+ * 
+ * @author Estevan SCHMITT
  */
 class Player
 {

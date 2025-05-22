@@ -36,6 +36,10 @@ public:
     BananaHalf(float startX, float startY, float startZ,
                float velocityX, float velocityY, float velocityZ,
                HalfType type);
+
+    /**
+     * @brief Destructor for BananaHalf
+     */
     ~BananaHalf() override = default;
 
     /**

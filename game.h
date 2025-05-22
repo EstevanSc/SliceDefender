@@ -18,6 +18,8 @@
  * - Score tracking and lives management
  * - Game startup countdown
  * - Player movement through camera tracking and keyboard input
+ * 
+ * @author Estevan SCHMITT
  */
 class Game : public QObject
 {

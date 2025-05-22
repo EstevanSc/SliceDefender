@@ -59,7 +59,7 @@ void Player::draw() const
     glRotatef(m_rotation.y(), 0.0f, 1.0f, 0.0f);
     glRotatef(m_rotation.z(), 0.0f, 0.0f, 1.0f);
 
-    // Add a 90� rotation around the Y-axis to align the guard with the X-axis
+    // Add a 90° rotation around the Y-axis to align the guard with the X-axis
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 
     // Draw sword components

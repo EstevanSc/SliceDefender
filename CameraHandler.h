@@ -22,6 +22,8 @@ namespace Ui
  * - Detect hand positions using Haar cascades
  * - Establish a reference image after consistent detection
  * - Track hand position using SIFT feature matching
+ * 
+ * @author Estevan SCHMITT
  */
 class CameraHandler : public QWidget
 {
@@ -38,10 +40,15 @@ public:
      * @brief Destructor releases resources like timer and webcam
      */
     ~CameraHandler();
-
+    
     /**
      * @brief Get the hand/sword position detected by the camera
      * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
+     *
+     * This method converts the detected hand position to normalized coordinates
+     * where (-1,-1,0) is the bottom-left corner of the screen,
+     * (0,0,0) is the center, and (1,1,0) is the top-right corner.
+     * If no hand is detected, returns the last valid position instead of (0,0,0).
      */
     QVector3D getHandPosition() const;
 
@@ -56,8 +63,7 @@ public:
      * @param x X-coordinate of the hand position
      * @param y Y-coordinate of the hand position
      *
-     * This method updates the internal hand position that's used to control
-     * the player's sword in the game world.
+     * Updates the internal tracking of hand position that controls the player's sword.
      */
     void setTrackedHandPosition(int x, int y);
 

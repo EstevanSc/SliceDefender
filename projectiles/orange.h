@@ -2,14 +2,13 @@
 #define ORANGE_H
 
 #include "../projectile.h"
+#include "../projectileManager.h"
 
 /**
  * @brief Represents a whole orange projectile.
  * Handles drawing, slicing, and radius information.
  * @author Aubin SIONVILLE
  */
-class ProjectileManager;
-
 class Orange : public Projectile
 {
 public:

@@ -17,6 +17,8 @@
  * - Save new scores
  * - Sort scores in descending order
  * - Provide access to top scores
+ * 
+ * @author Estevan SCHMITT
  */
 class Scoreboard : public QObject
 {

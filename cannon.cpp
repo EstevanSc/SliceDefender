@@ -33,22 +33,11 @@ void Cannon::setWheelRadius(float radius) { m_wheelRadius = radius; }
 void Cannon::setWheelThickness(float thickness) { m_wheelThickness = thickness; }
 void Cannon::setAxisLength(float length) { m_axisLength = length; }
 
-// Getters
-QVector3D Cannon::getPosition() const { return m_position; }
-float Cannon::getAngle() const { return m_angleDegrees; }
-float Cannon::getLength() const { return m_length; }
-float Cannon::getRadius() const { return m_radius; }
-QColor Cannon::getColor() const { return m_color; }
-int Cannon::getSegments() const { return m_segments; }
-float Cannon::getWheelRadius() const { return m_wheelRadius; }
-float Cannon::getWheelThickness() const { return m_wheelThickness; }
-float Cannon::getAxisLength() const { return m_axisLength; }
-
 void Cannon::draw() const
 {
-    // Active l'éclairage pour que le canon soit affecté par les lumières
+    // Enable lighting so the cannon is affected by lights
     glEnable(GL_LIGHTING);
-    // Active GL_COLOR_MATERIAL pour permettre l'utilisation de glColor* avec le matériau
+    // Enable GL_COLOR_MATERIAL to allow using glColor* with the material
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
@@ -117,7 +106,7 @@ void Cannon::drawCannonTube() const
     // Offset to align the cannon with the wheels
     glTranslatef(0.0f, m_wheelRadius * 0.5f, 0.0f);
 
-    // Matériau canon (gris foncé, réagit à la lumière)
+    // Cannon material (dark gray, reacts to light)
     GLfloat diffuse[4] = {50.0f/255.0f, 50.0f/255.0f, 50.0f/255.0f, 1.0f};
     GLfloat ambient[4] = {0.2f, 0.2f, 0.2f, 1.0f};
     GLfloat specular[4] = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -131,10 +120,10 @@ void Cannon::drawCannonTube() const
     gluQuadricDrawStyle(quadric, GLU_FILL);
     gluCylinder(quadric, m_radius, m_radius * 0.9f, m_length, m_segments, 1);
 
-    // Bouche l'arrière du canon (z=0) avec une couleur "bois"
+    // Close the back of the cannon (z=0) with a "wood" color
     glPushMatrix();
     glTranslatef(0.0f, 0.0f, 0.0f);
-    glColor3f(0.4f, 0.25f, 0.05f); // Couleur bois
+    glColor3f(0.4f, 0.25f, 0.05f); // Wood color
     gluDisk(quadric, 0.0f, m_radius, m_segments, 1);
     glPopMatrix();
 

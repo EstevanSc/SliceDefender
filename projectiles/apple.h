@@ -2,14 +2,13 @@
 #define APPLE_H
 
 #include "../projectile.h"
+#include "../projectileManager.h"
 
 /**
  * @brief Represents a whole apple projectile.
  * Handles drawing, slicing, and radius information.
  * @author Aubin SIONVILLE
  */
-class ProjectileManager;
-
 class Apple : public Projectile
 {
 public:

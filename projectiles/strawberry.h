@@ -3,14 +3,13 @@
 
 #include "../projectile.h"
 #include "strawberryHalf.h"
+#include "../projectileManager.h"
 
 /**
  * @brief Represents a whole strawberry projectile.
  * Handles drawing, slicing and radius information.
  * @author Aubin SIONVILLE
  */
-class ProjectileManager;
-
 class Strawberry : public Projectile
 {
 public:
@@ -24,6 +23,10 @@ public:
      * @param velocityZ Initial Z velocity
      */
     Strawberry(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ);
+    
+    /**
+     * @brief Destructor for Strawberry
+     */
     ~Strawberry() override = default;
 
     /**

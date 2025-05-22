@@ -2,14 +2,13 @@
 #define CORN_H
 
 #include "../projectile.h"
+#include "../projectileManager.h"
 
 /**
  * @brief Represents a whole corn cob projectile.
  * Handles drawing, slicing, and radius information.
  * @author Aubin SIONVILLE
  */
-class ProjectileManager;
-
 class Corn : public Projectile
 {
 public:

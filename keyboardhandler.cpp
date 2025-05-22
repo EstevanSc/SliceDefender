@@ -13,6 +13,7 @@ KeyboardHandler::KeyboardHandler(QObject *parent)
 
 QVector3D KeyboardHandler::getMovementDirection() const
 {
+    // Returns the current movement direction vector, scaled by speed and factor
     return QVector3D(m_horizontalMovement * m_speedMultiplier * SWORD_SPEED_FACTOR,
                      m_verticalMovement * m_speedMultiplier * SWORD_SPEED_FACTOR,
                      0.0f);
@@ -20,49 +21,37 @@ QVector3D KeyboardHandler::getMovementDirection() const
 
 void KeyboardHandler::keyPressed(int key)
 {
-    // Add key to pressed keys set if not already present
+    // Register key press and update movement or speed accordingly
     if (!m_pressedKeys.contains(key))
     {
         m_pressedKeys.insert(key);
-
-        // Update movement direction based on key press
         switch (key)
         {
-        // Horizontal movement
         case Qt::Key_Left:
-        case Qt::Key_Q: // For AZERTY
-        case Qt::Key_A: // For QWERTY
+        case Qt::Key_Q:
+        case Qt::Key_A:
             m_horizontalMovement = -m_baseMovementSpeed;
             break;
-
         case Qt::Key_Right:
         case Qt::Key_D:
             m_horizontalMovement = m_baseMovementSpeed;
             break;
-
-        // Vertical movement
         case Qt::Key_Up:
-        case Qt::Key_Z: // For AZERTY
-        case Qt::Key_W: // For QWERTY
+        case Qt::Key_Z:
+        case Qt::Key_W:
             m_verticalMovement = m_baseMovementSpeed;
             break;
-
         case Qt::Key_Down:
         case Qt::Key_S:
             m_verticalMovement = -m_baseMovementSpeed;
             break;
-
-        // Speed control
         case Qt::Key_Plus:
-        case Qt::Key_Asterisk: // NumPad+ on some systems
-            // Increase speed multiplier
+        case Qt::Key_Asterisk:
             m_speedMultiplier = qMin(m_speedMultiplier + SPEED_CHANGE_STEP, MAX_SPEED_MULTIPLIER);
             qDebug() << "Speed increased to:" << m_speedMultiplier;
             emit speedMultiplierChanged(m_speedMultiplier);
             break;
-
         case Qt::Key_Minus:
-            // Decrease speed multiplier
             m_speedMultiplier = qMax(m_speedMultiplier - SPEED_CHANGE_STEP, MIN_SPEED_MULTIPLIER);
             qDebug() << "Speed decreased to:" << m_speedMultiplier;
             emit speedMultiplierChanged(m_speedMultiplier);
@@ -73,10 +62,8 @@ void KeyboardHandler::keyPressed(int key)
 
 void KeyboardHandler::keyReleased(int key)
 {
-    // Remove key from pressed keys set
+    // Unregister key and reset movement if needed
     m_pressedKeys.remove(key);
-
-    // Reset movement direction when opposite keys are released
     switch (key)
     {
     case Qt::Key_Left:
@@ -88,7 +75,6 @@ void KeyboardHandler::keyReleased(int key)
             m_horizontalMovement = 0.0f;
         }
         break;
-
     case Qt::Key_Right:
     case Qt::Key_D:
         if (!m_pressedKeys.contains(Qt::Key_Left) &&
@@ -98,7 +84,6 @@ void KeyboardHandler::keyReleased(int key)
             m_horizontalMovement = 0.0f;
         }
         break;
-
     case Qt::Key_Up:
     case Qt::Key_Z:
     case Qt::Key_W:
@@ -108,7 +93,6 @@ void KeyboardHandler::keyReleased(int key)
             m_verticalMovement = 0.0f;
         }
         break;
-
     case Qt::Key_Down:
     case Qt::Key_S:
         if (!m_pressedKeys.contains(Qt::Key_Up) &&
@@ -123,5 +107,6 @@ void KeyboardHandler::keyReleased(int key)
 
 bool KeyboardHandler::isMoving() const
 {
+    // Returns true if any movement is currently active
     return m_horizontalMovement != 0.0f || m_verticalMovement != 0.0f;
 }

@@ -7,12 +7,14 @@
 
 /**
  * @class Cannon
- * @brief Represents a cannon that fires projectiles in the game
+ * @brief Represents a cannon that fires projectiles in the game.
  *
- * This class manages the 3D cannon model including:
- * - The main cannon tube
- * - Decorative elements like rings and reinforcements
- * - The supporting wheels and axle
+ * Manages the 3D cannon model, including:
+ * - Main tube
+ * - Decorative rings and reinforcements
+ * - Supporting wheels and axle
+ *
+ * @author Aubin SIONVILLE
  */
 class Cannon
 {
@@ -83,69 +85,8 @@ public:
      */
     void setAxisLength(float length);
 
-    // Accessor methods
     /**
-     * @brief Get the cannon's position
-     * @return Position as QVector3D
-     */
-    QVector3D getPosition() const;
-
-    /**
-     * @brief Get the cannon's angle
-     * @return Angle in degrees
-     */
-    float getAngle() const;
-
-    /**
-     * @brief Get the cannon's barrel length
-     * @return Length value
-     */
-    float getLength() const;
-
-    /**
-     * @brief Get the cannon's barrel radius
-     * @return Radius value
-     */
-    float getRadius() const;
-
-    /**
-     * @brief Get the cannon's color
-     * @return Color as QColor
-     */
-    QColor getColor() const;
-
-    /**
-     * @brief Get the tessellation quality
-     * @return Number of segments
-     */
-    int getSegments() const;
-
-    /**
-     * @brief Get the wheel radius
-     * @return Wheel radius value
-     */
-    float getWheelRadius() const;
-
-    /**
-     * @brief Get the wheel thickness
-     * @return Wheel thickness value
-     */
-    float getWheelThickness() const;
-
-    /**
-     * @brief Get the axle length
-     * @return Axle length value
-     */
-    float getAxisLength() const;
-
-    /**
-     * @brief Check if low-poly mode is active
-     * @return True if low-poly mode is active
-     */
-    bool isLowPoly() const;
-
-    /**
-     * @brief Render the cannon in 3D
+     * @brief Render the cannon in 3D using the auxiliary functions
      */
     void draw() const;
 
@@ -171,7 +112,6 @@ private:
      */
     void drawDetails() const;
 
-    // Utility methods
     /**
      * @brief Draw a decorative ring around the cannon
      * @param quadric GLU quadric object for drawing

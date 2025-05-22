@@ -582,15 +582,6 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
     }
 }
 
-/**
- * @brief Get the hand/sword position detected by the camera
- * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
- *
- * This method converts the detected hand position to normalized coordinates
- * where (-1,-1,0) is the bottom-left corner of the screen,
- * (0,0,0) is the center, and (1,1,0) is the top-right corner.
- * If no hand is detected, returns the last valid position instead of (0,0,0).
- */
 QVector3D CameraHandler::getHandPosition() const
 {
     // Get frame dimensions
@@ -611,13 +602,6 @@ QVector3D CameraHandler::getHandPosition() const
     return QVector3D(normalizedX, normalizedY, 0.0f);
 }
 
-/**
- * @brief Set the tracked hand position
- * @param x X-coordinate of the hand position
- * @param y Y-coordinate of the hand position
- *
- * Updates the internal tracking of hand position that controls the player's sword.
- */
 void CameraHandler::setTrackedHandPosition(int x, int y)
 {
     m_handPosition[0] = x;

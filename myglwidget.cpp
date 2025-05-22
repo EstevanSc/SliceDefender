@@ -45,8 +45,8 @@ void MyGLWidget::initializeGL()
 {
     // Initialize OpenGL functions
     initializeOpenGLFunctions();
-    glEnable(GL_NORMALIZE); // Normalise les normales après glScalef pour un éclairage correct
-    glDisable(GL_COLOR_MATERIAL); // Désactive l'influence de glColor sur les matériaux
+    glEnable(GL_NORMALIZE); // Normalize normals after glScalef for correct lighting
+    glDisable(GL_COLOR_MATERIAL); // Disable the influence of glColor on materials
 
     // Basic configuration
     glClearColor(0.05f, 0.05f, 0.1f, 1.0f); // Darker background
@@ -61,7 +61,6 @@ void MyGLWidget::initializeGL()
                       QVector3D(0.0f, 1.0f, 0.0f)); // Up vector
 
     // Configure ProjectileManager to launch projectiles from the cannon
-    // Position adjusted to match the cannon's mouth
     float cannonLength = 3.0f;
     float cannonAngle = 20.0f * M_PI / 180.0f;
 
@@ -82,9 +81,9 @@ void MyGLWidget::initializeGL()
     if (m_corridor) delete m_corridor;
     m_corridor = new Corridor();
 
-    // Ajoute une lumière ambiante globale douce pour éviter le bleu dans les ombres
+    // Add a soft global ambient light to avoid blue in the shadows
     float ambientLightStrength = 0.4f;
-    GLfloat globalAmbient[4] = {0.18f * ambientLightStrength, 0.16f * ambientLightStrength, 0.13f * ambientLightStrength, 1.0f}; // beige/gris très doux
+    GLfloat globalAmbient[4] = {0.18f * ambientLightStrength, 0.16f * ambientLightStrength, 0.13f * ambientLightStrength, 1.0f}; // very soft beige/gray
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
 }
 
@@ -151,51 +150,6 @@ void MyGLWidget::paintGL()
     // The positioning is handled by the positionPlayerOnGrid method,
     // which ensures the sword is properly aligned with the grid
     m_player.draw();
-}
-
-void MyGLWidget::drawCorridor()
-{
-    // Draw corridor
-    // glPushMatrix();
-    // glColor3f(0.5f, 0.5f, 0.5f); // Gray
-
-    // Floor
-    // glBegin(GL_QUADS);
-    // glNormal3f(0.0f, 1.0f, 0.0f);
-    // glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
-    // glVertex3f(corridorWidth / 2, 0.0f, 0.0f);
-    // glVertex3f(corridorWidth / 2, 0.0f, -corridorLength);
-    // glVertex3f(-corridorWidth / 2, 0.0f, -corridorLength);
-    // glEnd();
-
-    // Ceiling
-    // glBegin(GL_QUADS);
-    // glNormal3f(0.0f, -1.0f, 0.0f);
-    // glVertex3f(-corridorWidth / 2, corridorHeight, 0.0f);
-    // glVertex3f(-corridorWidth / 2, corridorHeight, -corridorLength);
-    // glVertex3f(corridorWidth / 2, corridorHeight, -corridorLength);
-    // glVertex3f(corridorWidth / 2, corridorHeight, 0.0f);
-    // glEnd();
-
-    // Left wall
-    // glBegin(GL_QUADS);
-    // glNormal3f(1.0f, 0.0f, 0.0f);
-    // glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
-    // glVertex3f(-corridorWidth / 2, 0.0f, -corridorLength);
-    // glVertex3f(-corridorWidth / 2, corridotHeight, -corridorLength);
-    // glVertex3f(-corridorWidth / 2, corridotHeight, 0.0f);
-    // glEnd();
-
-    // Right wall
-    // glBegin(GL_QUADS);
-    // glNormal3f(-1.0f, 0.0f, 0.0f);
-    // glVertex3f(corridorWidth / 2, 0.0f, 0.0f);
-    // glVertex3f(corridorWidth / 2, corridotHeight, 0.0f);
-    // glVertex3f(corridorWidth / 2, corridotHeight, -corridorLength);
-    // glVertex3f(corridorWidth / 2, 0.0f, -corridorLength);
-    // glEnd();
-
-    // glPopMatrix();
 }
 
 void MyGLWidget::drawCannon()
@@ -304,19 +258,7 @@ void MyGLWidget::drawAxes()
     glEnable(GL_LIGHTING);
 }
 
-/**
- * @brief Position the player's sword on the cylindrical grid using grid coordinates
- *
- * This method translates grid coordinates to actual 3D world coordinates
- * and positions the player's sword directly on the cylindrical grid surface.
- *
- * @param gridX X coordinate on the grid (ranges from -1.0 to 1.0)
- *              Where -1.0 is the left edge, 0.0 is center, and 1.0 is the right edge
- *
- * @param gridY Y coordinate on the grid (ranges from -1.0 to 1.0)
- *              Where -1.0 is the bottom, 0.0 is center, and 1.0 is the top
- *              This parameter was previously named gridZ but has been renamed for clarity
- */
+
 void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
 {
     // Calculate the angle based on the gridX coordinate and gridAngle

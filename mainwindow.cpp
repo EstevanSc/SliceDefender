@@ -4,10 +4,6 @@
 #include <QDebug>
 #include <QTimer>
 
-/**
- * @brief Constructor initializes UI and camera resources
- * @param parent Parent widget
- */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -90,9 +86,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->modeSwitchButton->setText("Original Mode");
 }
 
-/**
- * @brief Destructor cleans up resources
- */
 MainWindow::~MainWindow()
 {
     delete cameraHandler;
@@ -100,9 +93,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/**
- * @brief Start a new game with reset score
- */
 void MainWindow::startNewGame()
 {
     // If scoreboard or instructions is showing, hide it first
@@ -118,9 +108,6 @@ void MainWindow::startNewGame()
     startGame();
 }
 
-/**
- * @brief Display the about dialog
- */
 void MainWindow::showAboutDialog()
 {
     QMessageBox::about(this, tr("About Slice Defender"),
@@ -129,9 +116,6 @@ void MainWindow::showAboutDialog()
                           "Created with Qt and OpenCV."));
 }
 
-/**
- * @brief Starts or restarts the game
- */
 void MainWindow::startGame()
 {
     if (game)
@@ -173,17 +157,11 @@ void MainWindow::startGame()
     }
 }
 
-/**
- * @brief Updates the score display
- */
 void MainWindow::updateScoreDisplay()
 {
     ui->scoreValue->setText(QString("POINTS:\n%1").arg(gameScore));
 }
 
-/**
- * @brief Updates the scoreboard display with the latest scores
- */
 void MainWindow::updateScoreboardDisplay()
 {
     QStringList scores = m_scoreboard->loadTopScores();
@@ -198,29 +176,18 @@ void MainWindow::updateScoreboardDisplay()
     }
 }
 
-/**
- * @brief Updates the score display
- * @param score New score value
- */
+
 void MainWindow::updateScoreLabel(int score)
 {
     gameScore = score;
     updateScoreDisplay();
 }
 
-/**
- * @brief Updates the lives display
- * @param lives Remaining lives
- */
 void MainWindow::updateLivesLabel(int lives)
 {
     ui->livesLabel->setText(QString("Lives:\n%1").arg(lives));
 }
 
-/**
- * @brief Updates the countdown display
- * @param value Current countdown value
- */
 void MainWindow::updateCountdownLabel(int value)
 {
     if (value <= 0)
@@ -233,9 +200,6 @@ void MainWindow::updateCountdownLabel(int value)
     }
 }
 
-/**
- * @brief Shows the start button when game ends
- */
 void MainWindow::showStartButton()
 {
     ui->startButton->setText("Restart Game");
@@ -245,20 +209,11 @@ void MainWindow::showStartButton()
     ui->saveButton->setEnabled(m_scoreboard->isHighScore(gameScore));
 }
 
-/**
- * @brief Updates the speed indicator when the keyboard speed changes
- * @param speedMultiplier The new speed multiplier value
- */
 void MainWindow::updateSpeedIndicator(float speedMultiplier)
 {
     ui->speedLabel->setText(QString("Speed: %1x").arg(speedMultiplier, 0, 'f', 1));
 }
 
-/**
- * @brief Displays a status message in the scoreboard overlay
- * @param message The message to display
- * @param success Whether the operation was successful (green) or failed (red)
- */
 void MainWindow::showStatusMessage(const QString &message, bool success)
 {
     ui->statusLabel->setText(message);
@@ -268,13 +223,6 @@ void MainWindow::showStatusMessage(const QString &message, bool success)
     m_statusTimer->start(3000);
 }
 
-/**
- * @brief Toggles the instructions overlay visibility
- *
- * Shows or hides the instructions overlay. When showing instructions,
- * it first hides the scoreboard if it's visible. Uses the same button
- * for toggling the overlay without a separate back button for simplicity.
- */
 void MainWindow::toggleInstructions()
 {
     m_showingInstructions = !m_showingInstructions;
@@ -311,9 +259,6 @@ void MainWindow::toggleInstructions()
     }
 }
 
-/**
- * @brief Toggles the scoreboard visibility
- */
 void MainWindow::toggleScoreboard()
 {
     m_showingScoreboard = !m_showingScoreboard;
@@ -351,9 +296,6 @@ void MainWindow::toggleScoreboard()
     }
 }
 
-/**
- * @brief Saves the current score with the player's name
- */
 void MainWindow::savePlayerScore()
 {
     // Get the player name, default to "No Name" if empty
@@ -384,9 +326,6 @@ void MainWindow::savePlayerScore()
     }
 }
 
-/**
- * @brief Toggles between standard and original game modes
- */
 void MainWindow::toggleGameMode()
 {
     // Only allow mode change when not in active gameplay

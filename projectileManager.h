@@ -9,53 +9,114 @@
 #include "projectiles/corn.h"
 #include "projectiles/banana.h"
 
-class Game; // Forward declaration
-
+/**
+ * @class ProjectileManager
+ * @brief Manages all projectiles in Slice Defender (creation, update, cleanup, and slicing).
+ *
+ * Handles the lifecycle of projectiles, including launching, updating, drawing, collision detection,
+ * and slicing logic. Also manages cannon configuration and statistics for projectiles launched.
+ *
+ * @author: Aubin SIONVILLE, Estevan SCHMITT
+ */
 class ProjectileManager
 {
 public:
+    /**
+     * @brief Constructor. Initializes the projectile manager and random generator.
+     */
     ProjectileManager();
+    /**
+     * @brief Destructor. Cleans up all projectiles.
+     */
     ~ProjectileManager();
 
+    /**
+     * @brief Updates all projectiles (movement, state, etc.).
+     * @param deltaTime Time elapsed since last update (in seconds)
+     */
     void update(float deltaTime);
+    /**
+     * @brief Draws all active projectiles.
+     */
     void draw();
 
-    // Launch a random projectile from the cannon
+    /**
+     * @brief Launches a random projectile from the cannon.
+     */
     void launchProjectile();
 
-    // Create a specific type of projectile
+    /**
+     * @brief Creates and adds a specific type of projectile.
+     * @tparam T Projectile type
+     * @tparam Args Constructor arguments
+     * @param args Arguments to forward to the projectile constructor
+     */
     template <typename T, typename... Args>
     void createProjectile(Args &&...args);
 
-    // Clean up inactive projectiles
+    /**
+     * @brief Removes inactive projectiles from the manager.
+     */
     void cleanupProjectiles();
 
-    // Clear all projectiles (for game reset)
+    /**
+     * @brief Clears all projectiles (for game reset).
+     */
     void clearProjectiles();
 
-    // Methods to configure the cannon
+    /**
+     * @brief Sets the position of the cannon.
+     * @param position Array of 3 floats [x, y, z]
+     */
     void setCannonPosition(const float position[3]);
+    /**
+     * @brief Sets the direction of the cannon.
+     * @param direction Array of 3 floats [dx, dy, dz]
+     */
     void setCannonDirection(const float direction[3]);
+    /**
+     * @brief Sets the initial speed for launched projectiles.
+     * @param speed Initial speed value
+     */
     void setInitialSpeed(float speed);
 
-    // Add a new projectile to the manager
+    /**
+     * @brief Adds a new projectile to the manager.
+     * @param projectile Pointer to the projectile to add
+     */
     void addProjectile(Projectile *projectile);
 
-    // Method to handle projectile slicing
+    /**
+     * @brief Checks all projectiles for slicing and handles split logic.
+     */
     void checkProjectilesForSlicing();
 
-    // Get direct access to projectiles (for collision detection)
+    /**
+     * @brief Returns a reference to the vector of projectiles (for collision detection, etc.).
+     * @return Reference to the vector of projectile pointers
+     */
     std::vector<Projectile *> &getProjectiles() { return m_projectiles; }
 
-    // Set whether or not the game is actively running
-    // When false, no projectiles will be launched
+    /**
+     * @brief Sets whether the game is actively running (controls launching).
+     * @param active True if the game is active
+     */
     void setGameActive(bool active) { m_gameActive = active; }
 
-    // Set the Game instance to be passed to projectiles
+    /**
+     * @brief Sets the Game instance to be passed to projectiles.
+     * @param game Pointer to the game instance
+     */
     void setGame(Game *game) { m_game = game; }
 
-    // Get stats
+    /**
+     * @brief Returns the number of projectiles launched.
+     * @return Number of projectiles launched
+     */
     int getProjectilesLaunched() const { return m_projectilesLaunched; }
+    /**
+     * @brief Resets the projectile launch statistics.
+     */
     void resetStats() { m_projectilesLaunched = 0; }
 
 private:
