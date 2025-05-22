@@ -222,7 +222,7 @@ void StrawberryHalf::update(float deltaTime)
     }
 }
 
-void StrawberryHalf::slice(ProjectileManager *manager)
+void StrawberryHalf::slice(ProjectileManager*)
 {
     // Halves cannot be sliced
 }

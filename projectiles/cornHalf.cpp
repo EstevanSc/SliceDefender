@@ -91,7 +91,7 @@ void CornHalf::update(float deltaTime)
     }
 }
 
-void CornHalf::slice(ProjectileManager *manager)
+void CornHalf::slice(ProjectileManager*)
 {
     // Do nothing, halves cannot be sliced again
 }
