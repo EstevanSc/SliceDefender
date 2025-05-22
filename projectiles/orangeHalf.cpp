@@ -86,14 +86,14 @@ void OrangeHalf::update(float deltaTime)
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
-    // Désactiver seulement si la demi-orange sort des limites du corridor
-    // On ne désactive plus pour y <= 0 ici, cela est géré dans Game::checkCollisions
+    // Dï¿½sactiver seulement si la demi-orange sort des limites du corridor
+    // On ne dï¿½sactive plus pour y <= 0 ici, cela est gï¿½rï¿½ dans Game::checkCollisions
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
     }
 
-    // Important: ne pas activer shouldSlice pour les moitiés
+    // Important: ne pas activer shouldSlice pour les moitiï¿½s
 }
 
 void OrangeHalf::slice(ProjectileManager *manager)
