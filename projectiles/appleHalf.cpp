@@ -105,10 +105,3 @@ float AppleHalf::getRadius() const
 {
     return RADIUS;
 }
-
-void AppleHalf::getColor(float &r, float &g, float &b) const
-{
-    r = 0.0f;
-    g = 1.0f;
-    b = 0.0f; // Green for apple
-}

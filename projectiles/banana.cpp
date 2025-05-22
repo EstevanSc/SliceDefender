@@ -250,10 +250,3 @@ float Banana::getRadius() const
 {
     return RADIUS;
 }
-
-void Banana::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 1.0f;
-    b = 0.0f;
-}

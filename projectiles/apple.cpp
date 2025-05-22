@@ -11,7 +11,6 @@ static QOpenGLTexture *g_appleTexture = nullptr;
 Apple::Apple(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ)
     : Projectile(startX, startY, startZ, velocityX, velocityY, velocityZ)
 {
-    // Apple-specific initialization if needed
     if (!g_appleTexture)
         g_appleTexture = new QOpenGLTexture(QImage(":/apple_color.jpg").mirrored());
 }
@@ -70,7 +69,7 @@ void Apple::slice(ProjectileManager *manager)
     // Create the left half of the apple with an impulse to the left (positive in X)
     float leftVelocityX = m_velocity[0] + lateralVelocity(gen);
     AppleHalf *leftHalf = new AppleHalf(
-        m_position[0] + 0.1f, m_position[1], m_position[2], // Initial offset to avoid collision
+        m_position[0] + 0.1f, m_position[1], m_position[2], // Initial offset to avoid interpenetration
         leftVelocityX, m_velocity[1], m_velocity[2],
         AppleHalf::HalfType::LEFT);
 
@@ -96,11 +95,4 @@ void Apple::slice(ProjectileManager *manager)
 float Apple::getRadius() const
 {
     return RADIUS;
-}
-
-void Apple::getColor(float &r, float &g, float &b) const
-{
-    r = 0.0f;
-    g = 1.0f;
-    b = 0.0f;
 }

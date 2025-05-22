@@ -4,18 +4,46 @@
 #include "../projectile.h"
 #include "strawberryHalf.h"
 
+/**
+ * @brief Represents a whole strawberry projectile.
+ * Handles drawing, slicing and radius information.
+ * @author Aubin SIONVILLE
+ */
 class ProjectileManager;
 
 class Strawberry : public Projectile
 {
 public:
+    /**
+     * @brief Constructor for Strawberry.
+     * @param startX Initial X position
+     * @param startY Initial Y position
+     * @param startZ Initial Z position
+     * @param velocityX Initial X velocity
+     * @param velocityY Initial Y velocity
+     * @param velocityZ Initial Z velocity
+     */
     Strawberry(float startX, float startY, float startZ, float velocityX, float velocityY, float velocityZ);
     ~Strawberry() override = default;
 
+    /**
+     * @brief Draws the strawberry using OpenGL.
+     * The strawberry is constructed as a textured mesh with a green top and leaves at the top.
+     * A strawberry texture is applied to the mesh.
+     */
     void draw() override;
+
+    /**
+     * @brief Slices the strawberry into two halves and adds them to the manager.
+     * @param manager ProjectileManager to add halves to
+     */
     void slice(ProjectileManager *manager) override;
+
+    /**
+     * @brief Returns the radius of the strawberry.
+     * @return Radius as float
+     */
     float getRadius() const override;
-    void getColor(float &r, float &g, float &b) const override;
 
 private:
     static constexpr float RADIUS = 0.25f;

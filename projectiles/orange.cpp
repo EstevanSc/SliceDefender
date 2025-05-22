@@ -90,10 +90,3 @@ float Orange::getRadius() const
 {
     return RADIUS;
 }
-
-void Orange::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 0.5f;
-    b = 0.0f;
-}

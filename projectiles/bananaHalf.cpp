@@ -65,9 +65,9 @@ void BananaHalf::draw()
         // Reproduce the thickness variation of the whole banana on the corresponding half
         float tGlobal;
         if (m_type == HalfType::FRONT) {
-            tGlobal = t * 0.5f; // LEFT = 0 à 0.5 of the whole banana
+            tGlobal = t * 0.5f; // LEFT = 0 to 0.5 of the whole banana
         } else {
-            tGlobal = 0.5f + t * 0.5f; // RIGHT = 0.5 à 1 of the whole banana
+            tGlobal = 0.5f + t * 0.5f; // RIGHT = 0.5 to 1 of the whole banana
         }
         float scale = 0.5f + 0.5f * std::sin(M_PI * tGlobal);
 
@@ -190,18 +190,22 @@ void BananaHalf::draw()
 
 void BananaHalf::update(float deltaTime)
 {
+    // Update physics
     m_acceleration[0] = 0.0f;
     m_acceleration[1] = -GRAVITY;
     m_acceleration[2] = 0.0f;
 
+    // Update velocity based on acceleration
     m_velocity[0] += m_acceleration[0] * deltaTime;
     m_velocity[1] += m_acceleration[1] * deltaTime;
     m_velocity[2] += m_acceleration[2] * deltaTime;
 
+    // Update position based on velocity
     m_position[0] += m_velocity[0] * deltaTime;
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
+    // Deactivate the projectile if it goes out of bounds
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
@@ -217,11 +221,4 @@ void BananaHalf::slice(ProjectileManager *manager)
 float BananaHalf::getRadius() const
 {
     return RADIUS;
-}
-
-void BananaHalf::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 1.0f;
-    b = 0.0f;
 }

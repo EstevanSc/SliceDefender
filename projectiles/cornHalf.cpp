@@ -69,18 +69,22 @@ void CornHalf::draw()
 
 void CornHalf::update(float deltaTime)
 {
+    // Update the physics
     m_acceleration[0] = 0.0f;
     m_acceleration[1] = -GRAVITY;
     m_acceleration[2] = 0.0f;
 
+    // Update velocity based on acceleration
     m_velocity[0] += m_acceleration[0] * deltaTime;
     m_velocity[1] += m_acceleration[1] * deltaTime;
     m_velocity[2] += m_acceleration[2] * deltaTime;
 
+    // Update position based on velocity
     m_position[0] += m_velocity[0] * deltaTime;
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
+    // Deactivate if below ground or out of Z bounds
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
@@ -95,11 +99,4 @@ void CornHalf::slice(ProjectileManager *manager)
 float CornHalf::getRadius() const
 {
     return RADIUS;
-}
-
-void CornHalf::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 1.0f;
-    b = 0.0f;
 }

@@ -89,10 +89,13 @@ void Corn::slice(ProjectileManager *manager)
     QVector3D leftVel = QVector3D(m_velocity[0], m_velocity[1], m_velocity[2]) - normal * impulse;
     QVector3D rightVel = QVector3D(m_velocity[0], m_velocity[1], m_velocity[2]) + normal * impulse;
 
+    // Create the left half of the corn with an impulse to the left
     CornHalf *leftHalf = new CornHalf(
         leftPos.x(), leftPos.y(), leftPos.z(),
         leftVel.x(), leftVel.y(), leftVel.z(),
         CornHalf::HalfType::FRONT);
+
+    // Create the right half of the corn with an impulse to the right
     CornHalf *rightHalf = new CornHalf(
         rightPos.x(), rightPos.y(), rightPos.z(),
         rightVel.x(), rightVel.y(), rightVel.z(),
@@ -112,11 +115,4 @@ void Corn::slice(ProjectileManager *manager)
 float Corn::getRadius() const
 {
     return RADIUS;
-}
-
-void Corn::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 1.0f;
-    b = 0.0f;
 }

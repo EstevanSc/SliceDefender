@@ -46,7 +46,7 @@ void Strawberry::draw()
         }
     }
 
-    glColor3f(1.0f, 1.0f, 1.0f); // White for texture
+    glColor3f(1.0f, 1.0f, 1.0f); // White to prevent issues with the texture
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, strawberryTex);
 
@@ -55,7 +55,7 @@ void Strawberry::draw()
     const float height = 0.8f;
     const float baseRadius = 0.7f;
 
-    // Texture zoom factor (>1 means zoom in)
+    // Texture zoom factor
     const float texZoom = 5.0f;
 
     for (int j = 0; j < stacks; ++j)
@@ -106,10 +106,10 @@ void Strawberry::draw()
 
     glDisable(GL_TEXTURE_2D);
 
-    // Draw a round green circle (calyx) at the top of the strawberry
+    // Draw a round green circle at the top of the strawberry
     float r = baseRadius * 0.3f; // r is the top radius of the strawberry
     int circleSegments = 24;
-    glColor3f(0.1f, 0.8f, 0.1f); // Green
+    glColor3f(0.1f, 0.8f, 0.1f); // Green color for the top
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, height, 0.0f); // Center of the circle
     for (int i = 0; i <= circleSegments; ++i)
@@ -122,9 +122,9 @@ void Strawberry::draw()
     glEnd();
 
     // Green leaves
-    glColor3f(0.1f, 0.8f, 0.1f); // Green
+    glColor3f(0.1f, 0.8f, 0.1f);
 
-    const int leafNumber = 6; // You can adjust the number of leaves
+    const int leafNumber = 6;
     const int leafSegments = 4;
     const float leafLength = 0.4f;
     const float leafWidth = 0.15f;
@@ -175,41 +175,41 @@ void Strawberry::draw()
 
 void Strawberry::slice(ProjectileManager *manager)
 {
+    // Create a random number generator for lateral velocity
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> lateralVelocity(2.0f, 5.0f);
 
+    // Calculate left half's velocity and position
     float leftVelocityX = m_velocity[0] + lateralVelocity(gen);
     StrawberryHalf *leftHalf = new StrawberryHalf(
         m_position[0] + 0.1f, m_position[1], m_position[2],
         leftVelocityX, m_velocity[1], m_velocity[2],
         StrawberryHalf::HalfType::LEFT);
 
+    // Calculate right half's velocity and position
     float rightVelocityX = m_velocity[0] - lateralVelocity(gen);
     StrawberryHalf *rightHalf = new StrawberryHalf(
         m_position[0] - 0.1f, m_position[1], m_position[2],
         rightVelocityX, m_velocity[1], m_velocity[2],
         StrawberryHalf::HalfType::RIGHT);
 
+    // Copy rotation properties to left half
     leftHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     leftHalf->setRotationSpeed(m_rotationSpeed);
     leftHalf->setRotationTime(m_rotationTime);
+
+    // Copy rotation properties to right half
     rightHalf->setRotationAxis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
     rightHalf->setRotationSpeed(m_rotationSpeed);
     rightHalf->setRotationTime(m_rotationTime);
 
+    // Add both halves to the projectile manager
     manager->addProjectile(leftHalf);
     manager->addProjectile(rightHalf);
 }
 
 float Strawberry::getRadius() const
 {
-    return 0.25f; // Strawberry radius
-}
-
-void Strawberry::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 0.0f;
-    b = 0.0f; // Red for the strawberry
+    return 0.25f;
 }

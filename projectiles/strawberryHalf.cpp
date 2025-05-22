@@ -21,25 +21,31 @@ StrawberryHalf::StrawberryHalf(float startX, float startY, float startZ,
 
 void StrawberryHalf::draw()
 {
+    // If the projectile is not active, do not draw it
     if (!isActive())
         return;
 
+    // Save the current transformation matrix
     glPushMatrix();
+    // Move to the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // --- Plan de coupe tourné ---
+    // Compute the rotation angle based on speed and time
     float angle = m_rotationSpeed * m_rotationTime;
+    // Set the base normal depending on the half type (left or right)
     QVector3D baseNormal((m_type == HalfType::LEFT) ? 1.0f : -1.0f, 0.0f, 0.0f);
+    // Rotation axis for the quaternion
     QVector3D axis(m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+    // Create a quaternion for the rotation
     QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
+    // Rotate the base normal using the quaternion
     QVector3D rotatedNormal = q.rotatedVector(baseNormal);
 
+    // Set up the clipping plane for the half strawberry
     double planeEq[4] = {rotatedNormal.x(), rotatedNormal.y(), rotatedNormal.z(), 0.0};
     glClipPlane(GL_CLIP_PLANE0, planeEq);
     glEnable(GL_CLIP_PLANE0);
 
-    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
-    glScalef(0.7f, 1.0f, 0.7f);
 
     // Strawberry main body
     static GLuint strawberryTex = 0;
@@ -123,10 +129,10 @@ void StrawberryHalf::draw()
 
     glDisable(GL_TEXTURE_2D);
 
-    // Draw a round green circle (calyx) at the top of the strawberry
+    // Draw a round green circle at the top of the strawberry
     float r = baseRadius * 0.3f; // r is the top radius of the strawberry
     int circleSegments = 24;
-    glColor3f(0.1f, 0.8f, 0.1f); // Green
+    glColor3f(0.1f, 0.8f, 0.1f);
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, height, 0.0f); // Center of the circle
     for (int i = 0; i <= circleSegments; ++i)
@@ -139,15 +145,15 @@ void StrawberryHalf::draw()
     glEnd();
 
     // Green leaves
-    glColor3f(0.1f, 0.8f, 0.1f); // Green
+    glColor3f(0.1f, 0.8f, 0.1f);
 
-    const int leafNumber = 6; // You can adjust the number of leaves
+    const int leafNumber = 6;
     const int leafSegments = 4;
     const float leafLength = 0.4f;
     const float leafWidth = 0.15f;
-    const float leafCurve = 0.1f; // Controls how much the leaf curves upward
+    const float leafCurve = 0.1f;
 
-    float leafStart = 0.9f * r; // Start the leaf at radius 0.9r
+    float leafStart = 0.9f * r;
 
     for (int leaf = 0; leaf < leafNumber; ++leaf)
     {
@@ -194,18 +200,22 @@ void StrawberryHalf::draw()
 
 void StrawberryHalf::update(float deltaTime)
 {
+    // Update physics
     m_acceleration[0] = 0.0f;
     m_acceleration[1] = -GRAVITY;
     m_acceleration[2] = 0.0f;
 
+    // Update velocity based on acceleration
     m_velocity[0] += m_acceleration[0] * deltaTime;
     m_velocity[1] += m_acceleration[1] * deltaTime;
     m_velocity[2] += m_acceleration[2] * deltaTime;
 
+    // Update position based on velocity
     m_position[0] += m_velocity[0] * deltaTime;
     m_position[1] += m_velocity[1] * deltaTime;
     m_position[2] += m_velocity[2] * deltaTime;
 
+    // Deactivate only if the half strawberry goes out of corridor bounds
     if (m_position[1] <= 0.0f || m_position[2] >= 0.0f || m_position[2] <= -30.0f)
     {
         m_isActive = false;
@@ -220,11 +230,4 @@ void StrawberryHalf::slice(ProjectileManager *manager)
 float StrawberryHalf::getRadius() const
 {
     return RADIUS;
-}
-
-void StrawberryHalf::getColor(float &r, float &g, float &b) const
-{
-    r = 1.0f;
-    g = 0.0f;
-    b = 0.0f; // Red for strawberry
 }
