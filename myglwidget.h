@@ -10,6 +10,7 @@
 #include "projectileManager.h"
 #include <QOpenGLTexture>
 #include "player.h"
+#include "corridor.h"
 #include "keyboardhandler.h"
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -81,7 +82,6 @@ private:
     void drawCorridor();
     void drawCannon();
     void drawCylindricalGrid();
-    void setupLight();
     void drawAxes();
 
     void drawTestObject();
@@ -105,6 +105,9 @@ private:
 
     // Player (sword) instance
     Player m_player;
+
+    // Corridor instance (persistent, à initialiser dynamiquement)
+    Corridor* m_corridor;
 
     // Keyboard handler for keyboard controls
     KeyboardHandler m_keyboardHandler;

@@ -6,6 +6,7 @@
 #include "myglwidget.h"
 #include <cmath>
 #include "cannon.h"
+#include "corridor.h"
 #include "player.h"
 #include <QKeyEvent>
 
@@ -25,18 +26,24 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
     // Set focus policy to allow keyboard input
     setFocusPolicy(Qt::StrongFocus);
+
+    // Do not initialize m_corridor here (OpenGL not ready)
+    m_corridor = nullptr;
 }
 
 MyGLWidget::~MyGLWidget()
 {
     // Clean up resources
     delete timer;
+    if (m_corridor) delete m_corridor;
 }
 
 void MyGLWidget::initializeGL()
 {
     // Initialize OpenGL functions
     initializeOpenGLFunctions();
+    glEnable(GL_NORMALIZE); // Normalise les normales après glScalef pour un éclairage correct
+    glDisable(GL_COLOR_MATERIAL); // Désactive l'influence de glColor sur les matériaux
 
     // Basic configuration
     glClearColor(0.05f, 0.05f, 0.1f, 1.0f); // Darker background
@@ -67,6 +74,15 @@ void MyGLWidget::initializeGL()
     m_projectileManager.setCannonPosition(cannonPos);
     m_projectileManager.setCannonDirection(cannonDir);
     m_projectileManager.setInitialSpeed(15.0f);
+
+    // Initialize corridor after OpenGL is ready
+    if (m_corridor) delete m_corridor;
+    m_corridor = new Corridor();
+
+    // Ajoute une lumière ambiante globale douce pour éviter le bleu dans les ombres
+    float ambientLightStrength = 0.4f;
+    GLfloat globalAmbient[4] = {0.18f * ambientLightStrength, 0.16f * ambientLightStrength, 0.13f * ambientLightStrength, 1.0f}; // beige/gris très doux
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
 }
 
 void MyGLWidget::resizeGL(int width, int height)
@@ -97,12 +113,6 @@ void MyGLWidget::paintGL()
               0.0f, 0.0f, -corridorLength,
               0.0f, 1.0f, 0.0f);
 
-    // Set up lighting after camera to ensure light1 is fixed in world space
-    setupLight();
-
-    // Set up lighting
-    setupLight();
-
     // Draw coordinate axes (X, Y, Z)
     drawAxes();
 
@@ -125,7 +135,8 @@ void MyGLWidget::paintGL()
     }
 
     // Draw scene elements
-    drawCorridor();
+    if (m_corridor) m_corridor->draw();
+
     drawCannon();
     drawCylindricalGrid();
 
@@ -139,64 +150,20 @@ void MyGLWidget::paintGL()
     m_player.draw();
 }
 
-void MyGLWidget::setupLight()
-{
-    // Configure directional light (downward)
-    GLfloat lightPosition[] = {0.0f, 10.0f, 0.0f, 0.0f}; // Directional
-    GLfloat lightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
-    GLfloat lightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
-
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-
-    // Calculate point light position relative to cannon
-    // Cannon position is at (0.0, 0.0, -corridorLength)
-    // Camera is at (0.0, 2.5, 0.0)
-    float cannonZ = -corridorLength;
-    float halfDistanceZ = cannonZ / 2.0f; // Half distance between cannon and camera in Z
-
-    // Position the light high above the scene at the midpoint of the corridor
-    // Use a positional light (w=1.0) for proper distance-based attenuation
-    GLfloat light1Position[] = {
-        0.0f,        
-        20.0f,         
-        halfDistanceZ, 
-        1.0f           
-    };
-
-    GLfloat light1Ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
-    GLfloat light1Diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat light1Specular[] = {0.8f, 0.8f, 0.8f, 1.0f};
-
-    glEnable(GL_LIGHT1);
-    glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, light1Ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Diffuse);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, light1Specular);
-
-    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.8f);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.03f);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.005f);
-}
-
 void MyGLWidget::drawCorridor()
 {
     // Draw corridor
-    glPushMatrix();
-    glColor3f(0.5f, 0.5f, 0.5f); // Gray
+    // glPushMatrix();
+    // glColor3f(0.5f, 0.5f, 0.5f); // Gray
 
     // Floor
-    glBegin(GL_QUADS);
-    glNormal3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
-    glVertex3f(corridorWidth / 2, 0.0f, 0.0f);
-    glVertex3f(corridorWidth / 2, 0.0f, -corridorLength);
-    glVertex3f(-corridorWidth / 2, 0.0f, -corridorLength);
-    glEnd();
+    // glBegin(GL_QUADS);
+    // glNormal3f(0.0f, 1.0f, 0.0f);
+    // glVertex3f(-corridorWidth / 2, 0.0f, 0.0f);
+    // glVertex3f(corridorWidth / 2, 0.0f, 0.0f);
+    // glVertex3f(corridorWidth / 2, 0.0f, -corridorLength);
+    // glVertex3f(-corridorWidth / 2, 0.0f, -corridorLength);
+    // glEnd();
 
     // Ceiling
     // glBegin(GL_QUADS);
@@ -225,7 +192,7 @@ void MyGLWidget::drawCorridor()
     // glVertex3f(corridorWidth / 2, 0.0f, -corridorLength);
     // glEnd();
 
-    glPopMatrix();
+    // glPopMatrix();
 }
 
 void MyGLWidget::drawCannon()
