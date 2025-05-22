@@ -39,6 +39,12 @@ public:
      */
     ~MainWindow();
 
+    /**
+     * @brief Gets the current game mode setting
+     * @return True if standard mode, false if original mode
+     */
+    bool isStandardMode() const { return m_standardMode; }
+
 private slots:
     /**
      * @brief Start a new game with reset score
@@ -100,6 +106,13 @@ private slots:
      */
     void toggleInstructions();
 
+    /**
+     * @brief Toggles between standard and original game modes
+     * Standard mode: 1 life, 1 point per projectile
+     * Original mode: 5 lives, combo scoring system
+     */
+    void toggleGameMode();
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
@@ -109,6 +122,7 @@ private:
     Scoreboard *m_scoreboard;
     QTimer *m_statusTimer;
     bool m_showingInstructions;
+    bool m_standardMode = true; // Default to Standard Mode
 
     /**
      * @brief Update the score display

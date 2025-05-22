@@ -57,6 +57,19 @@ public:
     void resetGame();
 
     /**
+     * @brief Set the game mode
+     * @param standardMode true for standard mode (1 life, 1 point per hit),
+     *                    false for original mode (5 lives, combo score system)
+     */
+    void setStandardMode(bool standardMode);
+
+    /**
+     * @brief Check if the game is in standard mode
+     * @return true if standard mode, false if original mode
+     */
+    bool isStandardMode() const { return m_standardMode; }
+
+    /**
      * @brief Start the countdown to begin the game
      *
      * Initializes and displays a countdown before the game starts.
@@ -156,6 +169,11 @@ private:
     QVector3D m_handPosition;
     QVector3D m_playerPosition;
     int m_pointsCounter;
+    bool m_standardMode; // true = standard mode, false = original mode
+
+    // Default values for different game modes
+    static const int ORIGINAL_MODE_LIVES = 5;
+    static const int STANDARD_MODE_LIVES = 1;
 
     // Countdown state
     int m_countdownValue;

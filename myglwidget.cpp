@@ -24,8 +24,11 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     // Using (0.0, 0.0) which places it in the center of the grid
     positionPlayerOnGrid(0.0, 0.0);
 
-    // Set focus policy to allow keyboard input
+    // Set focus policy to explicitly capture keyboard input
     setFocusPolicy(Qt::StrongFocus);
+
+    // Accept keyboard input when in focus
+    setFocus();
 
     // Do not initialize m_corridor here (OpenGL not ready)
     m_corridor = nullptr;

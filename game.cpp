@@ -10,10 +10,11 @@ Game::Game(Player *player, CameraHandler *cameraHandler,
       m_keyboardHandler(keyboardHandler),
       m_projectileManager(projectileManager),
       m_score(0),
-      m_lives(5),
+      m_lives(STANDARD_MODE_LIVES), // Start with Standard Mode lives
       m_gameStarted(false),
       m_countdownValue(5),
-      m_pointsCounter(0)
+      m_pointsCounter(0),
+      m_standardMode(true) // Default to Standard Mode
 {
     // Initialize timers
     m_updateTimer = new QTimer(this);
@@ -100,11 +101,12 @@ void Game::updatePlayerPosition()
 
 void Game::resetGame()
 {
-    // Reset game state
+    // Reset game state based on mode
     m_score = 0;
-    m_lives = 5;
+    m_lives = m_standardMode ? STANDARD_MODE_LIVES : ORIGINAL_MODE_LIVES;
     m_gameStarted = false;
     m_countdownValue = 5;
+    m_pointsCounter = 0;
 
     // Clear any existing projectiles
     m_projectileManager->clearProjectiles();
@@ -161,17 +163,47 @@ void Game::stopGame()
 }
 
 /**
+ * @brief Set the game mode
+ * @param standardMode true for standard mode (1 life, 1 point per hit),
+ *                    false for original mode (5 lives, combo score system)
+ */
+void Game::setStandardMode(bool standardMode)
+{
+    // Only allow mode change when game is not active
+    if (!m_gameStarted)
+    {
+        m_standardMode = standardMode;
+
+        // Update lives based on selected mode
+        m_lives = m_standardMode ? STANDARD_MODE_LIVES : ORIGINAL_MODE_LIVES;
+        emit livesChanged(m_lives);
+
+        qDebug() << "Game mode set to:" << (m_standardMode ? "Standard" : "Original");
+    }
+}
+
+/**
  * @brief Increase player's score by one point plus bonus
  * Called when a projectile is sliced by the player
  */
 void Game::gainPoint()
 {
-    m_pointsCounter++;
-    m_score += m_pointsCounter;
-
-    qDebug() << "Score increased: +" << m_pointsCounter << " points | Total score:" << m_score
-             << "| Combo:" << m_pointsCounter
-             << "| Lives:" << m_lives;
+    if (m_standardMode)
+    {
+        // Standard mode: always add 1 point
+        m_score += 1;
+        qDebug() << "Score increased: +1 point | Total score:" << m_score
+                 << "| Standard Mode | Lives:" << m_lives;
+    }
+    else
+    {
+        // Original mode: combo point system
+        m_pointsCounter++;
+        m_score += m_pointsCounter;
+        qDebug() << "Score increased: +" << m_pointsCounter << " points | Total score:" << m_score
+                 << "| Combo:" << m_pointsCounter
+                 << "| Lives:" << m_lives;
+    }
 
     emit scoreChanged(m_score);
 }
@@ -184,11 +216,16 @@ void Game::gainPoint()
 bool Game::loseLife()
 {
     m_lives--;
-    m_pointsCounter = 0;
+
+    // In original mode, reset combo counter when losing a life
+    if (!m_standardMode)
+    {
+        m_pointsCounter = 0;
+    }
 
     qDebug() << "Life lost: Lives remaining:" << m_lives
              << "| Score:" << m_score
-             << "| Combo reset";
+             << (m_standardMode ? "" : "| Combo reset");
 
     emit livesChanged(m_lives);
 

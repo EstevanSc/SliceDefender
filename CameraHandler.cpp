@@ -87,18 +87,18 @@ Rect CameraHandler::haarCascade(Mat &image)
     cv::equalizeHist(frame_gray, frame_gray); // Improve contrast for better detection
 
     // First try to detect fists
-    fist_cascade.detectMultiScale(frame_gray, fists, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+    fist_cascade.detectMultiScale(frame_gray, fists, 1.1, 13, 1, Size(80, 80), Size(160, 160));
 
     Mat invFrame_gray = 255 - frame_gray; // Invert image for better palm detection
-    palm_cascade.detectMultiScale(invFrame_gray, invfists, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+    palm_cascade.detectMultiScale(invFrame_gray, invfists, 1.1, 13, 1, Size(80, 80), Size(160, 160));
     fists.insert(fists.end(), invfists.begin(), invfists.end());
 
     // Second attempt: detect palms if no fists found
     if (fists.size() <= 0)
     {
-        palm_cascade.detectMultiScale(frame_gray, palms, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+        palm_cascade.detectMultiScale(frame_gray, palms, 1.1, 13, 1, Size(80, 80), Size(160, 160));
         // try inverted image for palm detection
-        palm_cascade.detectMultiScale(invFrame_gray, invPalms, 1.1, 13, 1, Size(60, 60), Size(220, 220));
+        palm_cascade.detectMultiScale(invFrame_gray, invPalms, 1.1, 13, 1, Size(80, 80), Size(160, 160));
         palms.insert(palms.end(), invPalms.begin(), invPalms.end());
     }
 
