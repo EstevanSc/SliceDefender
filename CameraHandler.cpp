@@ -578,10 +578,6 @@ void CameraHandler::setTrackedHandPosition(int x, int y)
     m_handPosition[1] = y;
 }
 
-/**
- * @brief Releases the current camera connection
- * @return true if successful, false otherwise
- */
 bool CameraHandler::releaseCamera()
 {
     if (webCam_ && webCam_->isOpened())
@@ -604,11 +600,6 @@ bool CameraHandler::releaseCamera()
     return false;
 }
 
-/**
- * @brief Opens the camera with the specified index
- * @param cameraIndex Index of the camera to open (0 = internal, 1 = external)
- * @return true if successful, false otherwise
- */
 bool CameraHandler::openCamera(int cameraIndex)
 {
     // If webCam_ doesn't exist, create it
