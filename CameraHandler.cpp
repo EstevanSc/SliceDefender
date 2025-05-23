@@ -4,6 +4,8 @@
 #include <QString>
 #include <QImage>
 #include <iostream>
+#include <QFile>
+#include <QTemporaryFile>
 
 using namespace cv;
 using namespace std;
@@ -57,15 +59,35 @@ Rect CameraHandler::haarCascade(Mat &image)
     CascadeClassifier fist_cascade;
     CascadeClassifier palm_cascade;
 
-    // Load the Haar cascade classifier for hand detection
-    if (!fist_cascade.load("../../hand.xml"))
+    // Utilisation de QFile pour charger les fichiers XML depuis les ressources
+    QStringList resourceFiles = {":/hand.xml", ":/Hand.Cascade.1.xml"};
+    QStringList tempFiles;
+    for (const QString &res : resourceFiles) {
+        QFile file(res);
+        if (!file.open(QIODevice::ReadOnly)) {
+            cerr << "Erreur lors de l'ouverture de la ressource " << res.toStdString() << endl;
+            return Rect();
+        }
+        QTemporaryFile *tmp = new QTemporaryFile();
+        if (!tmp->open()) {
+            cerr << "Erreur lors de la création du fichier temporaire pour " << res.toStdString() << endl;
+            return Rect();
+        }
+        tmp->write(file.readAll());
+        tmp->flush();
+        tempFiles << tmp->fileName();
+        // On ne ferme pas tmp ici pour garder le fichier accessible
+    }
+
+    // Charger les cascadeurs Haar avec les fichiers temporaires
+    if (!fist_cascade.load(tempFiles[0].toStdString()))
     {
-        cerr << "Error loading hand.xml" << endl;
+        cerr << "Error loading hand.xml depuis la ressource" << endl;
         return Rect();
     }
-    if (!palm_cascade.load("../../Hand.Cascade.1.xml"))
+    if (!palm_cascade.load(tempFiles[1].toStdString()))
     {
-        cerr << "Error loading Hand.Cascade.1.xml" << endl;
+        cerr << "Error loading Hand.Cascade.1.xml depuis la ressource" << endl;
         return Rect();
     }
 
