@@ -111,6 +111,15 @@ private slots:
      */
     void toggleGameMode();
 
+    /**
+     * @brief Toggles between internal (0) and external (1) camera sources
+     *
+     * This slot is connected to the cameraSwitchButton in Qt Designer.
+     * It switches between camera indices 0 and 1, and updates the button text
+     * to reflect which camera is currently active.
+     */
+    void toggleCameraSource();
+
 private:
     Ui::MainWindow *ui;
     CameraHandler *cameraHandler;
@@ -127,7 +136,7 @@ private:
 
     bool m_showingInstructions;
     bool m_standardMode = true;
-
+    int cameraIndex_ = 0; // index of the currently active camera (0 = internal, 1 = external)
     /**
      * @brief Updates the score display
      */

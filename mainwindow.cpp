@@ -418,3 +418,35 @@ void MainWindow::toggleGameMode()
     QString message = QString("Switched to %1").arg(m_standardMode ? "Standard Mode" : "Original Mode");
     showStatusMessage(message, true);
 }
+
+/**
+ * @brief Toggles between internal (0) and external (1) camera sources
+ *
+ * This method:
+ * 1. Toggles the camera index between 0 (internal) and 1 (external)
+ * 2. Releases the current camera and attempts to open the new one
+ * 3. Updates the button text to reflect the next camera to switch to
+ * 4. Handles failure to open camera gracefully without crashing
+ *
+ * Even if camera switching fails, the button text is updated to maintain
+ * UI consistency with the stored camera index.
+ */
+void MainWindow::toggleCameraSource()
+{
+    // Toggle camera index between 0 (internal) and 1 (external)
+    cameraIndex_ = (cameraIndex_ == 0) ? 1 : 0;
+
+    // Release the current camera before opening a new one
+    if (cameraHandler)
+    {
+        cameraHandler->releaseCamera();
+
+        // Try to open the new camera
+        cameraHandler->openCamera(cameraIndex_);
+
+        // Update button text based on which camera will be switched to next
+        // If current is internal (0), button shows "External Cam" (next click = 1)
+        // If current is external (1), button shows "Internal Cam" (next click = 0)
+        ui->cameraSwitchButton->setText(cameraIndex_ == 0 ? "External Cam" : "Internal Cam");
+    }
+}
