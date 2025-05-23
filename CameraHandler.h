@@ -22,7 +22,7 @@ namespace Ui
  * - Detect hand positions using Haar cascades
  * - Establish a reference image after consistent detection
  * - Track hand position using SIFT feature matching
- * 
+ *
  * @author Estevan SCHMITT
  */
 class CameraHandler : public QWidget
@@ -40,7 +40,7 @@ public:
      * @brief Destructor releases resources like timer and webcam
      */
     ~CameraHandler();
-    
+
     /**
      * @brief Get the hand/sword position detected by the camera
      * @return Normalized 3D vector between (-1,-1,0) and (1,1,0)
@@ -67,25 +67,37 @@ public:
      */
     void setTrackedHandPosition(int x, int y);
 
+    /**
+     * @brief Releases the current camera connection
+     * @return true if successful, false otherwise
+     */
+    bool releaseCamera();
+
+    /**
+     * @brief Opens the camera with the specified index
+     * @param cameraIndex Index of the camera to open (0 = internal, 1 = external)
+     * @return true if successful, false otherwise
+     */
+    bool openCamera(int cameraIndex);
+
 private:
     Ui::CameraHandler *ui; // Pointer to the UI components
     VideoCapture *webCam_; // Pointer to the webcam capture object
-    
-    Mat reference; // Reference image for SIFT matching
+
+    Mat reference;     // Reference image for SIFT matching
     bool hasReference; // Flag indicating if a reference image has been captured
-    
-    QTimer *timer; // Timer for periodic updates
+
+    QTimer *timer;                // Timer for periodic updates
     QElapsedTimer detectionTimer; // Timer for detection duration
-    
-    Rect lastDetectedRect; // Last detected rectangle for hand position
-    bool hasDetection; // Flag indicating if a hand has been detected
+
+    Rect lastDetectedRect;     // Last detected rectangle for hand position
+    bool hasDetection;         // Flag indicating if a hand has been detected
     int consecutiveDetections; // Count of consecutive detections
-    
+
     static const int REQUIRED_DETECTIONS = 15; // Number of detections required to capture a reference image
-    int matchQuality; // Quality of the SIFT match (0-100)
-    
-    
-    bool debug; // Flag for enabling/disabling debug mode
+    int matchQuality;                          // Quality of the SIFT match (0-100)
+
+    bool debug;                            // Flag for enabling/disabling debug mode
     const float m_siftRationTresh = 0.85f; // SIFT ratio threshold for matching
 
     /**

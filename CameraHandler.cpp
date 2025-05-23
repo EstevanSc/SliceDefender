@@ -16,6 +16,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
+    // Initialize with internal camera (index 0)
     webCam_ = new VideoCapture(0);
     hasReference = false;
     hasDetection = false;
@@ -34,7 +35,8 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 
     if (!webCam_->isOpened())
     {
-        ui->detectionLabel_->setText("Error opening the default camera !");
+        ui->detectionLabel_->setText("Error opening the default camera!");
+        ui->imageLabel_->setText("No image");
     }
     else
     {
@@ -606,4 +608,78 @@ void CameraHandler::setTrackedHandPosition(int x, int y)
 {
     m_handPosition[0] = x;
     m_handPosition[1] = y;
+}
+
+/**
+ * @brief Releases the current camera connection
+ * @return true if successful, false otherwise
+ */
+bool CameraHandler::releaseCamera()
+{
+    if (webCam_ && webCam_->isOpened())
+    {
+        // Stop the timer to prevent frame capturing during camera switch
+        if (timer && timer->isActive())
+        {
+            timer->stop();
+        }
+
+        // Release the camera resource
+        webCam_->release();
+
+        // Update UI to show the camera is disconnected
+        ui->detectionLabel_->setText("Camera disconnected");
+        ui->imageLabel_->setText("No image");
+
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief Opens the camera with the specified index
+ * @param cameraIndex Index of the camera to open (0 = internal, 1 = external)
+ * @return true if successful, false otherwise
+ */
+bool CameraHandler::openCamera(int cameraIndex)
+{
+    // If webCam_ doesn't exist, create it
+    if (!webCam_)
+    {
+        webCam_ = new VideoCapture();
+    }
+
+    // Try to open the camera with the specified index
+    if (webCam_->open(cameraIndex))
+    {
+        // Get camera information
+        int width = webCam_->get(CAP_PROP_FRAME_WIDTH);
+        int height = webCam_->get(CAP_PROP_FRAME_HEIGHT);
+
+        // Reset detection states for the new camera
+        hasReference = false;
+        hasDetection = false;
+        consecutiveDetections = 0;
+
+        // Initialize hand position to middle of new camera frame
+        m_handPosition[0] = width > 0 ? width / 2 : 320;
+        m_handPosition[1] = height > 0 ? height / 2 : 240;
+
+        // Update UI with new camera information
+        ui->detectionLabel_->setText(QString("Video ok, image size is %1x%2 pixels").arg(width).arg(height));
+
+        // Start or restart the timer for frame updates
+        if (timer)
+        {
+            timer->start(30);
+        }
+
+        return true;
+    }
+    else
+    {
+        // Failed to open camera, update UI
+        ui->detectionLabel_->setText(QString("Error opening camera %1").arg(cameraIndex));
+        return false;
+    }
 }
