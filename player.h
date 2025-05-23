@@ -70,10 +70,24 @@ public:
     void draw() const;
 
 private:
-    // Helper methods for drawing sword components
+    /**
+     * @brief Draws the handle of the sword
+     */
     void drawHandle() const;
+
+    /**
+     * @brief Draws the guard of the sword
+     */
     void drawGuard() const;
+
+    /**
+     * @brief Draws the blade of the sword
+     */
     void drawBlade() const;
+
+    /**
+     * @brief Draws the blade tip of the sword
+     */
     void drawBladeTip() const;
 
     // Helper method for drawing decorative rings (similar to cannon)

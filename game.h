@@ -159,28 +159,28 @@ private:
     void updatePlayerPosition();
 
     // Game components
-    Player *m_player;
-    CameraHandler *m_cameraHandler;
-    KeyboardHandler *m_keyboardHandler;
-    ProjectileManager *m_projectileManager;
+    Player *m_player; // Pointer to the player's sword object
+    CameraHandler *m_cameraHandler; // Pointer to the camera handler
+    KeyboardHandler *m_keyboardHandler; // Pointer to the keyboard handler
+    ProjectileManager *m_projectileManager; // Pointer to the projectile manager
 
     // Game state
-    int m_score;
-    int m_lives;
-    bool m_gameStarted;
-    QVector3D m_handPosition;
-    QVector3D m_playerPosition;
-    int m_pointsCounter;
+    int m_score; // Current score
+    int m_lives; // Current lives
+    bool m_gameStarted; // Flag to indicate if the game is active
+    QVector3D m_handPosition; // Hand position from camera tracking
+    QVector3D m_playerPosition; // Player position on the grid
+    int m_pointsCounter; // Counter for consecutive hits
     bool m_standardMode; // true = standard mode, false = original mode
 
     // Default values for different game modes
-    static const int ORIGINAL_MODE_LIVES = 5;
-    static const int STANDARD_MODE_LIVES = 1;
+    static const int ORIGINAL_MODE_LIVES = 5; // Original mode lives
+    static const int STANDARD_MODE_LIVES = 1; // Standard mode lives
 
     // Countdown state
-    int m_countdownValue;
-    QTimer *m_countdownTimer;
-    QTimer *m_updateTimer;
+    int m_countdownValue; // Countdown value
+    QTimer *m_countdownTimer; // Timer for countdown
+    QTimer *m_updateTimer; // Timer for game updates
 };
 
 #endif // GAME_H

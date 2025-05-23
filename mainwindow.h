@@ -112,22 +112,22 @@ private slots:
     void toggleGameMode();
 
 private:
-    Ui::MainWindow *ui;
-    CameraHandler *cameraHandler;
-    Game *game;
+    Ui::MainWindow *ui; // Pointer to the UI components
+    CameraHandler *cameraHandler; // Pointer to the camera handler
+    Game *game; // Pointer to the game logic
 
-    int gameScore;
+    int gameScore; // Current score
 
-    bool m_showingScoreboard;
-    Scoreboard *m_scoreboard;
+    bool m_showingScoreboard; // Flag to indicate if the scoreboard is visible
+    Scoreboard *m_scoreboard; // Pointer to the scoreboard object
 
-    QTimer *m_statusTimer;
-    QTimer *m_gameTimer;   // Timer for triggering display updates (10ms intervals)
+    QTimer *m_statusTimer; // Timer for updating status messages
+    QTimer *m_gameTimer; // Timer for triggering display updates (10ms intervals)
     QTime m_gameStartTime; // Stores the exact time when the game started
 
-    bool m_showingInstructions;
-    bool m_standardMode = true;
-
+    bool m_showingInstructions; // Flag to indicate if the instructions overlay is visible
+    bool m_standardMode = true; // Flag to indicate if the game is in standard mode (true) or original mode (false)
+    int cameraIndex_ = 0; // index of the currently active camera (0 = internal, 1 = external)
     /**
      * @brief Updates the score display
      */
