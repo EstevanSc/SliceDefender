@@ -129,17 +129,17 @@ private:
     void drawWheel(GLUquadric *quadric, float xOffset) const;
 
     // Member variables
-    QVector3D m_position;
-    float m_angleDegrees;
-    float m_length;
-    float m_radius;
-    QColor m_color;
-    int m_segments;
+    QVector3D m_position; // Cannon position in 3D space
+    float m_angleDegrees; // Cannon elevation angle in degrees
+    float m_length; // Length of the cannon barrel
+    float m_radius; // Radius of the cannon barrel
+    QColor m_color; // Color of the cannon
+    int m_segments; // Number of segments for cylindrical parts
 
     // Wheel properties
-    float m_wheelRadius;
-    float m_wheelThickness;
-    float m_axisLength;
+    float m_wheelRadius; // Radius of the wheels
+    float m_wheelThickness; // Thickness of the wheels
+    float m_axisLength; // Length of the axle connecting the wheels
 };
 
 #endif // CANNON_H

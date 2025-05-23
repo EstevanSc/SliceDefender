@@ -30,8 +30,10 @@ void StrawberryHalf::draw()
     // Move to the projectile's position
     glTranslatef(m_position[0], m_position[1], m_position[2]);
 
-    // Compute the rotation angle based on speed and time
+    // Apply the rotation to the strawberry half
     float angle = m_rotationSpeed * m_rotationTime;
+    glRotatef(angle, m_rotationAxis[0], m_rotationAxis[1], m_rotationAxis[2]);
+
     // Set the base normal depending on the half type (left or right)
     QVector3D baseNormal((m_type == HalfType::LEFT) ? 1.0f : -1.0f, 0.0f, 0.0f);
     // Rotation axis for the quaternion
@@ -40,6 +42,9 @@ void StrawberryHalf::draw()
     QQuaternion q = QQuaternion::fromAxisAndAngle(axis, angle);
     // Rotate the base normal using the quaternion
     QVector3D rotatedNormal = q.rotatedVector(baseNormal);
+
+    // Apply the same scale as the whole strawberry
+    glScalef(0.7f, 1.0f, 0.7f);
 
     // Set up the clipping plane for the half strawberry
     double planeEq[4] = {rotatedNormal.x(), rotatedNormal.y(), rotatedNormal.z(), 0.0};

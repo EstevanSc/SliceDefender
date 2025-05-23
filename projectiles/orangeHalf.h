@@ -50,7 +50,7 @@ public:
      * @param manager Unused (not used for halves)
      * @note This method is overridden to prevent slicing of the halves.
      */
-    void slice(ProjectileManager *manager) override;
+    void slice(ProjectileManager*) override;
 
     /**
      * @brief Returns the radius of the orange half.
@@ -71,8 +71,8 @@ public:
     bool isHalf() const override { return true; }
 
 private:
-    HalfType m_type;
-    static constexpr float RADIUS = 0.25f;
+    HalfType m_type; // Type of half (LEFT or RIGHT)
+    static constexpr float RADIUS = 0.25f; // Radius of the orange half
 };
 
 #endif // ORANGEHALF_H

@@ -50,7 +50,7 @@ public:
      * @param manager Unused (not used for halves)
      * @note This method is overridden to prevent slicing of the halves.
      */
-    void slice(ProjectileManager *manager) override;
+    void slice(ProjectileManager*) override;
 
     /**
      * @brief Returns the radius of the corn half.
@@ -66,8 +66,8 @@ public:
 
 private:
     HalfType m_type;
-    static constexpr float RADIUS = 0.18f;
-    static constexpr float LENGTH = 0.35f;
+    static constexpr float RADIUS = 0.18f; // Radius of the corn half
+    static constexpr float LENGTH = 0.35f; // Length of the corn half (half of the full corn)
 };
 
 #endif // CORN_HALF_H

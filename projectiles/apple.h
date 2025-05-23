@@ -46,7 +46,7 @@ public:
     float getRadius() const override;
 
 private:
-    static constexpr float RADIUS = 0.25f;
+    static constexpr float RADIUS = 0.25f; // Radius of the apple
 };
 
 #endif // APPLE_H

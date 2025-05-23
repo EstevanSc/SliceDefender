@@ -308,7 +308,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <widget class="QLabel" name="scoreValue">
              <property name="font">
               <font>
-               <pointsize>24</pointsize>
+               <pointsize>18</pointsize>
                <bold>true</bold>
               </font>
              </property>
@@ -357,6 +357,25 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="text">
               <string>Speed: 1.0x</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="gameTimeLabel">
+             <property name="font">
+              <font>
+               <pointsize>15</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: white;</string>
+             </property>
+             <property name="text">
+              <string>00:00:00</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -431,8 +450,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <layout class="QHBoxLayout" name="inputLayout">
              <item>
               <widget class="QLineEdit" name="nameInput">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::FocusPolicy::StrongFocus</enum>
+               </property>
                <property name="maxLength">
                 <number>20</number>
+               </property>
+               <property name="frame">
+                <bool>true</bool>
                </property>
                <property name="placeholderText">
                 <string>Enter your name</string>
