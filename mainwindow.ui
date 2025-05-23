@@ -308,7 +308,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <widget class="QLabel" name="scoreValue">
              <property name="font">
               <font>
-               <pointsize>24</pointsize>
+               <pointsize>18</pointsize>
                <bold>true</bold>
               </font>
              </property>
@@ -454,7 +454,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 <bool>true</bool>
                </property>
                <property name="focusPolicy">
-                <enum>Qt::StrongFocus</enum>
+                <enum>Qt::FocusPolicy::StrongFocus</enum>
                </property>
                <property name="maxLength">
                 <number>20</number>

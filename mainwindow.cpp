@@ -391,7 +391,7 @@ void MainWindow::toggleGameMode()
     // Only allow mode change when not in active gameplay
     if (game && game->isGameStarted())
     {
-        showStatusMessage("Cannot change mode during active game", false);
+        showStatusMessage("Impossible during game", false);
         return;
     }
 

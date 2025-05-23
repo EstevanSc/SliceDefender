@@ -80,7 +80,7 @@ void ProjectileManager::launchProjectile()
 {
     // Random offset generators for projectile trajectory variation
     std::uniform_real_distribution<float> randomVerticalOffset(-1.2f, 0.2f);
-    std::uniform_real_distribution<float> randomHorizontalOffset(-1.2f, 1.2f);
+    std::uniform_real_distribution<float> randomHorizontalOffset(-1.1f, 1.1f);
 
     // Calculate velocity with directional vector and random offsets for gameplay variety
     float velocityX = (m_cannonDirection[0] * m_initialProjectileSpeed) + randomHorizontalOffset(m_rng);
@@ -133,9 +133,17 @@ void ProjectileManager::launchProjectile()
     // Random rotation axis
     std::uniform_real_distribution<float> axisDist(-1.0f, 1.0f);
     float axis[3] = {axisDist(m_rng), axisDist(m_rng), axisDist(m_rng)};
-    float norm = std::sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
-    if (norm < 0.001f) { axis[0]=0.0f; axis[1]=1.0f; axis[2]=0.0f; norm=1.0f; }
-    axis[0] /= norm; axis[1] /= norm; axis[2] /= norm;
+    float norm = std::sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+    if (norm < 0.001f)
+    {
+        axis[0] = 0.0f;
+        axis[1] = 1.0f;
+        axis[2] = 0.0f;
+        norm = 1.0f;
+    }
+    axis[0] /= norm;
+    axis[1] /= norm;
+    axis[2] /= norm;
 
     // Angular speed (degrees/sec)
     std::uniform_real_distribution<float> speedDist(90.0f, 180.0f); // between 90° and 180°/sec
