@@ -295,8 +295,10 @@ void Projectile::drawShadow() const
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Position the shadow on the ground directly below the projectile
+    // Place the shadow just above the floor bricks so it is not hidden (floor bricks are at y ≈ 0.04)
+    // If you change the floor brick height, update this value accordingly
     glPushMatrix();
-    glTranslatef(m_position[0], 0.01f, m_position[2]); 
+    glTranslatef(m_position[0], 0.06f, m_position[2]);
     glScalef(shadowScale, 1.0f, shadowScale);
     float alphaFactor = std::max(0.2f, std::min(1.0f, 1.0f - m_position[1] / 10.0f));
     float finalAlpha = SHADOW_ALPHA * alphaFactor;
@@ -304,7 +306,7 @@ void Projectile::drawShadow() const
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, 0.0f, 0.0f);
     const int segments = 16;
-    const float radius = getRadius();
+    const float radius = 3*getRadius();
     for (int i = 0; i <= segments; i++)
     {
         float angle = 2.0f * M_PI * i / segments;

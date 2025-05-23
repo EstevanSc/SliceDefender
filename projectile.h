@@ -221,7 +221,7 @@ protected:
     static constexpr float GRID_Z_POSITION = -3.5f; // Z position of the grid
     static constexpr float GRID_Y_POSITION = 2.0f; // Y position of the grid
     static constexpr float GRID_THICKNESS = 3.0f; // Thickness of the grid
-    static constexpr float COLLISION_THRESHOLD = 0.3f; // Collision threshold
+    static constexpr float COLLISION_THRESHOLD = 0.5f; // Collision threshold
 
     Game *m_game = nullptr; // Pointer to the game instance for scoring and life management
 
