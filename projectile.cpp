@@ -98,11 +98,6 @@ void Projectile::update(float deltaTime)
     }
 }
 
-/**
- * @brief Check if the projectile is near the player's sword
- * @param player The player object to check distance against
- * @return true if the projectile is within collision range of the player's sword
- */
 bool Projectile::isNearPlayer(const Player &player) const
 {
     // Get player's blade position for more accurate collision detection
@@ -118,13 +113,6 @@ bool Projectile::isNearPlayer(const Player &player) const
     return (distance < COLLISION_THRESHOLD + getRadius());
 }
 
-/**
- * @brief Check if the projectile is in the grid zone
- * @param gridZPosition Z position of the cylindrical grid
- * @param gridYPosition Y position of the cylindrical grid (height)
- * @param gridThickness Thickness of the grid for collision detection
- * @return true if the projectile is within the grid zone
- */
 bool Projectile::isInGridZone(float gridZPosition, float gridYPosition, float gridThickness) const
 {
     // Check if projectile is in the cylindrical grid zone
@@ -133,13 +121,6 @@ bool Projectile::isInGridZone(float gridZPosition, float gridYPosition, float gr
             std::abs(m_position[1] - gridYPosition) <= gridThickness);
 }
 
-/**
- * @brief Check if the projectile is in the grid zone and has passed through it
- * @param gridZPosition Z position of the cylindrical grid
- * @param gridYPosition Y position of the cylindrical grid (height)
- * @param gridThickness Thickness of the grid for collision detection
- * @return true if the projectile has passed through the grid zone without being sliced
- */
 bool Projectile::isInGridZoneAndPassed(float gridZPosition, float gridYPosition, float gridThickness) const
 {
     // Check if projectile is in grid zone and has passed the central Z position
@@ -147,19 +128,11 @@ bool Projectile::isInGridZoneAndPassed(float gridZPosition, float gridYPosition,
            m_position[2] > gridZPosition;
 }
 
-/**
- * @brief Check if the projectile has touched the floor
- * @return true if the projectile's Y position is at or below 0
- */
 bool Projectile::hasTouchedFloor() const
 {
     return m_position[1] <= 0.0f;
 }
 
-/**
- * @brief Check for collision with the player's sword and handle slicing
- * @param player Pointer to the player object
- */
 void Projectile::checkCollisionWithPlayer(Player *player)
 {
     // Skip if already sliced or player is null
@@ -224,8 +197,14 @@ void Projectile::setAcceleration(float ax, float ay, float az)
 
 void Projectile::setRotationAxis(float x, float y, float z)
 {
-    float norm = std::sqrt(x*x + y*y + z*z);
-    if (norm < 0.001f) { x = 0.0f; y = 1.0f; z = 0.0f; norm = 1.0f; }
+    float norm = std::sqrt(x * x + y * y + z * z);
+    if (norm < 0.001f)
+    {
+        x = 0.0f;
+        y = 1.0f;
+        z = 0.0f;
+        norm = 1.0f;
+    }
     m_rotationAxis[0] = x / norm;
     m_rotationAxis[1] = y / norm;
     m_rotationAxis[2] = z / norm;
@@ -278,7 +257,7 @@ void Projectile::drawShadow() const
     {
         return;
     }
-    
+
     float shadowScale = calculateShadowScale();
 
     glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -299,7 +278,7 @@ void Projectile::drawShadow() const
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, 0.0f, 0.0f);
     const int segments = 16;
-    const float radius = 3*getRadius();
+    const float radius = 3 * getRadius();
     for (int i = 0; i <= segments; i++)
     {
         float angle = 2.0f * M_PI * i / segments;
