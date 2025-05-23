@@ -1,93 +1,50 @@
 # Slice Defender
 
+## Authors
+- Aubin SIONVILLE
+- Estevan SCHMITT
 
+## Purpose
+Slice Defender is an interactive 3D game developed as part of a Computer Science course at Télécom Saint-Étienne. The player must slice flying projectiles (fruits and vegetables) using a virtual sword. The game combines real-time hand tracking (via webcam) and OpenGL rendering to create an immersive experience. The objective is to score points by slicing as many projectiles as possible while avoiding missing them.
 
-## Getting started
+## Instructions
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### How to Play
+1. **Start the game**: Launch the application. The main window will display the game area and UI.
+2. **Camera setup**: The game uses your webcam to track your hand position. Make sure your camera is connected and working.
+3. **Sword control**: Move your hand in front of the camera to control the sword in the game. The sword follows your hand's position.
+4. **Slice projectiles**: Projectiles (apples, oranges, bananas, corn, strawberries) are launched from the cannon. Slice them with your sword before they fall.
+5. **Scoring**: Each successful slice gives you points. Missing projectiles may cost you lives.
+6. **Game modes**: You can switch between standard and original game modes for different levels of challenge.
+7. **Restart**: Use the UI buttons to restart the game or view your score.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Controls
+- **Hand movement**: Controls the sword (requires a webcam).
+- **Keyboard**: Some features may be accessible via keyboard (see in-game instructions).
 
-## Add your files
+## Implementation Details
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Main Components
+- **projectileManager.h / .cpp**: Manages all projectiles in the game. Handles creation, launching, updating, drawing, and slicing of projectiles. Uses a simple random generator for projectile types and trajectories.
+- **projectile.h / .cpp**: Abstract base class for all projectiles. Defines physics, collision, slicing, and rendering logic. Specialized projectiles (Apple, Orange, Banana, Corn, Strawberry) inherit from this class.
+- **projectiles/**: Contains all specific projectile types and their sliced halves (e.g., `apple.h`, `bananaHalf.h`). Each type implements its own drawing and slicing behavior.
+- **CameraHandler.h / .cpp**: Handles webcam input and hand detection using OpenCV. Tracks the player's hand position and provides it to the game logic.
+- **player.h / .cpp**: Represents the player's sword. Handles drawing and positioning in the 3D world.
+- **game.h / .cpp**: Main game controller. Manages game state, scoring, lives, and player input.
+- **myglwidget.h / .cpp**: OpenGL rendering widget. Draws the game scene, including the cannon, grid, projectiles, and sword.
+- **mainwindow.h / .cpp**: Main application window. Integrates all components, manages UI, and handles user interactions.
 
-```
-cd existing_repo
-git remote add origin https://devops.telecomste.fr/schmitt.estevan/slice-defender.git
-git branch -M main
-git push -uf origin main
-```
+### Resources
+- **res/**: Contains textures for projectiles.
+- **.qrc**: Qt resource file for loading images.
 
-## Integrate with your tools
+### Build & Run
+1. Open the project in Qt Creator (or your preferred Qt/C++ IDE).
+2. Make sure you have OpenCV and Qt installed.
+3. Build the project.
+4. Run the executable. Allow camera access if prompted.
 
-- [ ] [Set up project integrations](https://devops.telecomste.fr/schmitt.estevan/slice-defender/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Notes
+- The game requires a webcam for hand tracking.
+- All projectiles are implemented as C++ classes with clear separation between logic and rendering.
+- The code is modular and documented for educational purposes.
