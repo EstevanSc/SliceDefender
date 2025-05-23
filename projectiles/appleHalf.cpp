@@ -95,7 +95,7 @@ void AppleHalf::update(float deltaTime)
     // Important: do not activate shouldSlice for halves
 }
 
-void AppleHalf::slice(ProjectileManager *manager)
+void AppleHalf::slice(ProjectileManager*)
 {
     // Halves cannot be sliced
     // Do nothing

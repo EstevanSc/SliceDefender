@@ -212,7 +212,7 @@ void BananaHalf::update(float deltaTime)
     }
 }
 
-void BananaHalf::slice(ProjectileManager *manager)
+void BananaHalf::slice(ProjectileManager*)
 {
     // Halves cannot be sliced
     // Do nothing

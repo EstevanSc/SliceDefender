@@ -96,7 +96,7 @@ void OrangeHalf::update(float deltaTime)
     // Important: do not activate shouldSlice for the halves
 }
 
-void OrangeHalf::slice(ProjectileManager *manager)
+void OrangeHalf::slice(ProjectileManager*)
 {
     // Halves cannot be sliced
     // Do nothing
