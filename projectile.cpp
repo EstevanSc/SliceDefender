@@ -271,13 +271,6 @@ void Projectile::setShouldSlice(bool value)
     m_shouldSlice = value;
 }
 
-/**
- * @brief Draws a shadow disk underneath the projectile
- *
- * The shadow is a simple transparent black disk that follows the projectile's
- * X and Z position but remains on the ground (Y=0). The shadow size is
- * dynamically calculated based on the projectile's height from the ground.
- */
 void Projectile::drawShadow() const
 {
     // Don't draw shadow for inactive projectiles
@@ -319,14 +312,6 @@ void Projectile::drawShadow() const
     glPopAttrib();
 }
 
-/**
- * @brief Calculates the shadow scale based on projectile height
- *
- * As the projectile gets closer to the ground, the shadow grows larger.
- * The scale varies between MIN_SHADOW_SCALE (furthest) and MAX_SHADOW_SCALE (closest).
- *
- * @return The scale factor to apply to the shadow radius
- */
 float Projectile::calculateShadowScale() const
 {
     const float MAX_HEIGHT = 5.0f;

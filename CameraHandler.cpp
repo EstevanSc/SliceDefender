@@ -8,14 +8,12 @@
 using namespace cv;
 using namespace std;
 
-/**
- * Constructor initializes webcam capture and UI components
- */
 CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
                                                 ui(new Ui::CameraHandler)
 {
     ui->setupUi(this);
 
+    // Initialize with internal camera (index 0)
     webCam_ = new VideoCapture(0);
     hasReference = false;
     hasDetection = false;
@@ -34,7 +32,8 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 
     if (!webCam_->isOpened())
     {
-        ui->detectionLabel_->setText("Error opening the default camera !");
+        ui->detectionLabel_->setText("Error opening the default camera!");
+        ui->imageLabel_->setText("No image");
     }
     else
     {
@@ -45,9 +44,6 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
     }
 }
 
-/**
- * Destructor cleans up resources
- */
 CameraHandler::~CameraHandler()
 {
     timer->stop();
@@ -56,10 +52,6 @@ CameraHandler::~CameraHandler()
     delete webCam_;
 }
 
-/**
- * Implements hand detection using Haar cascade classifiers
- * Tries multiple detection approaches: fist, palm
- */
 Rect CameraHandler::haarCascade(Mat &image)
 {
     CascadeClassifier fist_cascade;
@@ -123,10 +115,6 @@ Rect CameraHandler::haarCascade(Mat &image)
     return detectedRect;
 }
 
-/**
- * Captures and processes a reference image for later matching
- * Applies targeted cropping to focus on the relevant part of the hand
- */
 void CameraHandler::captureReference()
 {
     if (webCam_->isOpened() && hasDetection)
@@ -209,9 +197,6 @@ void CameraHandler::captureReference()
     }
 }
 
-/**
- * Updates the UI status text based on current detection phase
- */
 void CameraHandler::updateStatusText()
 {
     if (!hasDetection)
@@ -228,10 +213,6 @@ void CameraHandler::updateStatusText()
     }
 }
 
-/**
- * Determines if two detections are spatially close to each other
- * Uses center point distance relative to detection size
- */
 bool CameraHandler::isDetectionClose(const Rect &current, const Rect &previous)
 {
     // Calculate the centers of both rectangles
@@ -249,10 +230,6 @@ bool CameraHandler::isDetectionClose(const Rect &current, const Rect &previous)
     return distance < (0.3 * avgSize);
 }
 
-/**
- * Main processing function for each video frame
- * Handles detection, tracking, and UI updates
- */
 void CameraHandler::updateFrame()
 {
     if (webCam_->isOpened())
@@ -486,9 +463,6 @@ void CameraHandler::updateFrame()
     }
 }
 
-/**
- * Rotates an image by the specified angle
- */
 Mat CameraHandler::rotateImage(const Mat &src, float angle)
 {
     // Calculate image center
@@ -504,10 +478,6 @@ Mat CameraHandler::rotateImage(const Mat &src, float angle)
     return result;
 }
 
-/**
- * Performs SIFT feature matching between two images
- * Updates the global matchQuality value and emits signal for UI updates
- */
 std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
 {
     // Check if input images are valid
@@ -606,4 +576,69 @@ void CameraHandler::setTrackedHandPosition(int x, int y)
 {
     m_handPosition[0] = x;
     m_handPosition[1] = y;
+}
+
+bool CameraHandler::releaseCamera()
+{
+    if (webCam_ && webCam_->isOpened())
+    {
+        // Stop the timer to prevent frame capturing during camera switch
+        if (timer && timer->isActive())
+        {
+            timer->stop();
+        }
+
+        // Release the camera resource
+        webCam_->release();
+
+        // Update UI to show the camera is disconnected
+        ui->detectionLabel_->setText("Camera disconnected");
+        ui->imageLabel_->setText("No image");
+
+        return true;
+    }
+    return false;
+}
+
+bool CameraHandler::openCamera(int cameraIndex)
+{
+    // If webCam_ doesn't exist, create it
+    if (!webCam_)
+    {
+        webCam_ = new VideoCapture();
+    }
+
+    // Try to open the camera with the specified index
+    if (webCam_->open(cameraIndex))
+    {
+        // Get camera information
+        int width = webCam_->get(CAP_PROP_FRAME_WIDTH);
+        int height = webCam_->get(CAP_PROP_FRAME_HEIGHT);
+
+        // Reset detection states for the new camera
+        hasReference = false;
+        hasDetection = false;
+        consecutiveDetections = 0;
+
+        // Initialize hand position to middle of new camera frame
+        m_handPosition[0] = width > 0 ? width / 2 : 320;
+        m_handPosition[1] = height > 0 ? height / 2 : 240;
+
+        // Update UI with new camera information
+        ui->detectionLabel_->setText(QString("Video ok, image size is %1x%2 pixels").arg(width).arg(height));
+
+        // Start or restart the timer for frame updates
+        if (timer)
+        {
+            timer->start(30);
+        }
+
+        return true;
+    }
+    else
+    {
+        // Failed to open camera, update UI
+        ui->detectionLabel_->setText(QString("Error opening camera %1").arg(cameraIndex));
+        return false;
+    }
 }
