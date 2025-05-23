@@ -65,7 +65,7 @@ Rect CameraHandler::haarCascade(Mat &image)
     }
     if (!palm_cascade.load("../../Hand.Cascade.1.xml"))
     {
-        cerr << "Error loading palm.xml" << endl;
+        cerr << "Error loading Hand.Cascade.1.xml" << endl;
         return Rect();
     }
 
