@@ -122,6 +122,8 @@ private:
     Scoreboard *m_scoreboard;
 
     QTimer *m_statusTimer;
+    QTimer *m_gameTimer;   // Timer for triggering display updates (10ms intervals)
+    QTime m_gameStartTime; // Stores the exact time when the game started
 
     bool m_showingInstructions;
     bool m_standardMode = true;
@@ -142,6 +144,14 @@ private:
      * @param success Whether the operation was successful (green) or failed (red)
      */
     void showStatusMessage(const QString &message, bool success);
+
+    /**
+     * @brief Updates the game timer display with centisecond precision
+     *
+     * Calculates and displays the elapsed time since game start in
+     * mm:ss:XX format (minutes:seconds:centiseconds)
+     */
+    void updateGameTimeDisplay();
 };
 
 #endif // MAINWINDOW_H

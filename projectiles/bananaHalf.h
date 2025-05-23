@@ -74,7 +74,7 @@ public:
     static constexpr float CURVE_ANGLE = 55.0f;
 
 private:
-    HalfType m_type;
+    HalfType m_type; // Type of half (FRONT or BACK)
     static QOpenGLTexture *s_bananaTexture; // Static texture to use on all instances
 };
 

@@ -70,23 +70,40 @@ public:
     void toggleVisibility() { m_isVisible = !m_isVisible; }
 
 private:
-    static const int MAX_SCORES = 20;
+    /**
+     * @brief Update the scoreboard display with current scores
+     */
+    void updateScoreboardDisplay();
+    
+    /**
+     * @brief Load scores from the scoreboard file
+     * @return true if load was successful, false otherwise
+     */
+    bool loadScores();
+
+    /**
+     * @brief Sort the scores in descending order
+     */
+    void sortScores();
+
+    /**
+     * @brief Save all scores to the scoreboard file
+     * @return true if save was successful, false otherwise
+     */
+    bool saveAllScores();
+
+    static const int MAX_SCORES = 20; // Maximum number of scores to display
 
     // Structure to store player scores
     struct PlayerScore
     {
-        QString name;
-        int score;
+        QString name; // Player's name
+        int score; // Player's score
     };
 
-    QVector<PlayerScore> m_scores;
-    QString m_scoreboardFile;
-    bool m_isVisible;
-
-    void updateScoreboardDisplay();
-    bool loadScores();
-    void sortScores();
-    bool saveAllScores();
+    QVector<PlayerScore> m_scores; // Vector to hold player scores
+    QString m_scoreboardFile; // File path for the scoreboard
+    bool m_isVisible; // Flag to indicate if the scoreboard is visible
 };
 
 #endif // SCOREBOARD_H

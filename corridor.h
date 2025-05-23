@@ -84,10 +84,10 @@ private:
      */
     void drawFlame(const QVector3D &pos, float base, float height);
 
-    float m_length;
-    float m_width;
-    float m_height;
-    std::vector<std::vector<QColor>> m_tileColors;
+    float m_length; // Length of the corridor
+    float m_width; // Width of the corridor
+    float m_height; // Height of the corridor
+    std::vector<std::vector<QColor>> m_tileColors; // Colors of the tiles
 };
 
 #endif // CORRIDOR_H

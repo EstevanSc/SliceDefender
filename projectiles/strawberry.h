@@ -49,8 +49,8 @@ public:
     float getRadius() const override;
 
 private:
-    static constexpr float RADIUS = 0.25f;
-    static constexpr float HEIGHT = 0.8f;
+    static constexpr float RADIUS = 0.25f; // Radius of the strawberry
+    static constexpr float HEIGHT = 0.8f; // Height of the strawberry
 };
 
 #endif // STRAWBERRY_H

@@ -193,39 +193,43 @@ public:
      * @brief Draws the projectile's shadow.
      */
     void drawShadow() const;
-
+    
 protected:
-    float m_position[3];
-    float m_velocity[3];
-    float m_acceleration[3];
-    bool m_isActive;
-    bool m_sliced = false;
-    bool m_shouldSlice = false;
+    /**
+     * @brief Calculates the scale of the projectile's shadow based on its position.
+     * @return The calculated shadow scale.
+     */
+    float calculateShadowScale() const;
+
+    float m_position[3]; // Position in world coordinates (x, y, z)
+    float m_velocity[3]; // Velocity in world coordinates (vx, vy, vz)
+    float m_acceleration[3]; // Acceleration in world coordinates (ax, ay, az)
+    bool m_isActive; // Flag to indicate if the projectile is active
+    bool m_sliced = false; // Flag to indicate if the projectile has been sliced
+    bool m_shouldSlice = false; // Flag to indicate if the projectile should be sliced
     bool m_hasDecreasedLife = false; // Flag to track if projectile has already caused life loss
 
     // For rotation
-    float m_rotationAxis[3] = {0.0f, 1.0f, 0.0f};
-    float m_rotationAngle = 0.0f;
-    float m_rotationSpeed = 0.0f;
-    float m_rotationTime = 0.0f;
+    float m_rotationAxis[3] = {0.0f, 1.0f, 0.0f}; // Rotation axis (x, y, z)
+    float m_rotationAngle = 0.0f; // Rotation angle (degrees)
+    float m_rotationSpeed = 0.0f; // Rotation speed (degrees/sec)
+    float m_rotationTime = 0.0f; // Rotation time (seconds)
 
     static constexpr float GRAVITY = 9.81f; // Gravity constant
 
     // Grid zone definition constants
-    static constexpr float GRID_Z_POSITION = -3.5f;
-    static constexpr float GRID_Y_POSITION = 2.0f;
-    static constexpr float GRID_THICKNESS = 3.0f;
-    static constexpr float COLLISION_THRESHOLD = 0.3f;
+    static constexpr float GRID_Z_POSITION = -3.5f; // Z position of the grid
+    static constexpr float GRID_Y_POSITION = 2.0f; // Y position of the grid
+    static constexpr float GRID_THICKNESS = 3.0f; // Thickness of the grid
+    static constexpr float COLLISION_THRESHOLD = 0.3f; // Collision threshold
 
     Game *m_game = nullptr; // Pointer to the game instance for scoring and life management
 
     // Shadow constants
-    static constexpr float SHADOW_ALPHA = 0.5f;
-    static constexpr float MIN_SHADOW_SCALE = 0.5f;
-    static constexpr float MAX_SHADOW_SCALE = 1.2f;
+    static constexpr float SHADOW_ALPHA = 0.5f; // Shadow transparency
+    static constexpr float MIN_SHADOW_SCALE = 0.5f; // Minimum shadow scale
+    static constexpr float MAX_SHADOW_SCALE = 1.2f; // Maximum shadow scale
 
-    // Helper method for shadow calculations
-    float calculateShadowScale() const;
 };
 
 #endif // PROJECTILE_H

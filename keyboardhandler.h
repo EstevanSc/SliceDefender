@@ -61,17 +61,17 @@ signals:
     void speedMultiplierChanged(float speedMultiplier);
 
 private:
-    QSet<int> m_pressedKeys;
-    float m_horizontalMovement;
-    float m_verticalMovement;
-    float m_baseMovementSpeed;
-    float m_speedMultiplier;
+    QSet<int> m_pressedKeys; // Set of currently pressed keys
+    float m_horizontalMovement; // Horizontal movement speed
+    float m_verticalMovement; // Vertical movement speed
+    float m_baseMovementSpeed; // Base movement speed
+    float m_speedMultiplier; // Speed multiplier for movement
 
     // Minimum and maximum speed multiplier values
-    static constexpr float MIN_SPEED_MULTIPLIER = 0.5f;
-    static constexpr float MAX_SPEED_MULTIPLIER = 4.0f;
-    static constexpr float SPEED_CHANGE_STEP = 0.5f;
-    static constexpr float SWORD_SPEED_FACTOR = 0.5f;
+    static constexpr float MIN_SPEED_MULTIPLIER = 0.5f; // Minimum speed multiplier
+    static constexpr float MAX_SPEED_MULTIPLIER = 4.0f; // Maximum speed multiplier
+    static constexpr float SPEED_CHANGE_STEP = 0.5f; // Speed change step
+    static constexpr float SWORD_SPEED_FACTOR = 0.5f; // Sword speed factor
 };
 
 #endif // KEYBOARDHANDLER_H

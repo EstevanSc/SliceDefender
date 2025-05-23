@@ -120,21 +120,21 @@ public:
     void resetStats() { m_projectilesLaunched = 0; }
 
 private:
-    std::vector<Projectile *> m_projectiles;
-    float m_timeSinceLastLaunch;
-    static constexpr float LAUNCH_INTERVAL = 2.0f;
-    bool m_gameActive = false;
-    int m_projectilesLaunched = 0;
+    std::vector<Projectile *> m_projectiles; // Active projectiles
+    float m_timeSinceLastLaunch; // Time since the last projectile was launched
+    static constexpr float LAUNCH_INTERVAL = 2.0f; // Launch interval (seconds)
+    bool m_gameActive = false; // Flag to indicate if the game is active
+    int m_projectilesLaunched = 0; // Number of projectiles launched
     Game *m_game = nullptr; // Reference to the game instance
 
     // Cannon properties
-    float m_cannonPosition[3];
-    float m_cannonDirection[3];
-    float m_initialProjectileSpeed;
+    float m_cannonPosition[3]; // Cannon position in world coordinates
+    float m_cannonDirection[3]; // Cannon direction vector
+    float m_initialProjectileSpeed; // Initial speed of launched projectiles
 
     // Random number generator
-    std::mt19937 m_rng;
-    std::uniform_int_distribution<int> m_projectileTypeDist{0, 4};
+    std::mt19937 m_rng; // Mersenne Twister random number generator
+    std::uniform_int_distribution<int> m_projectileTypeDist{0, 4}; // Distribution for projectile type selection
 };
 
 #endif // PROJECTILE_MANAGER_H
