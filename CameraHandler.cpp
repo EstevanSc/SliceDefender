@@ -20,7 +20,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
     consecutiveDetections = 0;
     matchQuality = 0;
     detectionTimer.start();
-    debug = true; // Set debug to true by default
+    debug = false; // Set debug to false by default
 
     // Initialize hand position to middle of the camera frame
     int width = webCam_->get(CAP_PROP_FRAME_WIDTH);
