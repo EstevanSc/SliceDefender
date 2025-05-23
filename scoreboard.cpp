@@ -4,10 +4,6 @@
 #include <QDateTime>
 #include <algorithm>
 
-/**
- * @brief Constructor initializes scoreboard and loads existing scores
- * @param parent Parent object
- */
 Scoreboard::Scoreboard(QObject *parent)
     : QObject(parent),
       m_isVisible(false)
@@ -19,12 +15,6 @@ Scoreboard::Scoreboard(QObject *parent)
     loadScores();
 }
 
-/**
- * @brief Save a player's score to the scoreboard file
- * @param playerName Player's name
- * @param score Player's score
- * @return true if save was successful, false otherwise
- */
 bool Scoreboard::saveScore(const QString &playerName, int score)
 {
     // Use default name if empty
@@ -51,10 +41,6 @@ bool Scoreboard::saveScore(const QString &playerName, int score)
     return saveAllScores();
 }
 
-/**
- * @brief Load the top scores from the scoreboard file
- * @return List of top scores (format: "Name : Score")
- */
 QStringList Scoreboard::loadTopScores()
 {
     // Make sure scores are loaded and sorted
@@ -75,11 +61,6 @@ QStringList Scoreboard::loadTopScores()
     return topScores;
 }
 
-/**
- * @brief Check if a score qualifies for the high score list
- * @param score Score to check
- * @return true if the score qualifies, false otherwise
- */
 bool Scoreboard::isHighScore(int score)
 {
     // Load existing scores
@@ -95,10 +76,6 @@ bool Scoreboard::isHighScore(int score)
     return score > m_scores.last().score;
 }
 
-/**
- * @brief Load all scores from the scoreboard file
- * @return true if load was successful, false otherwise
- */
 bool Scoreboard::loadScores()
 {
     // Clear current scores
@@ -141,9 +118,6 @@ bool Scoreboard::loadScores()
     return true;
 }
 
-/**
- * @brief Sort scores in descending order
- */
 void Scoreboard::sortScores()
 {
     std::sort(m_scores.begin(), m_scores.end(),
@@ -153,10 +127,6 @@ void Scoreboard::sortScores()
               });
 }
 
-/**
- * @brief Save all scores back to the scoreboard file
- * @return true if save was successful, false otherwise
- */
 bool Scoreboard::saveAllScores()
 {
     QFile file(m_scoreboardFile);
