@@ -500,7 +500,7 @@ std::vector<KeyPoint> CameraHandler::applySIFT(Mat &image1, Mat &image2)
         detector->detectAndCompute(img2, noArray(), keypoints2, descriptors2);
 
         // Check if descriptors are empty or not enough keypoints
-        if (descriptors1.empty() || descriptors2.empty() || keypoints1.size() < 5 || keypoints2.size() < 5)
+        if (descriptors1.empty() || descriptors2.empty() || keypoints1.size() < 4 || keypoints2.size() < 4)
         {
             matchQuality = 0;
             updateStatusText();

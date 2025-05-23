@@ -94,7 +94,7 @@ private:
     bool hasDetection;         // Flag indicating if a hand has been detected
     int consecutiveDetections; // Count of consecutive detections
 
-    static const int REQUIRED_DETECTIONS = 15; // Number of detections required to capture a reference image
+    static const int REQUIRED_DETECTIONS = 5; // Number of detections required to capture a reference image
     int matchQuality; // Quality of the SIFT match (0-100)
 
     bool debug; // Flag for enabling/disabling debug mode
