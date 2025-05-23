@@ -71,8 +71,8 @@ public:
     bool isHalf() const override { return true; }
 
 private:
-    HalfType m_type;
-    static constexpr float RADIUS = 0.25f;
+    HalfType m_type; // Type of half (LEFT or RIGHT)
+    static constexpr float RADIUS = 0.25f; // Radius of the orange half
 };
 
 #endif // ORANGEHALF_H

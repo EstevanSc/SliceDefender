@@ -80,27 +80,27 @@ private:
     void drawRing(GLUquadric *quadric, float position, float width, float radiusMultiplier) const;
 
     // Position and rotation
-    QVector3D m_position;
+    QVector3D m_position; // X, Y, Z position in world coordinates
     QVector3D m_rotation; // X, Y, Z rotation angles in degrees
 
     // Sword dimensions
-    float m_handleLength;
-    float m_handleRadius;
-    float m_guardWidth;
-    float m_guardHeight;
-    float m_guardDepth;
-    float m_bladeLength;
-    float m_bladeWidth;
-    float m_bladeThickness;
-    float m_tipLength;
+    float m_handleLength; // Length of the handle
+    float m_handleRadius; // Radius of the handle
+    float m_guardWidth; // Width of the guard
+    float m_guardHeight; // Height of the guard
+    float m_guardDepth; // Depth of the guard
+    float m_bladeLength; // Length of the blade
+    float m_bladeWidth; // Width of the blade
+    float m_bladeThickness; // Thickness of the blade
+    float m_tipLength; // Length of the tip
 
     // Drawing quality
-    int m_segments;
+    int m_segments; // Number of segments for cylindrical parts
 
     // Colors
-    QColor m_handleColor;
-    QColor m_guardColor;
-    QColor m_bladeColor;
+    QColor m_handleColor; // Color of the handle
+    QColor m_guardColor; // Color of the guard
+    QColor m_bladeColor; // Color of the blade
 };
 
 #endif // PLAYER_H

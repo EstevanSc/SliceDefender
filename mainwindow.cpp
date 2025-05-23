@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QTimer>
+#include <QTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -24,6 +25,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_statusTimer->setSingleShot(true);
     connect(m_statusTimer, &QTimer::timeout, [this]()
             { ui->statusLabel->clear(); });
+
+    // Initialize game timer
+    m_gameTimer = new QTimer(this);
+    connect(m_gameTimer, &QTimer::timeout, this, &MainWindow::updateGameTimeDisplay);
 
     // Hide the scoreboard and instructions overlays initially
     ui->scoreboardOverlay->hide();
@@ -88,6 +93,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    // Stop the timer if it's running
+    if (m_gameTimer->isActive())
+    {
+        m_gameTimer->stop();
+    }
+
     delete cameraHandler;
     delete m_scoreboard;
     delete ui;
@@ -143,8 +154,9 @@ void MainWindow::startGame()
         // Disable save button during gameplay
         ui->saveButton->setEnabled(false);
 
-        // Clear focus from name input to prevent accidental keyboard input capture
+        // Release focus from name input to prevent accidental keyboard input capture
         ui->nameInput->clearFocus();
+        ui->nameInput->clear();
 
         // Start the countdown
         game->startCountdown();
@@ -154,6 +166,10 @@ void MainWindow::startGame()
 
         // Force the widget to get focus
         ui->glWidget->grabKeyboard();
+
+        // Reset game timer with centisecond precision
+        m_gameStartTime = QTime::currentTime();
+        ui->gameTimeLabel->setText("00:00:00");
     }
 }
 
@@ -176,7 +192,6 @@ void MainWindow::updateScoreboardDisplay()
     }
 }
 
-
 void MainWindow::updateScoreLabel(int score)
 {
     gameScore = score;
@@ -193,6 +208,10 @@ void MainWindow::updateCountdownLabel(int value)
     if (value <= 0)
     {
         ui->countdownLabel->hide();
+
+        // Start the game timer
+        m_gameStartTime = QTime::currentTime();
+        m_gameTimer->start(10);
     }
     else
     {
@@ -205,8 +224,49 @@ void MainWindow::showStartButton()
     ui->startButton->setText("Restart Game");
     ui->startButton->show();
 
-    // Enable save button if it's a high score
-    ui->saveButton->setEnabled(m_scoreboard->isHighScore(gameScore));
+    // Always enable the input field and save button
+    // regardless of high score status
+    ui->saveButton->setEnabled(true);
+    ui->nameInput->setEnabled(true);
+
+    // Release keyboard focus from the GL widget
+    ui->glWidget->releaseKeyboard();
+
+    // Give focus to name input field for immediate typing
+    ui->nameInput->clear();
+    ui->nameInput->setFocus();
+
+    // Stop the game timer
+    m_gameTimer->stop();
+    // Show Game Over message in red
+    showStatusMessage("Game Over", false);
+}
+
+/**
+ * @brief Updates the game timer display with centisecond precision
+ *
+ * Calculates elapsed time between current time and game start time,
+ * displaying it in mm:ss:XX format (minutes:seconds:centiseconds).
+ */
+void MainWindow::updateGameTimeDisplay()
+{
+    // Calculate elapsed time since game start
+    QTime currentTime = QTime::currentTime();
+    int elapsedMs = m_gameStartTime.msecsTo(currentTime);
+
+    // Convert to minutes, seconds, centiseconds
+    int minutes = (elapsedMs / 60000) % 60;
+    int seconds = (elapsedMs / 1000) % 60;
+    int centiseconds = (elapsedMs / 10) % 100;
+
+    // Create formatted string with leading zeros
+    QString timeString = QString("%1:%2:%3")
+                             .arg(minutes, 2, 10, QChar('0'))
+                             .arg(seconds, 2, 10, QChar('0'))
+                             .arg(centiseconds, 2, 10, QChar('0'));
+
+    // Update the display
+    ui->gameTimeLabel->setText(timeString);
 }
 
 void MainWindow::updateSpeedIndicator(float speedMultiplier)

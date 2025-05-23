@@ -49,11 +49,11 @@ public:
      */
     float getRadius() const override;
 
-    static constexpr int SEGMENTS = 16;
-    static constexpr int SIDES = 10;
-    static constexpr float LENGTH = 1.2f;
-    static constexpr float RADIUS = 0.15f;
-    static constexpr float CURVE_ANGLE = 110.0f;
+    static constexpr int SEGMENTS = 16; // Number of segments for the banana arc
+    static constexpr int SIDES = 10; // Number of sides for the banana arc
+    static constexpr float LENGTH = 1.2f; // Length of the banana
+    static constexpr float RADIUS = 0.15f; // Radius of the banana
+    static constexpr float CURVE_ANGLE = 110.0f; // Angle of the banana curve
 };
 
 #endif // BANANA_H

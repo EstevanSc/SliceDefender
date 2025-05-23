@@ -47,8 +47,8 @@ public:
     float getRadius() const override;
 
 private:
-    static constexpr float RADIUS = 0.18f;
-    static constexpr float LENGTH = 0.7f;
+    static constexpr float RADIUS = 0.18f; // Radius of the corn
+    static constexpr float LENGTH = 0.7f; // Length of the corn
 };
 
 #endif // CORN_H

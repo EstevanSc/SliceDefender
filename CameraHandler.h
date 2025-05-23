@@ -68,19 +68,25 @@ public:
     void setTrackedHandPosition(int x, int y);
 
 private:
-    Ui::CameraHandler *ui;
-    VideoCapture *webCam_;
-    Mat reference;
-    bool hasReference;
-    QTimer *timer;
-    Rect lastDetectedRect;
-    bool hasDetection;
-    int consecutiveDetections;
-    static const int REQUIRED_DETECTIONS = 15;
-    int matchQuality;
-    QElapsedTimer detectionTimer;
-    bool debug;
-    const float m_siftRationTresh = 0.85f;
+    Ui::CameraHandler *ui; // Pointer to the UI components
+    VideoCapture *webCam_; // Pointer to the webcam capture object
+    
+    Mat reference; // Reference image for SIFT matching
+    bool hasReference; // Flag indicating if a reference image has been captured
+    
+    QTimer *timer; // Timer for periodic updates
+    QElapsedTimer detectionTimer; // Timer for detection duration
+    
+    Rect lastDetectedRect; // Last detected rectangle for hand position
+    bool hasDetection; // Flag indicating if a hand has been detected
+    int consecutiveDetections; // Count of consecutive detections
+    
+    static const int REQUIRED_DETECTIONS = 15; // Number of detections required to capture a reference image
+    int matchQuality; // Quality of the SIFT match (0-100)
+    
+    
+    bool debug; // Flag for enabling/disabling debug mode
+    const float m_siftRationTresh = 0.85f; // SIFT ratio threshold for matching
 
     /**
      * @brief Stores the tracked hand position in screen coordinates
@@ -123,7 +129,6 @@ private:
      */
     Mat rotateImage(const Mat &src, float angle);
 
-private slots:
     /**
      * @brief Updates and processes each video frame
      * Handles detection, tracking, and UI updates

@@ -47,7 +47,7 @@ public:
     float getRadius() const override;
 
 private:
-    static constexpr float RADIUS = 0.25f;
+    static constexpr float RADIUS = 0.25f; // Radius of the orange
 };
 
 #endif // ORANGE_H

@@ -126,23 +126,23 @@ private:
      */
     void drawTestObject();
 
-    QTimer *timer;
+    QTimer *timer; // Timer for periodic updates
 
-    QMatrix4x4 projectionMatrix;
-    QMatrix4x4 viewMatrix;
+    QMatrix4x4 projectionMatrix; // Projection matrix for 3D rendering
+    QMatrix4x4 viewMatrix; // View matrix for camera position
 
-    const float corridorLength = 20.0f;
-    const float corridorWidth = 5.0f;
-    const float corridorHeight = 5.0f;
-    const float gridRadius = 3.5f;
-    const float gridAngle = 60.0f;
+    const float corridorLength = 20.0f; // Length of the corridor
+    const float corridorWidth = 5.0f; // Width of the corridor
+    const float corridorHeight = 5.0f; // Height of the corridor
+    const float gridRadius = 3.5f; // Radius of the cylindrical grid
+    const float gridAngle = 60.0f; // Angle of the cylindrical grid
 
-    ProjectileManager m_projectileManager;
-    Player m_player;
-    Corridor* m_corridor;
-    KeyboardHandler m_keyboardHandler;
-    QTime m_lastFrameTime;
-    std::function<void()> m_gameUpdateFunc = nullptr;
+    ProjectileManager m_projectileManager; // Manages all projectiles in the game
+    Player m_player; // Represents the player's sword
+    Corridor* m_corridor; // Pointer to the corridor object
+    KeyboardHandler m_keyboardHandler; // Handles keyboard input
+    QTime m_lastFrameTime; // Tracks the last frame time
+    std::function<void()> m_gameUpdateFunc = nullptr; // Game update function
 };
 
 #endif // MYGLWIDGET_H
