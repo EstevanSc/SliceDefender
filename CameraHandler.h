@@ -129,6 +129,7 @@ private:
      */
     Mat rotateImage(const Mat &src, float angle);
 
+private slots:
     /**
      * @brief Updates and processes each video frame
      * Handles detection, tracking, and UI updates

@@ -258,27 +258,31 @@ void MyGLWidget::drawAxes()
     glEnable(GL_LIGHTING);
 }
 
+// --- Smoothing state for sword position (Exponential Moving Average) ---
+static float smoothedGridX = 0.0f;
+static float smoothedGridY = 0.0f;
+static const float SMOOTHING_ALPHA = 0.35f; // Smoothing factor (0: no smoothing, 1: no lag)
 
 void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
 {
-    // Calculate the angle based on the gridX coordinate and gridAngle
-    // gridX ranges from -1.0 (left) to 1.0 (right)
-    // Convert to an angle within the gridAngle range
-    float angle = (gridX * (gridAngle / 2.0f)) * M_PI / 180.0f;
+    // Exponential Moving Average (EMA) smoothing for sword movement
+    // This algorithm provides a smooth, low-latency interpolation between the previous and current hand positions.
+    // https://en.wikipedia.org/wiki/Exponential_smoothing
+    smoothedGridX = SMOOTHING_ALPHA * gridX + (1.0f - SMOOTHING_ALPHA) * smoothedGridX;
+    smoothedGridY = SMOOTHING_ALPHA * gridY + (1.0f - SMOOTHING_ALPHA) * smoothedGridY;
+
+    // Calculate the angle based on the smoothed gridX coordinate and gridAngle
+    float angle = (smoothedGridX * (gridAngle / 2.0f)) * M_PI / 180.0f;
 
     // Get the base Y-coordinate of the grid (height)
-    // For a cylindrical grid centered at y=2.0 (as in drawCylindricalGrid)
     float baseY = 2.0f;
 
-    // Calculate the height offset based on gridY
-    // gridY ranges from -1.0 (bottom) to 1.0 (top)
-    // Scale to move within the grid height limits
-    float heightOffset = gridY * (corridorHeight * 0.25f); // Half of half height
+    // Calculate the height offset based on smoothed gridY
+    float heightOffset = smoothedGridY * (corridorHeight * 0.25f);
     float worldY = baseY + heightOffset;
 
     // Use a fixed radius for the grid cylinder
     float radius = gridRadius;
-
     // Convert from polar coordinates (angle, radius) to Cartesian coordinates (x, z)
     float worldX = radius * std::sin(angle);
     float worldZ = -radius * std::cos(angle); // Negative for OpenGL z-axis orientation
@@ -287,7 +291,6 @@ void MyGLWidget::positionPlayerOnGrid(float gridX, float gridY)
     m_player.setPosition(QVector3D(worldX, worldY, worldZ));
 
     // Set the player's rotation to face perpendicular to the grid surface
-    // The Y rotation follows the curvature of the grid
     float rotationY = angle * 180.0f / M_PI;
     m_player.setRotation(0.0f, rotationY, 0.0f);
 }

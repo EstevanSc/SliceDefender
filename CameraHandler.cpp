@@ -16,7 +16,7 @@ CameraHandler::CameraHandler(QWidget *parent) : QWidget(parent),
 {
     ui->setupUi(this);
 
-    webCam_ = new VideoCapture(1);
+    webCam_ = new VideoCapture(0);
     hasReference = false;
     hasDetection = false;
     consecutiveDetections = 0;
