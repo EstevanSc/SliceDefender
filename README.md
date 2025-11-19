@@ -1,4 +1,5 @@
 # Slice Defender
+This project is a Fruit Ninja-like game using hand detection(if camera is used), it has been made using OpenGL,OpenCV and QT librairies.
 
 ## Authors
 - Aubin SIONVILLE
