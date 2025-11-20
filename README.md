@@ -49,3 +49,4 @@ Slice Defender is an interactive 3D game developed as part of a Computer Science
 - The game requires a webcam for hand tracking.
 - All projectiles are implemented as C++ classes with clear separation between logic and rendering.
 - The code is modular and documented for educational purposes.
+- Hand detection would work better with a white background, good lighting conditions and with fist.
